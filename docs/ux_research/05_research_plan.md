@@ -122,17 +122,3 @@
 2. What is your process for handling returns/exchanges?
 3. How do you currently track customer information?
 4. What is your inventory management process?
-
-## Appendices
-
-### Appendix A: Interview Guide
-[Detailed questions for stakeholder interviews]
-
-### Appendix B: Survey Questions
-[Complete list of survey questions]
-
-### Appendix C: Observation Checklist
-[Items to observe during contextual inquiries]
-
-### Appendix D: Competitive Analysis Framework
-[Criteria for evaluating competing products]
