@@ -13,7 +13,7 @@ A comprehensive shop management system with Point of Sale (POS) capabilities des
 
 ## Technology Stack
 - Frontend: Next js (Typescript)
-- Backend: Django (Python)
+- Backend: NestJS (TypeScript)
 - Database: Postgresql
 - State Management: Redux Toolkit
 - UI Framework: ShadCN/Tailwind

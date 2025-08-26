@@ -1,11 +1,10 @@
 # Deployment Guide
 
 ## Prerequisites
-- Node.js >= 14.x
-- npm >= 6.x
-- PostgreSQL >= 12.x
+- Node.js >= 20.x
+- pnpm >= 10.x
+- PostgreSQL >= 15.x
 - Git
-- Python >= 3.8
 
 ## Local Development Setup
 
@@ -18,13 +17,13 @@ cd ShopSystem
 ### 2. Backend Setup
 ```bash
 cd server
-pip install -r requirements.txt
+pnpm install
 ```
 
 ### 3. Frontend Setup
 ```bash
 cd client
-npm install
+pnpm install
 ```
 
 ### 4. Environment Configuration
@@ -37,10 +36,10 @@ Create `.env` files in both `server` and `client` directories with appropriate c
 ### 6. Start Development Servers
 ```bash
 # In server directory
-python manage.py runserver
+pnpm run dev
 
 # In client directory
-npm run dev
+pnpm dev
 ```
 
 ## Production Deployment
@@ -49,30 +48,30 @@ npm run dev
 1. Install dependencies:
    ```bash
    cd server
-   pip install -r requirements.txt
+   pnpm install --prod
    ```
 
 2. Set environment variables:
-   - DEBUG=False
+   - NODE_ENV=production
    - DATABASE_URL (PostgreSQL connection string)
-   - SECRET_KEY
+   - JWT_SECRET
    - PORT
 
 3. Run database migrations:
    ```bash
-   python manage.py migrate
+   pnpm run migrate
    ```
 
 4. Start server:
    ```bash
-   python manage.py runserver
+   pnpm start
    ```
 
 ### Client Deployment
 1. Build production assets:
    ```bash
    cd client
-   npm run build
+   pnpm run build
    ```
 
 2. Serve built files using a web server (Nginx, Apache, etc.)
@@ -89,10 +88,10 @@ npm run dev
 ### Environment Variables
 
 ### Server
-- DEBUG: Debug mode (True/False)
+- PORT: Server port (default: 3000)
 - DATABASE_URL: PostgreSQL database connection string
-- SECRET_KEY: Django secret key
-- PORT: Server port (default: 8000)
+- JWT_SECRET: Secret for JWT token signing
+- NODE_ENV: Environment (development/production)
 
 ### Client
 - NEXT_PUBLIC_API_URL: Backend API URL

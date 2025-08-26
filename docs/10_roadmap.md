@@ -13,7 +13,7 @@
 
 ### Technical Requirements
 - Next.js frontend with TypeScript
-- Django backend with Python
+- NestJS backend with TypeScript
 - PostgreSQL database
 - Responsive UI design
 - Basic security implementation

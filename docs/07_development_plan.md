@@ -1,8 +1,8 @@
 # Development Plan
 
-## Phase 1: Foundation (Weeks 1-2)
+## Phase 1: Foundation
 ### Backend
-- Set up Django project structure
+- Set up NestJS project structure
 - Implement database connection with PostgreSQL
 - Create basic models for Products, Categories, Suppliers
 - Implement authentication system
@@ -20,7 +20,7 @@
 - Complete database design
 - Define API contracts
 
-## Phase 2: Core Functionality (Weeks 3-4)
+## Phase 2: Core Functionality
 ### Backend
 - Implement complete Product management APIs
 - Create Customer management APIs
@@ -40,7 +40,7 @@
 - Integration tests for API endpoints
 - Frontend component tests
 
-## Phase 3: POS System (Weeks 5-6)
+## Phase 3: POS System
 ### Backend
 - Optimize POS transaction processing
 - Implement payment processing logic
@@ -60,7 +60,7 @@
 - Multiple payment methods
 - Transaction history
 
-## Phase 4: Advanced Features (Weeks 7-8)
+## Phase 4: Advanced Features
 ### Backend
 - Implement reporting APIs
 - Add user management functionality
@@ -75,7 +75,7 @@
 - Add data export functionality
 - Implement advanced search/filter
 
-## Phase 5: Testing & Deployment (Week 9)
+## Phase 5: Testing & Deployment
 ### Testing
 - End-to-end testing
 - Performance testing
@@ -88,7 +88,7 @@
 - CI/CD pipeline
 - Backup and recovery procedures
 
-## Phase 6: Polish & Documentation (Week 10)
+## Phase 6: Polish & Documentation 
 ### Polish
 - UI/UX refinements
 - Performance optimizations

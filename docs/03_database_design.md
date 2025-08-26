@@ -97,3 +97,103 @@
 - Customers: email, phone
 - Transactions: created_at, status
 - Users: username, email
+
+## Entity Relationship Diagram
+
+```mermaid
+erDiagram
+    Categories ||--o{ Products : "has"
+    Suppliers ||--o{ Products : "supplies"
+    Products ||--o{ TransactionItems : "included in"
+    Transactions ||--o{ TransactionItems : "contains"
+    Customers ||--o{ Transactions : "makes"
+    Users ||--o{ Transactions : "processes"
+    Users ||--o{ InventoryLogs : "creates"
+    Products ||--o{ InventoryLogs : "tracked"
+    
+    Categories {
+        INTEGER id PK
+        TEXT name
+        TEXT description
+        DATETIME created_at
+    }
+    
+    Suppliers {
+        INTEGER id PK
+        TEXT name
+        TEXT contact_person
+        TEXT email
+        TEXT phone
+        TEXT address
+        DATETIME created_at
+    }
+    
+    Products {
+        INTEGER id PK
+        TEXT name
+        TEXT description
+        DECIMAL price
+        DECIMAL cost
+        INTEGER category_id FK
+        INTEGER supplier_id FK
+        TEXT barcode
+        TEXT sku
+        INTEGER stock_quantity
+        INTEGER min_stock_level
+        DATETIME created_at
+        DATETIME updated_at
+    }
+    
+    Customers {
+        INTEGER id PK
+        TEXT first_name
+        TEXT last_name
+        TEXT email
+        TEXT phone
+        TEXT address
+        INTEGER loyalty_points
+        DATETIME created_at
+    }
+    
+    Users {
+        INTEGER id PK
+        TEXT username
+        TEXT email
+        TEXT password_hash
+        TEXT first_name
+        TEXT last_name
+        TEXT role
+        BOOLEAN is_active
+        DATETIME created_at
+    }
+    
+    Transactions {
+        INTEGER id PK
+        INTEGER customer_id FK
+        INTEGER user_id FK
+        DECIMAL total_amount
+        DECIMAL tax_amount
+        DECIMAL discount_amount
+        TEXT payment_method
+        TEXT status
+        DATETIME created_at
+    }
+    
+    TransactionItems {
+        INTEGER id PK
+        INTEGER transaction_id FK
+        INTEGER product_id FK
+        INTEGER quantity
+        DECIMAL unit_price
+        DECIMAL total_price
+    }
+    
+    InventoryLogs {
+        INTEGER id PK
+        INTEGER product_id FK
+        INTEGER change_amount
+        TEXT reason
+        INTEGER user_id FK
+        DATETIME created_at
+    }
+```

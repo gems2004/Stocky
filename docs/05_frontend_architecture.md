@@ -60,7 +60,7 @@
 - `/login` - User login
 
 ## Styling
-- Material-UI components
+- ShadCN components
 - Custom theme configuration
 - Responsive design for mobile/desktop
 - Consistent color scheme and typography

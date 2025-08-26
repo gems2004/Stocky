@@ -6,21 +6,21 @@ A comprehensive shop management system with Point of Sale (POS) capabilities des
 
 ## Features
 
-- **Product Management**: Add, edit, delete products with categories and suppliers
-- **Inventory Tracking**: Real-time stock levels with low stock alerts
-- **Point of Sale**: Fast, intuitive POS interface with barcode scanning support
-- **Sales Management**: Transaction history and sales reporting
-- **Customer Management**: Customer database with purchase history
-- **User Management**: Role-based access control (admin, manager, cashier)
-- **Reporting**: Comprehensive sales and inventory reports
+-   **Product Management**: Add, edit, delete products with categories and suppliers
+-   **Inventory Tracking**: Real-time stock levels with low stock alerts
+-   **Point of Sale**: Fast, intuitive POS interface with barcode scanning support
+-   **Sales Management**: Transaction history and sales reporting
+-   **Customer Management**: Customer database with purchase history
+-   **User Management**: Role-based access control (admin, manager, cashier)
+-   **Reporting**: Comprehensive sales and inventory reports
 
 ## Technology Stack
 
-- **Frontend**: Next.js with TypeScript, ShadCN/Tailwind
-- **Backend**: Django with Python
-- **Database**: PostgreSQL
-- **State Management**: Redux Toolkit
-- **Testing**: Jest, React Testing Library, Cypress
+-   **Frontend**: Next.js with TypeScript, ShadCN/Tailwind
+-   **Backend**: NestJS And TypeORM With TypeScript
+-   **Database**: PostgreSQL
+-   **State Management**: Redux Toolkit
+-   **Testing**: Jest, React Testing Library, Cypress
 
 ## Documentation
 
@@ -37,42 +37,48 @@ All project documentation is available in the `docs/` directory:
 9. [Deployment Guide](docs/09_deployment_guide.md)
 10. [Project Roadmap](docs/10_roadmap.md)
 11. [User Manual](docs/11_user_manual.md)
+12. [Task Management](docs/12_task_management.md)
 
 ## Getting Started
 
 ### Prerequisites
-- Node.js >= 14.x
-- npm >= 6.x
-- Git
+
+-   Node.js >= 14.x
+-   npm >= 6.x
+-   Git
 
 ### Installation
 
 1. Clone the repository:
-   ```bash
-   git clone <repository-url>
-   cd ShopSystem
-   ```
+
+    ```bash
+    git clone <repository-url>
+    cd ShopSystem
+    ```
 
 2. Install backend dependencies:
-   ```bash
-   cd server
-   npm install
-   ```
+
+    ```bash
+    cd server
+    pnpm install
+    ```
 
 3. Install frontend dependencies:
-   ```bash
-   cd client
-   npm install
-   ```
+
+    ```bash
+    cd client
+    pnpm install
+    ```
 
 4. Start the development servers:
-   ```bash
-   # In server directory
-   npm run dev
 
-   # In client directory
-   npm start
-   ```
+    ```bash
+    # In server directory
+    pnpm run dev
+
+    # In client directory
+    pnpm dev
+    ```
 
 ## Development
 
@@ -89,9 +95,9 @@ See [Development Plan](docs/07_development_plan.md) for detailed timeline.
 
 ## Testing
 
-- Unit tests: `npm test`
-- Integration tests: `npm run test:integration`
-- End-to-end tests: `npm run test:e2e`
+-   Unit tests: `pnpm test`
+-   Integration tests: `pnpm run test:integration`
+-   End-to-end tests: `pnpm run test:e2e`
 
 See [Testing Strategy](docs/08_testing_strategy.md) for comprehensive testing approach.
 

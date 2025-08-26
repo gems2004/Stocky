@@ -1,7 +1,7 @@
 # API Design
 
 ## Base URL
-`http://localhost:3001/api`
+`http://localhost:3000/api`
 
 ## Authentication
 All API requests (except login) require a valid JWT token in the Authorization header:
@@ -9,13 +9,57 @@ All API requests (except login) require a valid JWT token in the Authorization h
 Authorization: Bearer <token>
 ```
 
-## Error Responses
-All error responses follow this format:
+## Unified Response Format
+All API responses follow a consistent format to simplify client-side handling:
+
+### Success Responses
 ```json
 {
+  "success": true,
+  "data": {},
+  "message": "Optional success message"
+}
+```
+
+### Error Responses
+```json
+{
+  "success": false,
   "error": {
-    "message": "Error description",
-    "code": "ERROR_CODE"
+    "message": "User-friendly error message for UI display",
+    "code": "ERROR_CODE",
+    "technicalDetails": "Detailed technical information for logging/debugging",
+    "timestamp": "2023-08-26T10:30:00Z",
+    "requestId": "unique-request-identifier"
+  }
+}
+```
+
+### Examples
+
+#### Successful Response
+```json
+{
+  "success": true,
+  "data": {
+    "id": 1,
+    "name": "Product Name",
+    "price": 29.99
+  },
+  "message": "Product retrieved successfully"
+}
+```
+
+#### Error Response
+```json
+{
+  "success": false,
+  "error": {
+    "message": "Unable to process your request at the moment. Please try again later.",
+    "code": "DATABASE_ERROR",
+    "technicalDetails": "Database connection failed: Connection timeout occurred after 30 seconds while trying to connect to host 'db.example.com' on port 5432",
+    "timestamp": "2023-08-26T10:30:00Z",
+    "requestId": "req_1234567890"
   }
 }
 ```

@@ -36,8 +36,8 @@
 ## Backend Testing
 
 ### Technologies
-- Pytest for unit testing
-- Django Test Client for API testing
+- Jest for unit testing
+- Supertest for API testing
 - PostgreSQL test database for tests
 
 ### Test Areas
@@ -92,9 +92,8 @@
 - XSS prevention
 
 ## Testing Tools
-- Pytest: Python testing framework
-- Django Test Client: Django testing utilities
-- Jest: JavaScript testing framework
+- Jest: JavaScript/TypeScript testing framework
+- Supertest: HTTP assertions
 - React Testing Library: React component testing
 - Cypress: End-to-end testing
 - ESLint: Code quality checks
