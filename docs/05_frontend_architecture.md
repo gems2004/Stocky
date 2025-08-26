@@ -32,16 +32,16 @@
 - `LoadingSpinner` - Loading indicator
 - `Alert` - Notification component
 
-## State Management (Redux)
+## State Management (Zustand)
 
-### Slices
-- `auth` - User authentication state
-- `products` - Product data and operations
-- `cart` - POS shopping cart
-- `transactions` - Sales transactions
-- `customers` - Customer data
-- `inventory` - Inventory levels and logs
-- `ui` - UI state (loading, notifications, etc.)
+### Stores
+- `authStore` - User authentication state
+- `productStore` - Product data and operations
+- `cartStore` - POS shopping cart
+- `transactionStore` - Sales transactions
+- `customerStore` - Customer data
+- `inventoryStore` - Inventory levels and logs
+- `uiStore` - UI state (loading, notifications, etc.)
 
 ## Routing
 - `/` - Dashboard

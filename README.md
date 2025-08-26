@@ -38,6 +38,7 @@ All project documentation is available in the `docs/` directory:
 10. [Project Roadmap](docs/10_roadmap.md)
 11. [User Manual](docs/11_user_manual.md)
 12. [Task Management](docs/12_task_management.md)
+13. [Licensing](docs/13_licensing.md)
 
 ## Getting Started
 
@@ -112,6 +113,22 @@ See [Deployment Guide](docs/09_deployment_guide.md) for detailed deployment inst
 3. Commit your changes
 4. Push to the branch
 5. Create a Pull Request
+
+## Task Management
+
+This project includes a comprehensive task management system to track progress:
+
+1. [Task Management Documentation](docs/12_task_management.md) - Overview of development phases and task tracking
+2. [Tasks Directory](docs/tasks/) - Detailed task lists organized by development phase
+   - [Project Setup Tasks](docs/tasks/01_project_setup.md)
+   - [Backend Development Tasks](docs/tasks/02_backend_development.md)
+   - [Frontend Development Tasks](docs/tasks/03_frontend_development.md)
+   - [Testing Tasks](docs/tasks/04_testing.md)
+   - [Deployment Tasks](docs/tasks/05_deployment.md)
+   - [Weekly Sprint Plan](docs/tasks/06_weekly_sprints.md)
+   - [Progress Tracking](docs/tasks/07_progress_tracking.md)
+
+You can track progress using Obsidian with the Tasks plugin. See [tasks_queries.md](docs/tasks/tasks_queries.md) for example queries to use with the Tasks plugin.
 
 ## License
 

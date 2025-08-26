@@ -32,7 +32,7 @@ This document outlines the tasks and checklists for the Shop Management System p
 - [ ] Configure Tailwind CSS and ShadCN UI
 - [ ] Implement authentication pages
 - [ ] Create layout components
-- [ ] Set up Redux Toolkit
+- [ ] Set up Zustand stores
 - [ ] Implement navigation
 - [ ] Create reusable UI components
 - [ ] Set up API service layer
