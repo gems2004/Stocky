@@ -1,4 +1,4 @@
-# API Design
+ # API Design
 
 ## Base URL
 `http://localhost:3000/api`
@@ -65,6 +65,13 @@ All API responses follow a consistent format to simplify client-side handling:
 ```
 
 ## Endpoints
+
+### Initial Setup
+- `GET /setup/status` - Check if system is already set up
+- `POST /setup/database` - Configure database connection
+- `POST /setup/shop` - Configure shop information
+- `POST /setup/admin` - Create administrator account
+- `POST /setup/complete` - Finalize setup process
 
 ### Authentication
 - `POST /auth/login` - User login

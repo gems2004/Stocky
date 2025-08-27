@@ -7,6 +7,29 @@
 - Accessibility: Usable by people with disabilities
 - Responsiveness: Works on desktop and mobile devices
 
+## Initial Setup Wizard
+
+### Design Goals
+- Guided, step-by-step process
+- Clear instructions at each step
+- Visual feedback for completed steps
+- Responsive layout for different screen sizes
+- Accessible form controls
+
+### Wizard Structure
+1. Welcome Screen
+2. Shop Information
+3. Database Configuration
+4. Administrator Account
+5. Setup Completion
+
+### Common Components
+- Progress indicator showing current step
+- Clear navigation (Next, Back, Cancel)
+- Form validation with real-time feedback
+- Tooltips for complex fields
+- Responsive form layouts
+
 ## Color Scheme
 - Primary: Blue (#1976d2) - Trustworthy, professional
 - Secondary: Orange (#ff9800) - Energetic, calls to action
@@ -39,6 +62,14 @@
 - System status indicators
 
 ## Page Layouts
+
+### Initial Setup Wizard
+Each step of the wizard will have:
+- Clear step title and description
+- Form fields relevant to the step
+- Visual validation indicators
+- Navigation controls
+- Progress indicator
 
 ### Dashboard
 - Key metrics in cards (daily sales, inventory alerts, etc.)

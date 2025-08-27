@@ -134,7 +134,6 @@ The dashboard provides a quick overview of key business metrics:
 
 ### User Roles
 - Admin: Full system access
-- Manager: All except user management
 - Cashier: POS and customer management only
 
 ### Profile Settings

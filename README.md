@@ -1,6 +1,6 @@
 # README.md
 
-# Shop Management System with POS
+# Stocky with POS
 
 A comprehensive shop management system with Point of Sale (POS) capabilities designed for small to medium retail businesses.
 
@@ -11,7 +11,7 @@ A comprehensive shop management system with Point of Sale (POS) capabilities des
 -   **Point of Sale**: Fast, intuitive POS interface with barcode scanning support
 -   **Sales Management**: Transaction history and sales reporting
 -   **Customer Management**: Customer database with purchase history
--   **User Management**: Role-based access control (admin, manager, cashier)
+-   **User Management**: Role-based access control (admin, cashier)
 -   **Reporting**: Comprehensive sales and inventory reports
 
 ## Technology Stack
@@ -39,13 +39,18 @@ All project documentation is available in the `docs/` directory:
 11. [User Manual](docs/11_user_manual.md)
 12. [Task Management](docs/12_task_management.md)
 13. [Licensing](docs/13_licensing.md)
+14. [Initial Setup Guide](docs/14_initial_setup.md)
+15. [Quick Start Guide](docs/15_quick_start_guide.md)
 
 ## Getting Started
 
+For detailed installation and setup instructions, please refer to our [Quick Start Guide](docs/15_quick_start_guide.md).
+
 ### Prerequisites
 
--   Node.js >= 14.x
--   npm >= 6.x
+-   Node.js >= 20.x
+-   pnpm >= 10.x
+-   PostgreSQL >= 15.x
 -   Git
 
 ### Installation
@@ -54,7 +59,7 @@ All project documentation is available in the `docs/` directory:
 
     ```bash
     git clone <repository-url>
-    cd ShopSystem
+    cd Stocky
     ```
 
 2. Install backend dependencies:
@@ -80,6 +85,9 @@ All project documentation is available in the `docs/` directory:
     # In client directory
     pnpm dev
     ```
+
+5. Open your browser and navigate to `http://localhost:3000`
+6. Follow the Initial Setup Wizard to configure your shop
 
 ## Development
 

@@ -1,4 +1,4 @@
-# Shop Management System with POS - Project Overview
+# Stocky with POS - Project Overview
 
 ## Project Description
 
@@ -6,12 +6,13 @@ A comprehensive shop management system with Point of Sale (POS) capabilities des
 
 ## Key Features
 
-1. Product Management
-2. Inventory Tracking
-3. Point of Sale
-4. Sales Reporting
-5. Customer Management
-6. User Authentication & Roles
+1. Initial Setup Wizard
+2. Product Management
+3. Inventory Tracking
+4. Point of Sale
+5. Sales Reporting
+6. Customer Management
+7. User Authentication & Roles
 
 ## Technology Stack
 

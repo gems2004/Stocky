@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "tasks/01_project_setup.md",
+                "file": "06_ui_design.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "01_project_setup"
+              "title": "06_ui_design"
             }
           }
         ]
@@ -172,32 +172,32 @@
   },
   "active": "eaf3d386b4b82475",
   "lastOpenFiles": [
-    "ux_research/05_research_plan.md",
-    "ux_research/06_system_architecture.md",
-    "07_development_plan.md",
-    "03_database_design.md",
-    "02_requirements.md",
-    "12_task_management.md",
-    "ux_research/03_user_flows.md",
-    "ux_research/README.md",
     "ux_research/04_design_principles.md",
+    "ux_research/05_system_architecture.md",
+    "ux_research/05_research_plan.md",
+    "04_api_design.md",
+    "05_frontend_architecture.md",
+    "06_ui_design.md",
+    "07_development_plan.md",
+    "09_deployment_guide.md",
+    "10_roadmap.md",
+    "11_user_manual.md",
+    "12_task_management.md",
+    "13_licensing.md",
+    "03_database_design.md",
+    "14_initial_setup.md",
+    "15_quick_start_guide.md",
+    "02_requirements.md",
+    "ux_research/03_user_flows.md",
     "ux_research/02_user_personas.md",
     "ux_research/01_research_overview.md",
+    "tasks/01_project_setup.md",
+    "ux_research/README.md",
     "tasks/task_report.md",
     "ux_research",
     "tasks/tasks_queries.md",
     "tasks/02_backend_development.md",
-    "04_api_design.md",
-    "05_frontend_architecture.md",
-    "06_ui_design.md",
-    "09_deployment_guide.md",
-    "11_user_manual.md",
-    "10_roadmap.md",
     "01_project_overview.md",
-    "13_licensing.md",
-    "08_testing_strategy.md",
-    "roadmap.md",
-    "user-manual.md",
-    "api-design.md"
+    "08_testing_strategy.md"
   ]
 }

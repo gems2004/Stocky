@@ -1,7 +1,7 @@
 # UX Research
 
 ## Project Overview
-The Shop Management System with POS is a comprehensive solution designed for small to medium retail businesses. It includes features for product management, inventory tracking, point of sale, sales reporting, customer management, and user authentication with role-based access.
+Stocky with POS is a comprehensive solution designed for small to medium retail businesses. It includes features for product management, inventory tracking, point of sale, sales reporting, customer management, and user authentication with role-based access.
 
 ## Research Goals
 1. Identify primary user groups and their needs

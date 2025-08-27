@@ -7,6 +7,7 @@
 - Create basic models for Products, Categories, Suppliers
 - Implement authentication system
 - Set up API endpoints for basic CRUD operations
+- Create initial setup endpoints and services
 
 ### Frontend
 - Set up Next.js project with TypeScript
@@ -14,6 +15,7 @@
 - Create layout components (Header, Sidebar)
 - Set up Redux store and basic slices
 - Implement authentication pages
+- Create initial setup wizard interface
 
 ### Documentation
 - Finalize requirements specification

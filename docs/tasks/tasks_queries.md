@@ -1,6 +1,6 @@
 # Tasks Queries
 
-This file contains example queries you can use with the Obsidian Tasks plugin to track your shop management system development.
+This file contains example queries you can use with the Obsidian Tasks plugin to track your Stocky development.
 
 ## All Tasks
 ```tasks

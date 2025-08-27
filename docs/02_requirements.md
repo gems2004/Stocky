@@ -2,14 +2,20 @@
 
 ## Functional Requirements
 
-### 1. Product Management
+### 1. Initial Setup
+- First-time setup wizard for shop configuration
+- Database connection configuration
+- Administrator account creation
+- Initial system configuration
+
+### 2. Product Management
 - Add new products with name, description, price, category, supplier
 - Edit existing product information
 - Delete products
 - View product list with search and filtering
 - Barcode support for products
 
-### 2. Inventory Management
+### 3. Inventory Management
 - Track stock quantities
 - Set low stock alerts
 - Receive inventory shipments
@@ -38,7 +44,7 @@
 
 ### 6. User Management
 - User authentication (login/logout)
-- Role-based access control (admin, cashier, manager)
+- Role-based access control (admin, cashier)
 - User activity logging
 
 ## Non-Functional Requirements

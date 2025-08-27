@@ -1,7 +1,7 @@
 # Task Management
 
 ## Project Structure
-This document outlines the tasks and checklists for the Shop Management System project.
+This document outlines the tasks and checklists for the Stocky project.
 
 ## Development Phases
 
@@ -15,6 +15,8 @@ This document outlines the tasks and checklists for the Shop Management System p
 - [ ] Set up linting and formatting (ESLint, Prettier)
 - [ ] Set up version control with Git
 - [ ] Create basic project README
+- [ ] Implement initial setup wizard (frontend)
+- [ ] Implement initial setup API endpoints (backend)
 
 ### Phase 2: Core Backend
 - [ ] Design database schema

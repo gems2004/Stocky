@@ -1,6 +1,6 @@
 # UX Research Documentation
 
-This folder contains all UX research documentation for the Shop Management System with POS project.
+This folder contains all UX research documentation for the Stocky with POS project.
 
 ## Contents
 
@@ -9,12 +9,12 @@ This folder contains all UX research documentation for the Shop Management Syste
 3. [User Flows](03_user_flows.md) - Journey maps and flow diagrams for key user tasks
 4. [Design Principles](04_design_principles.md) - Core design principles and guidelines
 5. [Research Plan](05_research_plan.md) - Detailed plan for future UX research activities
-6. [System Architecture](06_system_architecture.md) - System design diagram and architecture overview
+6. [System Architecture](05_system_architecture.md) - System design diagram and architecture overview
 
 ## Purpose
 
 This documentation serves to:
-- Guide the design and development of the Shop Management System
+- Guide the design and development of Stocky
 - Ensure user needs are at the center of product decisions
 - Provide a reference for team members working on different aspects of the system
 - Document the rationale behind design choices
