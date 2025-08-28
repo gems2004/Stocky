@@ -11,7 +11,7 @@ export interface ErrorResponse {
     code: string;
     technicalDetails?: string;
     timestamp: string;
-    requestId: string;
+    requestId?: string;
   };
 }
 

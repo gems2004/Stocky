@@ -6,28 +6,28 @@ This document outlines the tasks and checklists for the Stocky project.
 ## Development Phases
 
 ### Phase 1: Foundation
-- [ ] Set up project repository
-- [ ] Create documentation structure
-- [ ] Initialize Next.js frontend
-- [ ] Initialize NestJS backend
-- [ ] Set up PostgreSQL database
-- [ ] Configure pnpm workspaces
-- [ ] Set up linting and formatting (ESLint, Prettier)
-- [ ] Set up version control with Git
-- [ ] Create basic project README
+- [x] Set up project repository ✅ 2025-08-28
+- [x] Create documentation structure ✅ 2025-08-28
+- [x] Initialize Next.js frontend ✅ 2025-08-28
+- [x] Initialize NestJS backend ✅ 2025-08-28
+- [x] Set up PostgreSQL database ✅ 2025-08-28
+- [x] Configure pnpm workspaces ✅ 2025-08-28
+- [x] Set up linting and formatting (ESLint, Prettier) ✅ 2025-08-28
+- [x] Set up version control with Git ✅ 2025-08-28
+- [x] Create basic project README ✅ 2025-08-28
 - [ ] Implement initial setup wizard (frontend)
 - [ ] Implement initial setup API endpoints (backend)
 
 ### Phase 2: Core Backend
-- [ ] Design database schema
+- [x] Design database schema ✅ 2025-08-29
 - [ ] Implement TypeORM entities
 - [ ] Create database migrations
-- [ ] Set up JWT authentication
-- [ ] Implement user management
+- [x] Set up JWT authentication ✅ 2025-08-28
+- [x] Implement user management ✅ 2025-08-28
 - [ ] Create REST API endpoints
 - [ ] Add input validation
-- [ ] Implement error handling
-- [ ] Set up logging
+- [x] Implement error handling ✅ 2025-08-29
+- [x] Set up logging ✅ 2025-08-29
 
 ### Phase 3: Core Frontend
 - [ ] Set up Next.js project structure

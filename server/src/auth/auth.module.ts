@@ -7,6 +7,7 @@ import { AuthService } from './auth.service';
 import { User } from './entity/user.entity';
 import { AuthGuard } from './guards/auth.guard';
 import { RoleGuard } from './guards/role.guard';
+import { LoggerService } from '../common/logger.service';
 
 @Module({
   imports: [
@@ -21,7 +22,7 @@ import { RoleGuard } from './guards/role.guard';
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, AuthGuard, RoleGuard],
+  providers: [AuthService, AuthGuard, RoleGuard, LoggerService],
   exports: [
     TypeOrmModule.forFeature([User]),
     AuthService,

@@ -15,6 +15,7 @@ describe('AuthController (e2e)', () => {
       ...databaseConfig,
       database: 'stocky_test', // Use a separate test database
       synchronize: true, // Enable synchronization for tests
+      dropSchema: true, // drop schema after each run
     } as TypeOrmModuleOptions;
 
     const moduleFixture: TestingModule = await Test.createTestingModule({
