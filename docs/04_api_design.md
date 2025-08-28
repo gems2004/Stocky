@@ -74,8 +74,9 @@ All API responses follow a consistent format to simplify client-side handling:
 - `POST /setup/complete` - Finalize setup process
 
 ### Authentication
+- `POST /auth/register` - User register
 - `POST /auth/login` - User login
-- `POST /auth/logout` - User logout
+-  `GET /auth/refresh` - Refresh access token
 - `GET /auth/profile` - Get current user profile
 
 ### Products

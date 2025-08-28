@@ -2,7 +2,7 @@
     "name": "stocky-client",
     "version": "0.1.0",
     "description": "Stocky - Small Shop Management System With POS (Client)",
-    "author": "George",
+    "author": "GEMS",
     "private": true,
     "license": "MIT",
     "scripts": {
