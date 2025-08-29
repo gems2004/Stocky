@@ -52,15 +52,16 @@ describe('AuthController (e2e)', () => {
       .send(testUser)
       .expect(201)
       .expect((res) => {
-        expect(res.body.user).toBeDefined();
-        expect(res.body.user.username).toBe(testUser.username);
-        expect(res.body.tokens).toBeDefined();
-        expect(res.body.tokens.accessToken).toBeDefined();
-        expect(res.body.tokens.refreshToken).toBeDefined();
+        expect(res.body.success).toBe(true);
+        expect(res.body.data.user).toBeDefined();
+        expect(res.body.data.user.username).toBe(testUser.username);
+        expect(res.body.data.tokens).toBeDefined();
+        expect(res.body.data.tokens.accessToken).toBeDefined();
+        expect(res.body.data.tokens.refreshToken).toBeDefined();
 
         // Store tokens for later use
-        accessToken = res.body.tokens.accessToken;
-        refreshToken = res.body.tokens.refreshToken;
+        accessToken = res.body.data.tokens.accessToken;
+        refreshToken = res.body.data.tokens.refreshToken;
       });
   });
 
@@ -80,11 +81,12 @@ describe('AuthController (e2e)', () => {
       })
       .expect(200)
       .expect((res) => {
-        expect(res.body.user).toBeDefined();
-        expect(res.body.user.username).toBe(testUser.username);
-        expect(res.body.tokens).toBeDefined();
-        expect(res.body.tokens.accessToken).toBeDefined();
-        expect(res.body.tokens.refreshToken).toBeDefined();
+        expect(res.body.success).toBe(true);
+        expect(res.body.data.user).toBeDefined();
+        expect(res.body.data.user.username).toBe(testUser.username);
+        expect(res.body.data.tokens).toBeDefined();
+        expect(res.body.data.tokens.accessToken).toBeDefined();
+        expect(res.body.data.tokens.refreshToken).toBeDefined();
       });
   });
 
@@ -106,11 +108,12 @@ describe('AuthController (e2e)', () => {
       })
       .expect(200)
       .expect((res) => {
-        expect(res.body.user).toBeDefined();
-        expect(res.body.user.username).toBe(testUser.username);
-        expect(res.body.tokens).toBeDefined();
-        expect(res.body.tokens.accessToken).toBeDefined();
-        expect(res.body.tokens.refreshToken).toBeDefined();
+        expect(res.body.success).toBe(true);
+        expect(res.body.data.user).toBeDefined();
+        expect(res.body.data.user.username).toBe(testUser.username);
+        expect(res.body.data.tokens).toBeDefined();
+        expect(res.body.data.tokens.accessToken).toBeDefined();
+        expect(res.body.data.tokens.refreshToken).toBeDefined();
       });
   });
 
@@ -133,11 +136,12 @@ describe('AuthController (e2e)', () => {
       .set('Authorization', `Bearer ${accessToken}`)
       .expect(200)
       .expect((res) => {
-        expect(res.body.user).toBeDefined();
-        expect(res.body.user.username).toBe(testUser.username);
+        expect(res.body.success).toBe(true);
+        expect(res.body.data.user).toBeDefined();
+        expect(res.body.data.user.username).toBe(testUser.username);
         // Tokens should be empty for profile endpoint
-        expect(res.body.tokens.accessToken).toBe('');
-        expect(res.body.tokens.refreshToken).toBe('');
+        expect(res.body.data.tokens.accessToken).toBe('');
+        expect(res.body.data.tokens.refreshToken).toBe('');
       });
   });
 });

@@ -16,6 +16,8 @@ import { AuthGuard } from './guards/auth.guard';
 import { Public } from './decorators/public.decorator';
 import { CurrentUser } from './decorators/current-user.decorator';
 import { JwtPayload } from './types/auth-tokens.type';
+import { ApiResponseHelper } from '../common/helpers/api-response.helper';
+import { SuccessResponse } from '../common/types/api-response.type';
 
 @Controller('auth')
 export class AuthController {
@@ -24,15 +26,21 @@ export class AuthController {
   @HttpCode(HttpStatus.CREATED)
   @Post('register')
   @Public()
-  async register(@Body() registerDto: RegisterDto): Promise<AuthResponseDto> {
-    return this.authService.register(registerDto);
+  async register(
+    @Body() registerDto: RegisterDto,
+  ): Promise<SuccessResponse<AuthResponseDto>> {
+    const result = await this.authService.register(registerDto);
+    return ApiResponseHelper.success(result, 'User registered successfully');
   }
 
   @HttpCode(HttpStatus.OK)
   @Post('login')
   @Public()
-  async login(@Body() loginDto: LoginDto): Promise<AuthResponseDto> {
-    return this.authService.login(loginDto);
+  async login(
+    @Body() loginDto: LoginDto,
+  ): Promise<SuccessResponse<AuthResponseDto>> {
+    const result = await this.authService.login(loginDto);
+    return ApiResponseHelper.success(result, 'Login successful');
   }
 
   @HttpCode(HttpStatus.OK)
@@ -40,14 +48,18 @@ export class AuthController {
   @Public()
   async refreshToken(
     @Body() refreshTokenDto: RefreshTokenDto,
-  ): Promise<AuthResponseDto> {
-    return this.authService.refreshToken(refreshTokenDto);
+  ): Promise<SuccessResponse<AuthResponseDto>> {
+    const result = await this.authService.refreshToken(refreshTokenDto);
+    return ApiResponseHelper.success(result, 'Token refreshed successfully');
   }
 
   @HttpCode(HttpStatus.OK)
   @Get('profile')
   @UseGuards(AuthGuard)
-  async getProfile(@CurrentUser() user: JwtPayload): Promise<AuthResponseDto> {
-    return this.authService.getUserData(user.sub);
+  async getProfile(
+    @CurrentUser() user: JwtPayload,
+  ): Promise<SuccessResponse<AuthResponseDto>> {
+    const result = await this.authService.getUserData(user.sub);
+    return ApiResponseHelper.success(result, 'Profile retrieved successfully');
   }
 }

@@ -9,6 +9,7 @@ import { RequestIdMiddleware } from './common/middleware/request-id.middleware';
 import { databaseConfig } from './database/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
+import { SetupModule } from './setup/setup.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { ConfigModule } from '@nestjs/config';
     ConfigModule.forRoot({ isGlobal: true }),
     AuthModule,
     CommonModule,
+    SetupModule,
   ],
   controllers: [AppController],
   providers: [

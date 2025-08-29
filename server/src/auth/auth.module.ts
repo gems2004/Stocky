@@ -8,6 +8,7 @@ import { User } from './entity/user.entity';
 import { AuthGuard } from './guards/auth.guard';
 import { RoleGuard } from './guards/role.guard';
 import { LoggerService } from '../common/logger.service';
+import { ApiResponseHelper } from '../common/helpers/api-response.helper';
 
 @Module({
   imports: [
@@ -22,7 +23,7 @@ import { LoggerService } from '../common/logger.service';
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, AuthGuard, RoleGuard, LoggerService],
+  providers: [AuthService, AuthGuard, RoleGuard, LoggerService, ApiResponseHelper],
   exports: [
     TypeOrmModule.forFeature([User]),
     AuthService,
