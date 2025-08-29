@@ -10,6 +10,7 @@ import { databaseConfig } from './database/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
 import { SetupModule } from './setup/setup.module';
+import { ProductModule } from './product/product.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { SetupModule } from './setup/setup.module';
     AuthModule,
     CommonModule,
     SetupModule,
+    ProductModule,
   ],
   controllers: [AppController],
   providers: [

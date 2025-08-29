@@ -2,7 +2,7 @@ import {
   Injectable,
   CanActivate,
   ExecutionContext,
-  UnauthorizedException,
+  HttpStatus,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { JwtService } from '@nestjs/jwt';
@@ -10,6 +10,7 @@ import { ConfigService } from '@nestjs/config';
 import { Request } from 'express';
 import { JwtPayload } from '../types/auth-tokens.type';
 import { AuthenticatedRequest } from '../types/request.type';
+import { CustomException } from '../../common/exceptions/custom.exception';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
@@ -33,7 +34,10 @@ export class AuthGuard implements CanActivate {
     const token = this.extractTokenFromHeader(request);
 
     if (!token) {
-      throw new UnauthorizedException('Access token is missing');
+      throw new CustomException(
+        'Access token is missing',
+        HttpStatus.UNAUTHORIZED,
+      );
     }
 
     try {
@@ -42,7 +46,10 @@ export class AuthGuard implements CanActivate {
       });
       request.user = payload;
     } catch (error) {
-      throw new UnauthorizedException('Invalid or expired token');
+      throw new CustomException(
+        'Invalid or expired token',
+        HttpStatus.UNAUTHORIZED,
+      );
     }
 
     return true;

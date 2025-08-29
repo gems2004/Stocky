@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "03_database_design.md",
+                "file": "04_api_design.md",
                 "mode": "preview",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "03_database_design"
+              "title": "04_api_design"
             }
           }
         ]
@@ -172,11 +172,11 @@
   },
   "active": "eaf3d386b4b82475",
   "lastOpenFiles": [
+    "03_database_design.md",
     "04_api_design.md",
     "12_task_management.md",
     "09_deployment_guide.md",
     "08_testing_strategy.md",
-    "03_database_design.md",
     "07_development_plan.md",
     "06_ui_design.md",
     "ux_research/04_design_principles.md",

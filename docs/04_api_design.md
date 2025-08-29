@@ -4,7 +4,7 @@
 `http://localhost:3000/api`
 
 ## Authentication
-All API requests (except login) require a valid JWT token in the Authorization header:
+All API requests (except login/register) require a valid JWT token in the Authorization header:
 ```
 Authorization: Bearer <token>
 ```
@@ -67,25 +67,442 @@ All API responses follow a consistent format to simplify client-side handling:
 ## Endpoints
 
 ### Initial Setup
-- `GET /setup/status` - Check if system is already set up
-- `POST /setup/database` - Configure database connection
-- `POST /setup/shop` - Configure shop information
-- `POST /setup/admin` - Create administrator account
-- `POST /setup/complete` - Finalize setup process
+
+#### Get Setup Status
+- **Endpoint**: `GET /setup/status`
+- **Description**: Check if system is already set up
+- **Response Example**:
+```json
+{
+  "success": true,
+  "data": {
+    "isDatabaseConfigured": true,
+    "isShopConfigured": true,
+    "isAdminCreated": true,
+    "isSetupComplete": true
+  },
+  "message": "Setup status retrieved successfully"
+}
+```
+
+#### Configure Database
+- **Endpoint**: `POST /setup/database`
+- **Description**: Configure database connection
+- **Request Body**:
+```json
+{
+  "type": "postgres",
+  "host": "localhost",
+  "port": 5432,
+  "username": "admin",
+  "password": "password",
+  "database": "stocky",
+  "ssl": false
+}
+```
+- **Response Example**:
+```json
+{
+  "success": true,
+  "data": {
+    "isDatabaseConfigured": true,
+    "isShopConfigured": false,
+    "isAdminCreated": false,
+    "isSetupComplete": false
+  },
+  "message": "Database configured successfully"
+}
+```
+
+#### Configure Shop Information
+- **Endpoint**: `POST /setup/shop`
+- **Description**: Configure shop information
+- **Request Body**:
+```json
+{
+  "name": "My Shop",
+  "address": "123 Main St",
+  "phone": "+1234567890",
+  "email": "shop@example.com"
+}
+```
+- **Response Example**:
+```json
+{
+  "success": true,
+  "data": {
+    "isDatabaseConfigured": true,
+    "isShopConfigured": true,
+    "isAdminCreated": false,
+    "isSetupComplete": false
+  },
+  "message": "Shop information configured successfully"
+}
+```
+
+#### Create Administrator Account
+- **Endpoint**: `POST /setup/admin`
+- **Description**: Create administrator account
+- **Request Body**:
+```json
+{
+  "username": "admin",
+  "email": "admin@example.com",
+  "password": "securepassword",
+  "firstName": "Admin",
+  "lastName": "User"
+}
+```
+- **Response Example**:
+```json
+{
+  "success": true,
+  "data": {
+    "isDatabaseConfigured": true,
+    "isShopConfigured": true,
+    "isAdminCreated": true,
+    "isSetupComplete": false
+  },
+  "message": "Admin user created successfully"
+}
+```
+
+#### Complete Setup
+- **Endpoint**: `POST /setup/complete`
+- **Description**: Finalize setup process
+- **Response Example**:
+```json
+{
+  "success": true,
+  "data": {
+    "isDatabaseConfigured": true,
+    "isShopConfigured": true,
+    "isAdminCreated": true,
+    "isSetupComplete": true
+  },
+  "message": "Setup process completed successfully"
+}
+```
 
 ### Authentication
-- `POST /auth/register` - User register
-- `POST /auth/login` - User login
--  `GET /auth/refresh` - Refresh access token
-- `GET /auth/profile` - Get current user profile
+
+#### User Registration
+- **Endpoint**: `POST /auth/register`
+- **Description**: Register a new user
+- **Request Body**:
+```json
+{
+  "username": "john_doe",
+  "email": "john@example.com",
+  "password": "securepassword",
+  "firstName": "John",
+  "lastName": "Doe",
+  "role": "USER"
+}
+```
+- **Response Example**:
+```json
+{
+  "success": true,
+  "data": {
+    "user": {
+      "id": 1,
+      "username": "john_doe",
+      "email": "john@example.com",
+      "firstName": "John",
+      "lastName": "Doe",
+      "role": "USER",
+      "created_at": "2023-08-26T10:30:00Z",
+      "updated_at": "2023-08-26T10:30:00Z"
+    },
+    "tokens": {
+      "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+      "refreshToken": "dGhpcyBpcyBhIHJlZnJlc2ggdG9rZW4..."
+    }
+  },
+  "message": "User registered successfully"
+}
+```
+
+#### User Login
+- **Endpoint**: `POST /auth/login`
+- **Description**: Authenticate user and get tokens
+- **Request Body**:
+```json
+{
+  "username": "john_doe",
+  "password": "securepassword"
+}
+```
+- **Response Example**:
+```json
+{
+  "success": true,
+  "data": {
+    "user": {
+      "id": 1,
+      "username": "john_doe",
+      "email": "john@example.com",
+      "firstName": "John",
+      "lastName": "Doe",
+      "role": "USER",
+      "created_at": "2023-08-26T10:30:00Z",
+      "updated_at": "2023-08-26T10:30:00Z"
+    },
+    "tokens": {
+      "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+      "refreshToken": "dGhpcyBpcyBhIHJlZnJlc2ggdG9rZW4..."
+    }
+  },
+  "message": "Login successful"
+}
+```
+
+#### Refresh Access Token
+- **Endpoint**: `POST /auth/refresh`
+- **Description**: Refresh access token using refresh token
+- **Request Body**:
+```json
+{
+  "refreshToken": "dGhpcyBpcyBhIHJlZnJlc2ggdG9rZW4..."
+}
+```
+- **Response Example**:
+```json
+{
+  "success": true,
+  "data": {
+    "user": {
+      "id": 1,
+      "username": "john_doe",
+      "email": "john@example.com",
+      "firstName": "John",
+      "lastName": "Doe",
+      "role": "USER",
+      "created_at": "2023-08-26T10:30:00Z",
+      "updated_at": "2023-08-26T10:30:00Z"
+    },
+    "tokens": {
+      "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+      "refreshToken": "bmV3IHJlZnJlc2ggdG9rZW4..."
+    }
+  },
+  "message": "Token refreshed successfully"
+}
+```
+
+#### Get User Profile
+- **Endpoint**: `GET /auth/profile`
+- **Description**: Get current user profile
+- **Response Example**:
+```json
+{
+  "success": true,
+  "data": {
+    "user": {
+      "id": 1,
+      "username": "john_doe",
+      "email": "john@example.com",
+      "firstName": "John",
+      "lastName": "Doe",
+      "role": "USER",
+      "created_at": "2023-08-26T10:30:00Z",
+      "updated_at": "2023-08-26T10:30:00Z"
+    },
+    "tokens": {
+      "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+      "refreshToken": "dGhpcyBpcyBhIHJlZnJlc2ggdG9rZW4..."
+    }
+  },
+  "message": "Profile retrieved successfully"
+}
+```
 
 ### Products
-- `GET /products` - Get all products (with pagination/filtering)
-- `GET /products/:id` - Get specific product
-- `POST /products` - Create new product
-- `PUT /products/:id` - Update product
-- `DELETE /products/:id` - Delete product
-- `GET /products/search?q=:query` - Search products
+
+#### Get All Products
+- **Endpoint**: `GET /products?page=1&limit=10`
+- **Description**: Get all products with pagination
+- **Query Parameters**:
+  - `page` (optional): Page number (default: 1)
+  - `limit` (optional): Items per page (default: 10, max: 100)
+- **Response Example**:
+```json
+{
+  "success": true,
+  "data": {
+    "data": [
+      {
+        "id": 1,
+        "name": "Product 1",
+        "description": "Product description",
+        "price": 29.99,
+        "cost": 15.00,
+        "categoryId": 1,
+        "supplierId": 1,
+        "barcode": "1234567890123",
+        "sku": "PROD-001",
+        "stockQuantity": 100,
+        "minStockLevel": 10,
+        "createdAt": "2023-08-26T10:30:00Z",
+        "updatedAt": "2023-08-26T10:30:00Z"
+      }
+    ],
+    "total": 1,
+    "page": 1,
+    "limit": 10
+  },
+  "message": "Products retrieved successfully"
+}
+```
+
+#### Get Specific Product
+- **Endpoint**: `GET /products/:id`
+- **Description**: Get a specific product by ID
+- **Response Example**:
+```json
+{
+  "success": true,
+  "data": {
+    "id": 1,
+    "name": "Product 1",
+    "description": "Product description",
+    "price": 29.99,
+    "cost": 15.00,
+    "categoryId": 1,
+    "supplierId": 1,
+    "barcode": "1234567890123",
+    "sku": "PROD-001",
+    "stockQuantity": 100,
+    "minStockLevel": 10,
+    "createdAt": "2023-08-26T10:30:00Z",
+    "updatedAt": "2023-08-26T10:30:00Z"
+  },
+  "message": "Product retrieved successfully"
+}
+```
+
+#### Create New Product
+- **Endpoint**: `POST /products`
+- **Description**: Create a new product
+- **Request Body**:
+```json
+{
+  "name": "New Product",
+  "description": "Product description",
+  "price": 29.99,
+  "cost": 15.00,
+  "categoryId": 1,
+  "supplierId": 1,
+  "barcode": "1234567890124",
+  "sku": "PROD-002",
+  "minStockLevel": 10
+}
+```
+- **Response Example**:
+```json
+{
+  "success": true,
+  "data": {
+    "id": 2,
+    "name": "New Product",
+    "description": "Product description",
+    "price": 29.99,
+    "cost": 15.00,
+    "categoryId": 1,
+    "supplierId": 1,
+    "barcode": "1234567890124",
+    "sku": "PROD-002",
+    "stockQuantity": 0,
+    "minStockLevel": 10,
+    "createdAt": "2023-08-26T10:30:00Z",
+    "updatedAt": "2023-08-26T10:30:00Z"
+  },
+  "message": "Product created successfully"
+}
+```
+
+#### Update Product
+- **Endpoint**: `PUT /products/:id`
+- **Description**: Update an existing product
+- **Request Body**:
+```json
+{
+  "name": "Updated Product",
+  "description": "Updated description",
+  "price": 39.99,
+  "cost": 20.00,
+  "categoryId": 2,
+  "supplierId": 2,
+  "barcode": "1234567890125",
+  "sku": "PROD-003",
+  "minStockLevel": 15
+}
+```
+- **Response Example**:
+```json
+{
+  "success": true,
+  "data": {
+    "id": 2,
+    "name": "Updated Product",
+    "description": "Updated description",
+    "price": 39.99,
+    "cost": 20.00,
+    "categoryId": 2,
+    "supplierId": 2,
+    "barcode": "1234567890125",
+    "sku": "PROD-003",
+    "stockQuantity": 0,
+    "minStockLevel": 15,
+    "createdAt": "2023-08-26T10:30:00Z",
+    "updatedAt": "2023-08-26T11:30:00Z"
+  },
+  "message": "Product updated successfully"
+}
+```
+
+#### Delete Product
+- **Endpoint**: `DELETE /products/:id`
+- **Description**: Delete a product
+- **Response Example**:
+```json
+{
+  "success": true,
+  "data": null,
+  "message": "Product deleted successfully"
+}
+```
+
+#### Search Products
+- **Endpoint**: `GET /products/search?query=searchterm`
+- **Description**: Search products by name, description, barcode, or SKU
+- **Query Parameters**:
+  - `query`: Search term
+- **Response Example**:
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": 1,
+      "name": "Product 1",
+      "description": "Product description",
+      "price": 29.99,
+      "cost": 15.00,
+      "categoryId": 1,
+      "supplierId": 1,
+      "barcode": "1234567890123",
+      "sku": "PROD-001",
+      "stockQuantity": 100,
+      "minStockLevel": 10,
+      "createdAt": "2023-08-26T10:30:00Z",
+      "updatedAt": "2023-08-26T10:30:00Z"
+    }
+  ],
+  "message": "Products search completed successfully"
+}
+```
 
 ### Categories
 - `GET /categories` - Get all categories

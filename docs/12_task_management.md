@@ -16,7 +16,7 @@ This document outlines the tasks and checklists for the Stocky project.
 - [x] Set up version control with Git ✅ 2025-08-28
 - [x] Create basic project README ✅ 2025-08-28
 - [ ] Implement initial setup wizard (frontend)
-- [ ] Implement initial setup API endpoints (backend)
+- [x] Implement initial setup API endpoints (backend) ✅ 2025-08-29
 
 ### Phase 2: Core Backend
 - [x] Design database schema ✅ 2025-08-29

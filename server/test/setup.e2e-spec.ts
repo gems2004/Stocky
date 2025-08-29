@@ -37,22 +37,25 @@ describe('SetupController (e2e)', () => {
     try {
       const fs = require('fs');
       const path = require('path');
-      
+
       // Remove .env.production from server root if it exists
       const rootEnvProductionPath = path.join(__dirname, '../.env.production');
       if (fs.existsSync(rootEnvProductionPath)) {
         fs.unlinkSync(rootEnvProductionPath);
       }
-      
+
       // Remove setup-config.json if it exists
-      const setupConfigPath = path.join(__dirname, '../src/setup/setup-config.json');
+      const setupConfigPath = path.join(
+        __dirname,
+        '../src/setup/setup-config.json',
+      );
       if (fs.existsSync(setupConfigPath)) {
         fs.unlinkSync(setupConfigPath);
       }
     } catch (error) {
       console.warn('Failed to clean up test files:', error);
     }
-    
+
     await app.close();
   });
 
