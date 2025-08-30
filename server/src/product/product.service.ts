@@ -30,35 +30,17 @@ export class ProductService implements IProductService {
     try {
       this.logger.log(`Fetching products - page: ${page}, limit: ${limit}`);
 
-      // Validate pagination parameters
-      if (page < 1) {
-        page = 1;
-      }
-      if (limit < 1 || limit > 100) {
-        limit = 10;
-      }
-
       let products: Product[] = [];
       let total: number = 0;
 
-      try {
-        [products, total] = await this.productRepository.findAndCount({
-          skip: (page - 1) * limit,
-          take: limit,
-          order: {
-            id: 'ASC',
-          },
-          relations: ['category'], // Load the category relation
-        });
-      } catch (error: unknown) {
-        const errorMessage =
-          error instanceof Error ? error.message : 'Unknown error';
-        throw new CustomException(
-          'Database query failed during product lookup',
-          HttpStatus.INTERNAL_SERVER_ERROR,
-          `Error querying products: ${errorMessage}`,
-        );
-      }
+      [products, total] = await this.productRepository.findAndCount({
+        skip: (page - 1) * limit,
+        take: limit,
+        order: {
+          id: 'ASC',
+        },
+        relations: ['category'], // Load the category relation
+      });
 
       this.logger.log(
         `Successfully fetched ${products.length} products (page: ${page}, limit: ${limit})`,
@@ -115,31 +97,10 @@ export class ProductService implements IProductService {
     try {
       this.logger.log(`Fetching product with ID: ${id}`);
 
-      // Validate ID parameter
-      if (!id || id <= 0) {
-        const errorMsg = `Invalid product ID provided: ${id}`;
-        throw new CustomException(
-          'Invalid product ID',
-          HttpStatus.BAD_REQUEST,
-          errorMsg,
-        );
-      }
-
-      let product: Product | null = null;
-      try {
-        product = await this.productRepository.findOne({
-          where: { id },
-          relations: ['category'], // Load the category relation
-        });
-      } catch (error: unknown) {
-        const errorMessage =
-          error instanceof Error ? error.message : 'Unknown error';
-        throw new CustomException(
-          'Database query failed during product lookup',
-          HttpStatus.INTERNAL_SERVER_ERROR,
-          `Error querying product with ID ${id}: ${errorMessage}`,
-        );
-      }
+      const product = await this.productRepository.findOne({
+        where: { id },
+        relations: ['category'], // Load the category relation
+      });
 
       // If product not found, throw exception
       if (!product) {
@@ -199,77 +160,22 @@ export class ProductService implements IProductService {
     try {
       this.logger.log('Creating a new product');
 
-      // Validate required fields
-      if (!productData.name || !productData.price) {
-        const errorMsg = 'Product name and price are required';
-        throw new CustomException(
-          'Product name and price are required',
-          HttpStatus.BAD_REQUEST,
-          errorMsg,
-        );
-      }
-
-      // Validate price is positive
-      if (productData.price <= 0) {
-        const errorMsg = 'Product price must be positive';
-        throw new CustomException(
-          'Product price must be positive',
-          HttpStatus.BAD_REQUEST,
-          errorMsg,
-        );
-      }
-
-      // Validate cost if provided
-      if (productData.cost && productData.cost <= 0) {
-        const errorMsg = 'Product cost must be positive';
-        throw new CustomException(
-          'Product cost must be positive',
-          HttpStatus.BAD_REQUEST,
-          errorMsg,
-        );
-      }
-
-      // Validate minStockLevel if provided
-      if (productData.minStockLevel && productData.minStockLevel < 0) {
-        const errorMsg = 'Product minimum stock level cannot be negative';
-        throw new CustomException(
-          'Product minimum stock level cannot be negative',
-          HttpStatus.BAD_REQUEST,
-          errorMsg,
-        );
-      }
-
       // Check if product with same barcode or SKU already exists
       if (productData.barcode || productData.sku) {
-        try {
-          const existingProduct = await this.productRepository.findOne({
-            where: [
-              { barcode: productData.barcode },
-              { sku: productData.sku },
-            ].filter((condition) => Object.values(condition)[0] !== undefined), // Only include conditions with defined values
-          });
+        const existingProduct = await this.productRepository.findOne({
+          where: [
+            { barcode: productData.barcode },
+            { sku: productData.sku },
+          ].filter((condition) => Object.values(condition)[0] !== undefined), // Only include conditions with defined values
+        });
 
-          if (existingProduct) {
-            const errorMsg = `Product with this barcode or SKU already exists: ${existingProduct.name}`;
-            throw new CustomException(
-              'Product with this barcode or SKU already exists',
-              HttpStatus.CONFLICT,
-              errorMsg,
-            );
-          }
-        } catch (error: unknown) {
-          // Only re-throw if it's not the "not found" case (which is expected)
-          if (
-            !(error instanceof Error && error.message.includes('not found'))
-          ) {
-            const errorMessage =
-              error instanceof Error ? error.message : 'Unknown error';
-            throw new CustomException(
-              'Database query failed during product existence check',
-              HttpStatus.INTERNAL_SERVER_ERROR,
-              `Error checking product existence: ${errorMessage}`,
-            );
-          }
+        if (existingProduct) {
+          const errorMsg = `Product with this barcode or SKU already exists: ${existingProduct.name}`;
+          throw new CustomException(
+            'Product with this barcode or SKU already exists',
+            HttpStatus.CONFLICT,
+            errorMsg,
+          );
         }
       }
 
@@ -288,21 +194,10 @@ export class ProductService implements IProductService {
       });
 
       // Save the product
-      let savedProduct: Product;
-      try {
-        savedProduct = await this.productRepository.save(newProduct);
-        this.logger.log(
-          `Successfully created product with ID: ${savedProduct.id}`,
-        );
-      } catch (error: unknown) {
-        const errorMessage =
-          error instanceof Error ? error.message : 'Unknown error';
-        throw new CustomException(
-          'Failed to save product',
-          HttpStatus.INTERNAL_SERVER_ERROR,
-          `Error saving new product: ${errorMessage}`,
-        );
-      }
+      const savedProduct = await this.productRepository.save(newProduct);
+      this.logger.log(
+        `Successfully created product with ID: ${savedProduct.id}`,
+      );
 
       // Map entity to DTO
       const productResponseDto: ProductResponseDto = {
@@ -344,31 +239,10 @@ export class ProductService implements IProductService {
     try {
       this.logger.log(`Updating product with ID: ${id}`);
 
-      // Validate ID parameter
-      if (!id || id <= 0) {
-        const errorMsg = `Invalid product ID provided: ${id}`;
-        throw new CustomException(
-          'Invalid product ID',
-          HttpStatus.BAD_REQUEST,
-          errorMsg,
-        );
-      }
-
       // Find the existing product
-      let existingProduct: Product | null = null;
-      try {
-        existingProduct = await this.productRepository.findOne({
-          where: { id },
-        });
-      } catch (error: unknown) {
-        const errorMessage =
-          error instanceof Error ? error.message : 'Unknown error';
-        throw new CustomException(
-          'Database query failed during product lookup',
-          HttpStatus.INTERNAL_SERVER_ERROR,
-          `Error querying product with ID ${id}: ${errorMessage}`,
-        );
-      }
+      const existingProduct = await this.productRepository.findOne({
+        where: { id },
+      });
 
       // If product not found, throw exception
       if (!existingProduct) {
@@ -380,80 +254,32 @@ export class ProductService implements IProductService {
         );
       }
 
-      // Validate price if provided
-      if (productData.price !== undefined && productData.price <= 0) {
-        const errorMsg = 'Product price must be positive';
-        throw new CustomException(
-          'Product price must be positive',
-          HttpStatus.BAD_REQUEST,
-          errorMsg,
-        );
-      }
-
-      // Validate cost if provided
-      if (productData.cost !== undefined && productData.cost <= 0) {
-        const errorMsg = 'Product cost must be positive';
-        throw new CustomException(
-          'Product cost must be positive',
-          HttpStatus.BAD_REQUEST,
-          errorMsg,
-        );
-      }
-
-      // Validate minStockLevel if provided
-      if (
-        productData.minStockLevel !== undefined &&
-        productData.minStockLevel < 0
-      ) {
-        const errorMsg = 'Product minimum stock level cannot be negative';
-        throw new CustomException(
-          'Product minimum stock level cannot be negative',
-          HttpStatus.BAD_REQUEST,
-          errorMsg,
-        );
-      }
-
       // Check if another product with same barcode or SKU already exists
       if (productData.barcode || productData.sku) {
-        try {
-          const whereConditions: Array<{ barcode: string } | { sku: string }> =
-            [];
-          if (productData.barcode) {
-            whereConditions.push({ barcode: productData.barcode });
-          }
-          if (productData.sku) {
-            whereConditions.push({ sku: productData.sku });
-          }
+        const whereConditions: Array<{ barcode: string } | { sku: string }> =
+          [];
+        if (productData.barcode) {
+          whereConditions.push({ barcode: productData.barcode });
+        }
+        if (productData.sku) {
+          whereConditions.push({ sku: productData.sku });
+        }
 
-          if (whereConditions.length > 0) {
-            const existingProductWithBarcodeOrSku =
-              await this.productRepository.findOne({
-                where: whereConditions,
-              });
+        if (whereConditions.length > 0) {
+          const existingProductWithBarcodeOrSku =
+            await this.productRepository.findOne({
+              where: whereConditions,
+            });
 
-            if (
-              existingProductWithBarcodeOrSku &&
-              existingProductWithBarcodeOrSku.id !== id
-            ) {
-              const errorMsg = `Product with this barcode or SKU already exists: ${existingProductWithBarcodeOrSku.name}`;
-              throw new CustomException(
-                'Product with this barcode or SKU already exists',
-                HttpStatus.CONFLICT,
-                errorMsg,
-              );
-            }
-          }
-        } catch (error: unknown) {
-          // Only re-throw if it's not the "not found" case (which is expected)
           if (
-            !(error instanceof Error && error.message.includes('not found'))
+            existingProductWithBarcodeOrSku &&
+            existingProductWithBarcodeOrSku.id !== id
           ) {
-            const errorMessage =
-              error instanceof Error ? error.message : 'Unknown error';
+            const errorMsg = `Product with this barcode or SKU already exists: ${existingProductWithBarcodeOrSku.name}`;
             throw new CustomException(
-              'Database query failed during product existence check',
-              HttpStatus.INTERNAL_SERVER_ERROR,
-              `Error checking product existence: ${errorMessage}`,
+              'Product with this barcode or SKU already exists',
+              HttpStatus.CONFLICT,
+              errorMsg,
             );
           }
         }
@@ -476,21 +302,10 @@ export class ProductService implements IProductService {
       });
 
       // Save the updated product
-      let updatedProduct: Product;
-      try {
-        updatedProduct = await this.productRepository.save(existingProduct);
-        this.logger.log(
-          `Successfully updated product with ID: ${updatedProduct.id}`,
-        );
-      } catch (error: unknown) {
-        const errorMessage =
-          error instanceof Error ? error.message : 'Unknown error';
-        throw new CustomException(
-          'Failed to update product',
-          HttpStatus.INTERNAL_SERVER_ERROR,
-          `Error updating product: ${errorMessage}`,
-        );
-      }
+      const updatedProduct = await this.productRepository.save(existingProduct);
+      this.logger.log(
+        `Successfully updated product with ID: ${updatedProduct.id}`,
+      );
 
       // Map entity to DTO
       const productResponseDto: ProductResponseDto = {
@@ -529,31 +344,10 @@ export class ProductService implements IProductService {
     try {
       this.logger.log(`Deleting product with ID: ${id}`);
 
-      // Validate ID parameter
-      if (!id || id <= 0) {
-        const errorMsg = `Invalid product ID provided: ${id}`;
-        throw new CustomException(
-          'Invalid product ID',
-          HttpStatus.BAD_REQUEST,
-          errorMsg,
-        );
-      }
-
       // Check if product exists
-      let existingProduct: Product | null = null;
-      try {
-        existingProduct = await this.productRepository.findOne({
-          where: { id },
-        });
-      } catch (error: unknown) {
-        const errorMessage =
-          error instanceof Error ? error.message : 'Unknown error';
-        throw new CustomException(
-          'Database query failed during product lookup',
-          HttpStatus.INTERNAL_SERVER_ERROR,
-          `Error querying product with ID ${id}: ${errorMessage}`,
-        );
-      }
+      const existingProduct = await this.productRepository.findOne({
+        where: { id },
+      });
 
       // If product not found, throw exception
       if (!existingProduct) {
@@ -566,18 +360,8 @@ export class ProductService implements IProductService {
       }
 
       // Delete the product
-      try {
-        await this.productRepository.delete(id);
-        this.logger.log(`Successfully deleted product with ID: ${id}`);
-      } catch (error: unknown) {
-        const errorMessage =
-          error instanceof Error ? error.message : 'Unknown error';
-        throw new CustomException(
-          'Failed to delete product',
-          HttpStatus.INTERNAL_SERVER_ERROR,
-          `Error deleting product: ${errorMessage}`,
-        );
-      }
+      await this.productRepository.delete(id);
+      this.logger.log(`Successfully deleted product with ID: ${id}`);
     } catch (error) {
       // Re-throw if it's already a CustomException, otherwise wrap in CustomException
       if (error instanceof CustomException) {
@@ -597,27 +381,16 @@ export class ProductService implements IProductService {
     try {
       this.logger.log(`Searching products with query: ${query.query}`);
 
-      let products: Product[] = [];
-      try {
-        // Search for products matching the query in name, description, barcode, or SKU
-        products = await this.productRepository.find({
-          where: [
-            { name: Like(`%${query.query}%`) },
-            { description: Like(`%${query.query}%`) },
-            { barcode: Like(`%${query.query}%`) },
-            { sku: Like(`%${query.query}%`) },
-          ],
-          relations: ['category'], // Load the category relation
-        });
-      } catch (error: unknown) {
-        const errorMessage =
-          error instanceof Error ? error.message : 'Unknown error';
-        throw new CustomException(
-          'Database query failed during product search',
-          HttpStatus.INTERNAL_SERVER_ERROR,
-          `Error searching products: ${errorMessage}`,
-        );
-      }
+      // Search for products matching the query in name, description, barcode, or SKU
+      const products = await this.productRepository.find({
+        where: [
+          { name: Like(`%${query.query}%`) },
+          { description: Like(`%${query.query}%`) },
+          { barcode: Like(`%${query.query}%`) },
+          { sku: Like(`%${query.query}%`) },
+        ],
+        relations: ['category'], // Load the category relation
+      });
 
       this.logger.log(
         `Found ${products.length} products matching query: ${query.query}`,

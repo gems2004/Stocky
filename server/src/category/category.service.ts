@@ -26,20 +26,9 @@ export class CategoryService implements ICategoryService {
       );
 
       // Check if category already exists
-      let existingCategory: Category | null = null;
-      try {
-        existingCategory = await this.categoryRepository.findOne({
-          where: { name: createCategoryDto.name },
-        });
-      } catch (error: unknown) {
-        const errorMessage =
-          error instanceof Error ? error.message : 'Unknown error';
-        throw new CustomException(
-          'Database query failed during category existence check',
-          HttpStatus.INTERNAL_SERVER_ERROR,
-          `Error querying category existence: ${errorMessage}`,
-        );
-      }
+      const existingCategory = await this.categoryRepository.findOne({
+        where: { name: createCategoryDto.name },
+      });
 
       if (existingCategory) {
         const errorMsg = `Category with this name already exists: ${createCategoryDto.name}`;
@@ -57,21 +46,10 @@ export class CategoryService implements ICategoryService {
       });
 
       // Save the category
-      let savedCategory: Category;
-      try {
-        savedCategory = await this.categoryRepository.save(newCategory);
-        this.logger.log(
-          `Successfully created category with ID: ${savedCategory.id}`,
-        );
-      } catch (error: unknown) {
-        const errorMessage =
-          error instanceof Error ? error.message : 'Unknown error';
-        throw new CustomException(
-          'Failed to save category',
-          HttpStatus.INTERNAL_SERVER_ERROR,
-          `Error saving new category: ${errorMessage}`,
-        );
-      }
+      const savedCategory = await this.categoryRepository.save(newCategory);
+      this.logger.log(
+        `Successfully created category with ID: ${savedCategory.id}`,
+      );
 
       // Construct response
       const categoryResponse: CategoryResponseDto = {
@@ -103,20 +81,9 @@ export class CategoryService implements ICategoryService {
       this.logger.log('Fetching all categories');
 
       // Find all categories
-      let categories: Category[] = [];
-      try {
-        categories = await this.categoryRepository.find({
-          order: { name: 'ASC' },
-        });
-      } catch (error: unknown) {
-        const errorMessage =
-          error instanceof Error ? error.message : 'Unknown error';
-        throw new CustomException(
-          'Database query failed during categories lookup',
-          HttpStatus.INTERNAL_SERVER_ERROR,
-          `Error querying categories: ${errorMessage}`,
-        );
-      }
+      const categories = await this.categoryRepository.find({
+        order: { name: 'ASC' },
+      });
 
       this.logger.log(`Successfully fetched ${categories.length} categories`);
 
@@ -155,20 +122,9 @@ export class CategoryService implements ICategoryService {
       this.logger.log(`Attempting to update category ID: ${id}`);
 
       // Find category by ID
-      let category: Category | null = null;
-      try {
-        category = await this.categoryRepository.findOne({
-          where: { id },
-        });
-      } catch (error: unknown) {
-        const errorMessage =
-          error instanceof Error ? error.message : 'Unknown error';
-        throw new CustomException(
-          'Database query failed during category lookup',
-          HttpStatus.INTERNAL_SERVER_ERROR,
-          `Error querying category: ${errorMessage}`,
-        );
-      }
+      const category = await this.categoryRepository.findOne({
+        where: { id },
+      });
 
       // If category not found, throw exception
       if (!category) {
@@ -182,20 +138,9 @@ export class CategoryService implements ICategoryService {
 
       // Check if name is being updated and if it already exists
       if (updateCategoryDto.name && updateCategoryDto.name !== category.name) {
-        let existingCategory: Category | null = null;
-        try {
-          existingCategory = await this.categoryRepository.findOne({
-            where: { name: updateCategoryDto.name },
-          });
-        } catch (error: unknown) {
-          const errorMessage =
-            error instanceof Error ? error.message : 'Unknown error';
-          throw new CustomException(
-            'Database query failed during category existence check',
-            HttpStatus.INTERNAL_SERVER_ERROR,
-            `Error querying category existence: ${errorMessage}`,
-          );
-        }
+        const existingCategory = await this.categoryRepository.findOne({
+          where: { name: updateCategoryDto.name },
+        });
 
         if (existingCategory) {
           const errorMsg = `Category with this name already exists: ${updateCategoryDto.name}`;
@@ -216,21 +161,10 @@ export class CategoryService implements ICategoryService {
       }
 
       // Save the updated category
-      let updatedCategory: Category;
-      try {
-        updatedCategory = await this.categoryRepository.save(category);
-        this.logger.log(
-          `Successfully updated category with ID: ${updatedCategory.id}`,
-        );
-      } catch (error: unknown) {
-        const errorMessage =
-          error instanceof Error ? error.message : 'Unknown error';
-        throw new CustomException(
-          'Failed to update category',
-          HttpStatus.INTERNAL_SERVER_ERROR,
-          `Error updating category: ${errorMessage}`,
-        );
-      }
+      const updatedCategory = await this.categoryRepository.save(category);
+      this.logger.log(
+        `Successfully updated category with ID: ${updatedCategory.id}`,
+      );
 
       // Construct response
       const categoryResponse: CategoryResponseDto = {
@@ -262,20 +196,9 @@ export class CategoryService implements ICategoryService {
       this.logger.log(`Attempting to remove category ID: ${id}`);
 
       // Find category by ID
-      let category: Category | null = null;
-      try {
-        category = await this.categoryRepository.findOne({
-          where: { id },
-        });
-      } catch (error: unknown) {
-        const errorMessage =
-          error instanceof Error ? error.message : 'Unknown error';
-        throw new CustomException(
-          'Database query failed during category lookup',
-          HttpStatus.INTERNAL_SERVER_ERROR,
-          `Error querying category: ${errorMessage}`,
-        );
-      }
+      const category = await this.categoryRepository.findOne({
+        where: { id },
+      });
 
       // If category not found, throw exception
       if (!category) {
@@ -288,18 +211,8 @@ export class CategoryService implements ICategoryService {
       }
 
       // Remove the category
-      try {
-        await this.categoryRepository.remove(category);
-        this.logger.log(`Successfully removed category with ID: ${id}`);
-      } catch (error: unknown) {
-        const errorMessage =
-          error instanceof Error ? error.message : 'Unknown error';
-        throw new CustomException(
-          'Failed to remove category',
-          HttpStatus.INTERNAL_SERVER_ERROR,
-          `Error removing category: ${errorMessage}`,
-        );
-      }
+      await this.categoryRepository.remove(category);
+      this.logger.log(`Successfully removed category with ID: ${id}`);
     } catch (error) {
       // Re-throw if it's already a CustomException, otherwise wrap in CustomException
       if (error instanceof CustomException) {

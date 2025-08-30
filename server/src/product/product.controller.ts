@@ -10,6 +10,7 @@ import {
   HttpCode,
   HttpStatus,
   UseGuards,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { ProductService } from './product.service';
 import { CreateProductDto } from './dto/create-product.dto';
@@ -19,7 +20,6 @@ import { ProductResponseDto } from './dto/product-response.dto';
 import { ApiResponseHelper } from '../common/helpers/api-response.helper';
 import { SuccessResponse } from '../common/types/api-response.type';
 import { AuthGuard } from '../auth/guards/auth.guard';
-import { CustomException } from '../common/exceptions/custom.exception';
 
 @Controller('products')
 @UseGuards(AuthGuard)
@@ -29,17 +29,9 @@ export class ProductController {
   @HttpCode(HttpStatus.OK)
   @Get('search')
   async search(
-    @Query('query') query: string,
+    @Query() searchProductDto: SearchProductDto,
   ): Promise<SuccessResponse<ProductResponseDto[]>> {
-    // Validate search query
-    if (!query || query.trim().length === 0) {
-      throw new CustomException(
-        'Search query cannot be empty',
-        HttpStatus.BAD_REQUEST,
-      );
-    }
-
-    const products = await this.productService.search({ query });
+    const products = await this.productService.search(searchProductDto);
     return ApiResponseHelper.success(
       products,
       'Products search completed successfully',
@@ -63,20 +55,6 @@ export class ProductController {
     const pageNum = page ? parseInt(page, 10) : 1;
     const limitNum = limit ? parseInt(limit, 10) : 10;
 
-    // Validate page and limit
-    if (isNaN(pageNum) || pageNum < 1) {
-      throw new CustomException(
-        'Page must be a positive number',
-        HttpStatus.BAD_REQUEST,
-      );
-    }
-    if (isNaN(limitNum) || limitNum < 1 || limitNum > 100) {
-      throw new CustomException(
-        'Limit must be a positive number between 1 and 100',
-        HttpStatus.BAD_REQUEST,
-      );
-    }
-
     const result = await this.productService.findAll(pageNum, limitNum);
     return ApiResponseHelper.success(result, 'Products retrieved successfully');
   }
@@ -84,15 +62,9 @@ export class ProductController {
   @HttpCode(HttpStatus.OK)
   @Get(':id')
   async findOne(
-    @Param('id') id: string,
+    @Param('id', ParseIntPipe) id: number,
   ): Promise<SuccessResponse<ProductResponseDto>> {
-    // Validate ID parameter
-    const productId = parseInt(id, 10);
-    if (isNaN(productId) || productId <= 0) {
-      throw new CustomException('Invalid product ID', HttpStatus.BAD_REQUEST);
-    }
-
-    const product = await this.productService.findOne(productId);
+    const product = await this.productService.findOne(id);
     return ApiResponseHelper.success(product, 'Product retrieved successfully');
   }
 
@@ -108,32 +80,19 @@ export class ProductController {
   @HttpCode(HttpStatus.OK)
   @Put(':id')
   async update(
-    @Param('id') id: string,
+    @Param('id', ParseIntPipe) id: number,
     @Body() updateProductDto: UpdateProductDto,
   ): Promise<SuccessResponse<ProductResponseDto>> {
-    // Validate ID parameter
-    const productId = parseInt(id, 10);
-    if (isNaN(productId) || productId <= 0) {
-      throw new CustomException('Invalid product ID', HttpStatus.BAD_REQUEST);
-    }
-
-    const product = await this.productService.update(
-      productId,
-      updateProductDto,
-    );
+    const product = await this.productService.update(id, updateProductDto);
     return ApiResponseHelper.success(product, 'Product updated successfully');
   }
 
   @HttpCode(HttpStatus.OK)
   @Delete(':id')
-  async delete(@Param('id') id: string): Promise<SuccessResponse<null>> {
-    // Validate ID parameter
-    const productId = parseInt(id, 10);
-    if (isNaN(productId) || productId <= 0) {
-      throw new CustomException('Invalid product ID', HttpStatus.BAD_REQUEST);
-    }
-
-    await this.productService.delete(productId);
+  async delete(
+    @Param('id', ParseIntPipe) id: number,
+  ): Promise<SuccessResponse<null>> {
+    await this.productService.delete(id);
     return ApiResponseHelper.success(null, 'Product deleted successfully');
   }
 }

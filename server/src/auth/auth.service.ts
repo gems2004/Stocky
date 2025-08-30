@@ -24,20 +24,9 @@ export class AuthService implements IAuthService {
   async getUserData(userId: number): Promise<AuthResponseDto> {
     try {
       // Find user by ID
-      let user: User | null = null;
-      try {
-        user = await this.userRepository.findOne({
-          where: { id: userId },
-        });
-      } catch (error: unknown) {
-        const errorMessage =
-          error instanceof Error ? error.message : 'Unknown error';
-        throw new CustomException(
-          'Database query failed during user lookup',
-          HttpStatus.INTERNAL_SERVER_ERROR,
-          `Error querying user: ${errorMessage}`,
-        );
-      }
+      const user = await this.userRepository.findOne({
+        where: { id: userId },
+      });
 
       // If user not found, throw exception
       if (!user) {
@@ -82,20 +71,9 @@ export class AuthService implements IAuthService {
       this.logger.log(`Attempting to register user: ${userData.username}`);
 
       // Check if user already exists
-      let existingUser: User | null = null;
-      try {
-        existingUser = await this.userRepository.findOne({
-          where: [{ username: userData.username }, { email: userData.email }],
-        });
-      } catch (error: unknown) {
-        const errorMessage =
-          error instanceof Error ? error.message : 'Unknown error';
-        throw new CustomException(
-          'Database query failed during user existence check',
-          HttpStatus.INTERNAL_SERVER_ERROR,
-          `Error querying user existence: ${errorMessage}`,
-        );
-      }
+      const existingUser = await this.userRepository.findOne({
+        where: [{ username: userData.username }, { email: userData.email }],
+      });
 
       if (existingUser) {
         const errorMsg = `User with this username or email already exists: ${userData.username} or ${userData.email}`;
@@ -107,22 +85,11 @@ export class AuthService implements IAuthService {
       }
 
       // Hash the password
-      let hashedPassword: string;
-      try {
-        const saltRounds = 10;
-        hashedPassword = await bcrypt.hash(userData.password, saltRounds);
-        this.logger.log(
-          `Successfully hashed password for user: ${userData.username}`,
-        );
-      } catch (error: unknown) {
-        const errorMessage =
-          error instanceof Error ? error.message : 'Unknown error';
-        throw new CustomException(
-          'Failed to hash password',
-          HttpStatus.INTERNAL_SERVER_ERROR,
-          `Error during password hashing: ${errorMessage}`,
-        );
-      }
+      const saltRounds = 10;
+      const hashedPassword = await bcrypt.hash(userData.password, saltRounds);
+      this.logger.log(
+        `Successfully hashed password for user: ${userData.username}`,
+      );
 
       // Create new user entity
       const newUser = this.userRepository.create({
@@ -135,47 +102,24 @@ export class AuthService implements IAuthService {
       });
 
       // Save the user
-      let savedUser: User;
-      try {
-        savedUser = await this.userRepository.save(newUser);
-        this.logger.log(
-          `Successfully registered user with ID: ${savedUser.id}`,
-        );
-      } catch (error: unknown) {
-        const errorMessage =
-          error instanceof Error ? error.message : 'Unknown error';
-        throw new CustomException(
-          'Failed to save user',
-          HttpStatus.INTERNAL_SERVER_ERROR,
-          `Error saving new user: ${errorMessage}`,
-        );
-      }
+      const savedUser = await this.userRepository.save(newUser);
+      this.logger.log(
+        `Successfully registered user with ID: ${savedUser.id}`,
+      );
 
       // Generate tokens
-      let accessToken: string;
-      let refreshToken: string;
-      try {
-        const payload = {
-          sub: savedUser.id,
-          username: savedUser.username,
-          role: savedUser.role,
-        };
-        accessToken = this.jwtService.sign(payload);
-        refreshToken = this.jwtService.sign(payload, {
-          expiresIn: '1d',
-        });
-        this.logger.log(
-          `Successfully generated tokens for user ID: ${savedUser.id}`,
-        );
-      } catch (error: unknown) {
-        const errorMessage =
-          error instanceof Error ? error.message : 'Unknown error';
-        throw new CustomException(
-          'Failed to generate authentication tokens',
-          HttpStatus.INTERNAL_SERVER_ERROR,
-          `Error during token generation: ${errorMessage}`,
-        );
-      }
+      const payload = {
+        sub: savedUser.id,
+        username: savedUser.username,
+        role: savedUser.role,
+      };
+      const accessToken = this.jwtService.sign(payload);
+      const refreshToken = this.jwtService.sign(payload, {
+        expiresIn: '1d',
+      });
+      this.logger.log(
+        `Successfully generated tokens for user ID: ${savedUser.id}`,
+      );
 
       // Construct response (excluding password_hash)
       const { password_hash: _, ...userWithoutPassword } = savedUser;
@@ -208,20 +152,9 @@ export class AuthService implements IAuthService {
       this.logger.log(`Login attempt for username: ${credentials.username}`);
 
       // Find user by username
-      let user: User | null = null;
-      try {
-        user = await this.userRepository.findOne({
-          where: { username: credentials.username },
-        });
-      } catch (error: unknown) {
-        const errorMessage =
-          error instanceof Error ? error.message : 'Unknown error';
-        throw new CustomException(
-          'Database query failed during user lookup',
-          HttpStatus.INTERNAL_SERVER_ERROR,
-          `Error querying user: ${errorMessage}`,
-        );
-      }
+      const user = await this.userRepository.findOne({
+        where: { username: credentials.username },
+      });
 
       // If user not found, throw exception
       if (!user) {
@@ -234,21 +167,10 @@ export class AuthService implements IAuthService {
       }
 
       // Compare password
-      let isPasswordValid: boolean;
-      try {
-        isPasswordValid = await bcrypt.compare(
-          credentials.password,
-          user.password_hash,
-        );
-      } catch (error: unknown) {
-        const errorMessage =
-          error instanceof Error ? error.message : 'Unknown error';
-        throw new CustomException(
-          'Failed to validate password',
-          HttpStatus.INTERNAL_SERVER_ERROR,
-          `Error during password comparison: ${errorMessage}`,
-        );
-      }
+      const isPasswordValid = await bcrypt.compare(
+        credentials.password,
+        user.password_hash,
+      );
 
       // If password is invalid, throw exception
       if (!isPasswordValid) {
@@ -263,30 +185,18 @@ export class AuthService implements IAuthService {
       this.logger.log(`Successful login for user ID: ${user.id}`);
 
       // Generate tokens
-      let accessToken: string;
-      let refreshToken: string;
-      try {
-        const payload = {
-          sub: user.id,
-          username: user.username,
-          role: user.role,
-        };
-        accessToken = this.jwtService.sign(payload);
-        refreshToken = this.jwtService.sign(payload, {
-          expiresIn: '1d',
-        });
-        this.logger.log(
-          `Successfully generated tokens for user ID: ${user.id}`,
-        );
-      } catch (error: unknown) {
-        const errorMessage =
-          error instanceof Error ? error.message : 'Unknown error';
-        throw new CustomException(
-          'Failed to generate authentication tokens',
-          HttpStatus.INTERNAL_SERVER_ERROR,
-          `Error during token generation: ${errorMessage}`,
-        );
-      }
+      const payload = {
+        sub: user.id,
+        username: user.username,
+        role: user.role,
+      };
+      const accessToken = this.jwtService.sign(payload);
+      const refreshToken = this.jwtService.sign(payload, {
+        expiresIn: '1d',
+      });
+      this.logger.log(
+        `Successfully generated tokens for user ID: ${user.id}`,
+      );
 
       // Construct response (excluding password_hash)
       const { password_hash: _, ...userWithoutPassword } = user;
@@ -321,60 +231,38 @@ export class AuthService implements IAuthService {
       this.logger.log('Attempting to refresh token');
 
       // Verify the refresh token
-      let payload: JwtPayload | null = null;
-      try {
-        // Verify the token and assert its type
-        const verifiedPayload = this.jwtService.verify<JwtPayload>(
-          refreshTokenData.refreshToken,
-        );
+      // Verify the token and assert its type
+      const verifiedPayload = this.jwtService.verify<JwtPayload>(
+        refreshTokenData.refreshToken,
+      );
 
-        // Type guard to ensure payload has the required properties
-        if (
-          !verifiedPayload ||
-          typeof verifiedPayload !== 'object' ||
-          !('sub' in verifiedPayload) ||
-          !('username' in verifiedPayload)
-        ) {
-          throw new Error('Invalid token payload');
-        }
-
-        // Ensure sub is a number
-        if (typeof verifiedPayload.sub !== 'number') {
-          throw new Error('Invalid user ID in token payload');
-        }
-
-        payload = verifiedPayload;
-        this.logger.log(
-          `Successfully verified refresh token for user ID: ${payload.sub}`,
-        );
-      } catch (error: unknown) {
-        const errorMessage =
-          error instanceof Error ? error.message : 'Unknown error';
-        throw new CustomException(
-          'Invalid refresh token',
-          HttpStatus.UNAUTHORIZED,
-          `Token verification failed: ${errorMessage}`,
-        );
+      // Type guard to ensure payload has the required properties
+      if (
+        !verifiedPayload ||
+        typeof verifiedPayload !== 'object' ||
+        !('sub' in verifiedPayload) ||
+        !('username' in verifiedPayload)
+      ) {
+        throw new Error('Invalid token payload');
       }
+
+      // Ensure sub is a number
+      if (typeof verifiedPayload.sub !== 'number') {
+        throw new Error('Invalid user ID in token payload');
+      }
+
+      const payload = verifiedPayload;
+      this.logger.log(
+        `Successfully verified refresh token for user ID: ${payload.sub}`,
+      );
 
       // Find user by ID from token payload
-      let user: User | null = null;
-      try {
-        // Extract user ID with proper type checking
-        const userId = payload.sub;
+      // Extract user ID with proper type checking
+      const userId = payload.sub;
 
-        user = await this.userRepository.findOne({
-          where: { id: userId },
-        });
-      } catch (error: unknown) {
-        const errorMessage =
-          error instanceof Error ? error.message : 'Unknown error';
-        throw new CustomException(
-          'Database query failed during user lookup',
-          HttpStatus.INTERNAL_SERVER_ERROR,
-          `Error querying user: ${errorMessage}`,
-        );
-      }
+      const user = await this.userRepository.findOne({
+        where: { id: userId },
+      });
 
       // If user not found, throw exception
       if (!user) {
@@ -387,30 +275,18 @@ export class AuthService implements IAuthService {
       }
 
       // Generate new tokens
-      let newAccessToken: string;
-      let newRefreshToken: string;
-      try {
-        const newPayload = {
-          sub: user.id,
-          username: user.username,
-          role: user.role,
-        };
-        newAccessToken = this.jwtService.sign(newPayload);
-        newRefreshToken = this.jwtService.sign(newPayload, {
-          expiresIn: '1d',
-        });
-        this.logger.log(
-          `Successfully generated new tokens for user ID: ${user.id}`,
-        );
-      } catch (error: unknown) {
-        const errorMessage =
-          error instanceof Error ? error.message : 'Unknown error';
-        throw new CustomException(
-          'Failed to generate authentication tokens',
-          HttpStatus.INTERNAL_SERVER_ERROR,
-          `Error during token generation: ${errorMessage}`,
-        );
-      }
+      const newPayload = {
+        sub: user.id,
+        username: user.username,
+        role: user.role,
+      };
+      const newAccessToken = this.jwtService.sign(newPayload);
+      const newRefreshToken = this.jwtService.sign(newPayload, {
+        expiresIn: '1d',
+      });
+      this.logger.log(
+        `Successfully generated new tokens for user ID: ${user.id}`,
+      );
 
       // Construct response (excluding password_hash)
       const { password_hash: _, ...userWithoutPassword } = user;
@@ -424,6 +300,15 @@ export class AuthService implements IAuthService {
 
       return authResponse;
     } catch (error) {
+      // Handle token verification errors specifically
+      if (error.name === 'TokenExpiredError' || error.name === 'JsonWebTokenError') {
+        throw new CustomException(
+          'Invalid refresh token',
+          HttpStatus.UNAUTHORIZED,
+          `Token verification failed: ${error.message}`,
+        );
+      }
+
       // Re-throw if it's already a CustomException, otherwise wrap in CustomException
       if (error instanceof CustomException) {
         throw error;
