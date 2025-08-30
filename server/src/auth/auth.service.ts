@@ -178,6 +178,7 @@ export class AuthService implements IAuthService {
         const payload = {
           sub: savedUser.id,
           username: savedUser.username,
+          role: savedUser.role,
         };
         accessToken = this.jwtService.sign(payload);
         refreshToken = this.jwtService.sign(payload, {
@@ -303,6 +304,7 @@ export class AuthService implements IAuthService {
         const payload = {
           sub: user.id,
           username: user.username,
+          role: user.role,
         };
         accessToken = this.jwtService.sign(payload);
         refreshToken = this.jwtService.sign(payload, {
@@ -440,6 +442,7 @@ export class AuthService implements IAuthService {
         const newPayload = {
           sub: user.id,
           username: user.username,
+          role: user.role,
         };
         newAccessToken = this.jwtService.sign(newPayload);
         newRefreshToken = this.jwtService.sign(newPayload, {
