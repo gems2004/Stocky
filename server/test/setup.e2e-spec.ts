@@ -1,5 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
+import { ValidationPipe } from '@nestjs/common';
 import * as request from 'supertest';
 import { AppModule } from '../src/app.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -29,6 +30,12 @@ describe('SetupController (e2e)', () => {
     }).compile();
 
     app = moduleFixture.createNestApplication();
+    app.useGlobalPipes(new ValidationPipe({
+      whitelist: true,
+      forbidNonWhitelisted: true,
+      transform: true,
+      forbidUnknownValues: true,
+    }));
     await app.init();
   });
 
@@ -63,7 +70,7 @@ describe('SetupController (e2e)', () => {
   const databaseConfigData = {
     type: DatabaseType.POSTGRES,
     host: 'localhost',
-    port: 5432,
+    port: '5432',
     username: 'george',
     password: 'zaq321xsw',
     database: 'stocky_test_setup',

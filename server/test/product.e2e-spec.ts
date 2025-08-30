@@ -1,5 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
+import { ValidationPipe } from '@nestjs/common';
 import * as request from 'supertest';
 import { AppModule } from '../src/app.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -38,7 +39,7 @@ describe('ProductController (e2e)', () => {
     description: 'An updated test product',
     price: 149.99,
     cost: 75.0,
-    categoryId: 2,
+    categoryId: 1,
     supplierId: 2,
     barcode: '1234567890124',
     sku: 'TEST-SKU-002',
@@ -63,6 +64,12 @@ describe('ProductController (e2e)', () => {
     }).compile();
 
     app = moduleFixture.createNestApplication();
+    app.useGlobalPipes(new ValidationPipe({
+      whitelist: true,
+      forbidNonWhitelisted: true,
+      transform: true,
+      forbidUnknownValues: true,
+    }));
     await app.init();
 
     // Register and login a test user to get access token
@@ -80,6 +87,16 @@ describe('ProductController (e2e)', () => {
       .expect(200);
 
     accessToken = loginResponse.body.data.tokens.accessToken;
+
+    // Create a test category for products
+    await request(app.getHttpServer())
+      .post('/category')
+      .set('Authorization', `Bearer ${accessToken}`)
+      .send({
+        name: 'Test Category',
+        description: 'A test category for products',
+      })
+      .expect(201);
   });
 
   afterAll(async () => {

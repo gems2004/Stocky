@@ -48,6 +48,7 @@ export class ProductService implements IProductService {
           order: {
             id: 'ASC',
           },
+          relations: ['category'], // Load the category relation
         });
       } catch (error: unknown) {
         const errorMessage =
@@ -75,6 +76,15 @@ export class ProductService implements IProductService {
         price: Number(product.price),
         cost: product.cost ? Number(product.cost) : undefined,
         categoryId: product.category_id,
+        category: product.category
+          ? {
+              id: product.category.id,
+              name: product.category.name,
+              description: product.category.description,
+              created_at: product.category.created_at,
+              updated_at: product.category.updated_at,
+            }
+          : undefined,
         supplierId: product.supplier_id,
         barcode: product.barcode,
         sku: product.sku,
@@ -128,6 +138,7 @@ export class ProductService implements IProductService {
       try {
         product = await this.productRepository.findOne({
           where: { id },
+          relations: ['category'], // Load the category relation
         });
       } catch (error: unknown) {
         const errorMessage =
@@ -164,6 +175,15 @@ export class ProductService implements IProductService {
         price: Number(product.price),
         cost: product.cost ? Number(product.cost) : undefined,
         categoryId: product.category_id,
+        category: product.category
+          ? {
+              id: product.category.id,
+              name: product.category.name,
+              description: product.category.description,
+              created_at: product.category.created_at,
+              updated_at: product.category.updated_at,
+            }
+          : undefined,
         supplierId: product.supplier_id,
         barcode: product.barcode,
         sku: product.sku,
@@ -649,6 +669,7 @@ export class ProductService implements IProductService {
             { barcode: Like(`%${query.query}%`) },
             { sku: Like(`%${query.query}%`) },
           ],
+          relations: ['category'], // Load the category relation
         });
       } catch (error: unknown) {
         const errorMessage =
@@ -676,6 +697,15 @@ export class ProductService implements IProductService {
         price: Number(product.price),
         cost: product.cost ? Number(product.cost) : undefined,
         categoryId: product.category_id,
+        category: product.category
+          ? {
+              id: product.category.id,
+              name: product.category.name,
+              description: product.category.description,
+              created_at: product.category.created_at,
+              updated_at: product.category.updated_at,
+            }
+          : undefined,
         supplierId: product.supplier_id,
         barcode: product.barcode,
         sku: product.sku,

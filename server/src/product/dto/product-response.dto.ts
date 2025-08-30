@@ -1,4 +1,5 @@
 import { Product } from '../entity/product.entity';
+import { CategoryResponseDto } from '../../category/dto/category-response.dto';
 
 export class ProductResponseDto {
   id: number;
@@ -7,6 +8,7 @@ export class ProductResponseDto {
   price: number;
   cost?: number;
   categoryId?: number;
+  category?: CategoryResponseDto;
   supplierId?: number;
   barcode?: string;
   sku?: string;
