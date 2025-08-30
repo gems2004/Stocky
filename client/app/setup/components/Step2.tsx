@@ -14,28 +14,34 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import React from "react";
-import { useForm, UseFormReturn } from "react-hook-form";
+import { UseFormReturn } from "react-hook-form";
 import { Input } from "@/components/ui/input";
-import {
-  ShopInfoSchema,
-  BusinessType,
-  Currency,
-  ShopInfoForm,
-} from "../schema";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { BusinessType, Currency, ShopInfoForm, SetupDataForm } from "../schema";
 import { Button } from "@/components/ui/button";
 
 interface Props {
+  setSetupData: React.Dispatch<any>;
   form: UseFormReturn<ShopInfoForm>;
   nextStep: () => void;
   previousStep: () => void;
 }
 
-export default function Step2({ form, nextStep, previousStep }: Props) {
+export default function Step2({
+  setSetupData,
+  form,
+  nextStep,
+  previousStep,
+}: Props) {
   const { control, handleSubmit } = form;
 
   function onSubmit(data: ShopInfoForm) {
     console.log(data);
+    setSetupData((prev: any) => {
+      return {
+        ...prev,
+        ...data,
+      };
+    });
     nextStep();
   }
   return (

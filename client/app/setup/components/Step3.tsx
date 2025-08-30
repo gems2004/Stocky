@@ -1,10 +1,6 @@
 import React from "react";
-import { useForm, UseFormReturn } from "react-hook-form";
-import {
-  DatabaseConfigForm,
-  DatabaseConfigSchema,
-  DatabaseType,
-} from "../schema";
+import { UseFormReturn } from "react-hook-form";
+import { DatabaseConfigForm, DatabaseType } from "../schema";
 import {
   Form,
   FormControl,
@@ -21,20 +17,31 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
 
 interface Props {
+  setSetupData: React.Dispatch<any>;
   form: UseFormReturn<DatabaseConfigForm>;
   previousStep: () => void;
   nextStep: () => void;
 }
 
-export default function Step3({ form, previousStep, nextStep }: Props) {
+export default function Step3({
+  setSetupData,
+  form,
+  previousStep,
+  nextStep,
+}: Props) {
   const { control, handleSubmit } = form;
 
   function onSubmit(data: DatabaseConfigForm) {
     console.log(data);
+    setSetupData((prev: any) => {
+      return {
+        ...prev,
+        ...data,
+      };
+    });
     nextStep();
   }
   return (

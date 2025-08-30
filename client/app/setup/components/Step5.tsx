@@ -1,19 +1,14 @@
-import React, { useEffect, useState } from "react";
-import { UseFormReturn } from "react-hook-form";
+import React from "react";
 import H4 from "@/components/typography/H4";
-import { AdminUserForm, DatabaseConfigForm, ShopInfoForm } from "../schema";
+import { SetupDataForm } from "../schema";
 import { Button } from "@/components/ui/button";
 
 interface Props {
-  shopInfo: ShopInfoForm;
-  dataConfig: DatabaseConfigForm;
-  adminUser: AdminUserForm;
+  setupData: SetupDataForm;
 }
 
-export default function Step5({ shopInfo, dataConfig, adminUser }: Props) {
-  console.log(shopInfo);
-  console.log(dataConfig);
-  console.log(adminUser);
+export default function Step5({ setupData }: Props) {
+  console.log(setupData);
 
   return (
     <>
@@ -24,19 +19,19 @@ export default function Step5({ shopInfo, dataConfig, adminUser }: Props) {
             <p>
               Shop Name:{" "}
               <span className="font-normal text-secondary">
-                {shopInfo.shop_name}
+                {setupData.shop_name}
               </span>
             </p>
             <p>
               Shop Address:{" "}
               <span className="font-normal text-secondary">
-                {shopInfo.shop_address}
+                {setupData.shop_address}
               </span>
             </p>
             <p>
               Phone Number:{" "}
               <span className="font-normal text-secondary">
-                {shopInfo.phone}
+                {setupData.phone}
               </span>
             </p>
           </div>
@@ -44,27 +39,27 @@ export default function Step5({ shopInfo, dataConfig, adminUser }: Props) {
             <p>
               Shop Email:{" "}
               <span className="font-normal text-secondary">
-                {shopInfo.shop_email}
+                {setupData.shop_email}
               </span>
             </p>
             <p>
               Business Type:{" "}
               <span className="font-normal text-secondary">
-                {shopInfo.business_type}
+                {setupData.business_type}
               </span>
             </p>
             <p>
               Currency:{" "}
               <span className="font-normal text-secondary">
-                {shopInfo.currency}
+                {setupData.currency}
               </span>
             </p>
           </div>
-          {shopInfo.website && (
+          {setupData.website && (
             <p>
               Website:{" "}
               <span className="font-normal text-secondary">
-                {shopInfo.website}
+                {setupData.website}
               </span>
             </p>
           )}
@@ -75,19 +70,19 @@ export default function Step5({ shopInfo, dataConfig, adminUser }: Props) {
             <p>
               Database Type:{" "}
               <span className="font-normal text-secondary">
-                {dataConfig.db_type}
+                {setupData.db_type}
               </span>
             </p>
             <p>
               Database Name:{" "}
               <span className="font-normal text-secondary">
-                {dataConfig.db_name}
+                {setupData.db_name}
               </span>
             </p>
             <p>
               Hostname:{" "}
               <span className="font-normal text-secondary">
-                {dataConfig.host}
+                {setupData.host}
               </span>
             </p>
           </div>
@@ -95,19 +90,19 @@ export default function Step5({ shopInfo, dataConfig, adminUser }: Props) {
             <p>
               Port:{" "}
               <span className="font-normal text-secondary">
-                {dataConfig.port}
+                {setupData.port}
               </span>
             </p>
             <p>
               Username:{" "}
               <span className="font-normal text-secondary">
-                {dataConfig.db_username}
+                {setupData.db_username}
               </span>
             </p>
             <p>
               Password:{" "}
               <span className="font-normal text-secondary">
-                {dataConfig.db_password}
+                {setupData.db_password}
               </span>
             </p>
           </div>
@@ -115,14 +110,14 @@ export default function Step5({ shopInfo, dataConfig, adminUser }: Props) {
             <p>
               SSL:{" "}
               <span className="font-normal text-secondary">
-                {dataConfig.ssl ? "Enabled" : "Disabled"}
+                {setupData.ssl ? "Enabled" : "Disabled"}
               </span>
             </p>
-            {dataConfig.table_prefix && (
+            {setupData.table_prefix && (
               <p>
                 Table Prefix:{" "}
                 <span className="font-normal text-secondary">
-                  {dataConfig.table_prefix}
+                  {setupData.table_prefix}
                 </span>
               </p>
             )}
@@ -134,13 +129,13 @@ export default function Step5({ shopInfo, dataConfig, adminUser }: Props) {
             <p>
               Username:{" "}
               <span className="font-normal text-secondary">
-                {adminUser.username}
+                {setupData.username}
               </span>
             </p>
             <p>
               Email:{" "}
               <span className="font-normal text-secondary">
-                {adminUser.email}
+                {setupData.email}
               </span>
             </p>
           </div>
@@ -148,14 +143,14 @@ export default function Step5({ shopInfo, dataConfig, adminUser }: Props) {
             <p>
               First Name:{" "}
               <span className="font-normal text-secondary">
-                {adminUser.first_name}
+                {setupData.first_name}
               </span>
             </p>
-            {adminUser.last_name && (
+            {setupData.last_name && (
               <p>
                 Last Name:{" "}
                 <span className="font-normal text-secondary">
-                  {adminUser.last_name}
+                  {setupData.last_name}
                 </span>
               </p>
             )}

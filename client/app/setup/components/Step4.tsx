@@ -1,6 +1,6 @@
 import React from "react";
-import { useForm, UseFormReturn } from "react-hook-form";
-import { AdminUserForm, AdminUserSchema } from "../schema";
+import { UseFormReturn } from "react-hook-form";
+import { AdminUserForm } from "../schema";
 import {
   Form,
   FormControl,
@@ -10,20 +10,31 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
 
 interface Props {
+  setSetupData: React.Dispatch<any>;
   form: UseFormReturn<AdminUserForm>;
   previousStep: () => void;
   nextStep: () => void;
 }
 
-export default function Step4({ form, previousStep, nextStep }: Props) {
+export default function Step4({
+  setSetupData,
+  form,
+  previousStep,
+  nextStep,
+}: Props) {
   const { control, handleSubmit } = form;
 
   function onSubmit(data: AdminUserForm) {
     console.log(data);
+    setSetupData((prev: any) => {
+      return {
+        ...prev,
+        ...data,
+      };
+    });
     nextStep();
   }
 
