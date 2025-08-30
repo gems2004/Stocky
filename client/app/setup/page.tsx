@@ -1,9 +1,10 @@
 import React from "react";
+import SetupForm from "./components/SetupForm";
 
-export default function page() {
+export default function SetupPage() {
   return (
     <main>
-      <h1>HELLO</h1>
+      <SetupForm />
     </main>
   );
 }
