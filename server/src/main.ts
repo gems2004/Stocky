@@ -18,16 +18,6 @@ async function bootstrap() {
     credentials: true,
   });
 
-  // Add global validation pipe
-  app.useGlobalPipes(
-    new ValidationPipe({
-      whitelist: true,
-      forbidNonWhitelisted: true,
-      transform: true,
-      forbidUnknownValues: true,
-    }),
-  );
-
   const port = Number(process.env.PORT) || 3000;
   await app.listen(port);
 

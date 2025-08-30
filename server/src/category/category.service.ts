@@ -34,10 +34,6 @@ export class CategoryService implements ICategoryService {
       } catch (error: unknown) {
         const errorMessage =
           error instanceof Error ? error.message : 'Unknown error';
-        this.logger.error(
-          'Database query failed during category existence check',
-          errorMessage,
-        );
         throw new CustomException(
           'Database query failed during category existence check',
           HttpStatus.INTERNAL_SERVER_ERROR,
@@ -47,7 +43,6 @@ export class CategoryService implements ICategoryService {
 
       if (existingCategory) {
         const errorMsg = `Category with this name already exists: ${createCategoryDto.name}`;
-        this.logger.warn(errorMsg);
         throw new CustomException(
           'Category with this name already exists',
           HttpStatus.CONFLICT,
@@ -71,7 +66,6 @@ export class CategoryService implements ICategoryService {
       } catch (error: unknown) {
         const errorMessage =
           error instanceof Error ? error.message : 'Unknown error';
-        this.logger.error('Failed to save category', errorMessage);
         throw new CustomException(
           'Failed to save category',
           HttpStatus.INTERNAL_SERVER_ERROR,
@@ -96,10 +90,6 @@ export class CategoryService implements ICategoryService {
       }
       const errorMessage =
         error instanceof Error ? error.message : 'Unknown error';
-      this.logger.error(
-        'An unexpected error occurred during category creation',
-        errorMessage,
-      );
       throw new CustomException(
         'An unexpected error occurred during category creation',
         HttpStatus.INTERNAL_SERVER_ERROR,
@@ -121,10 +111,6 @@ export class CategoryService implements ICategoryService {
       } catch (error: unknown) {
         const errorMessage =
           error instanceof Error ? error.message : 'Unknown error';
-        this.logger.error(
-          'Database query failed during categories lookup',
-          errorMessage,
-        );
         throw new CustomException(
           'Database query failed during categories lookup',
           HttpStatus.INTERNAL_SERVER_ERROR,
@@ -153,12 +139,8 @@ export class CategoryService implements ICategoryService {
       }
       const errorMessage =
         error instanceof Error ? error.message : 'Unknown error';
-      this.logger.error(
-        'An unexpected error occurred while fetching categories',
-        errorMessage,
-      );
       throw new CustomException(
-        'An unexpected error occurred while fetching categories',
+        'An unexpected error occurred while fetching all categories',
         HttpStatus.INTERNAL_SERVER_ERROR,
         `Unexpected error in findAll function: ${errorMessage}`,
       );
@@ -181,10 +163,6 @@ export class CategoryService implements ICategoryService {
       } catch (error: unknown) {
         const errorMessage =
           error instanceof Error ? error.message : 'Unknown error';
-        this.logger.error(
-          'Database query failed during category lookup',
-          errorMessage,
-        );
         throw new CustomException(
           'Database query failed during category lookup',
           HttpStatus.INTERNAL_SERVER_ERROR,
@@ -195,7 +173,6 @@ export class CategoryService implements ICategoryService {
       // If category not found, throw exception
       if (!category) {
         const errorMsg = `Category not found with ID: ${id}`;
-        this.logger.warn(errorMsg);
         throw new CustomException(
           'Category not found',
           HttpStatus.NOT_FOUND,
@@ -213,10 +190,6 @@ export class CategoryService implements ICategoryService {
         } catch (error: unknown) {
           const errorMessage =
             error instanceof Error ? error.message : 'Unknown error';
-          this.logger.error(
-            'Database query failed during category existence check',
-            errorMessage,
-          );
           throw new CustomException(
             'Database query failed during category existence check',
             HttpStatus.INTERNAL_SERVER_ERROR,
@@ -226,7 +199,6 @@ export class CategoryService implements ICategoryService {
 
         if (existingCategory) {
           const errorMsg = `Category with this name already exists: ${updateCategoryDto.name}`;
-          this.logger.warn(errorMsg);
           throw new CustomException(
             'Category with this name already exists',
             HttpStatus.CONFLICT,
@@ -253,7 +225,6 @@ export class CategoryService implements ICategoryService {
       } catch (error: unknown) {
         const errorMessage =
           error instanceof Error ? error.message : 'Unknown error';
-        this.logger.error('Failed to update category', errorMessage);
         throw new CustomException(
           'Failed to update category',
           HttpStatus.INTERNAL_SERVER_ERROR,
@@ -278,10 +249,6 @@ export class CategoryService implements ICategoryService {
       }
       const errorMessage =
         error instanceof Error ? error.message : 'Unknown error';
-      this.logger.error(
-        'An unexpected error occurred during category update',
-        errorMessage,
-      );
       throw new CustomException(
         'An unexpected error occurred during category update',
         HttpStatus.INTERNAL_SERVER_ERROR,
@@ -303,10 +270,6 @@ export class CategoryService implements ICategoryService {
       } catch (error: unknown) {
         const errorMessage =
           error instanceof Error ? error.message : 'Unknown error';
-        this.logger.error(
-          'Database query failed during category lookup',
-          errorMessage,
-        );
         throw new CustomException(
           'Database query failed during category lookup',
           HttpStatus.INTERNAL_SERVER_ERROR,
@@ -317,7 +280,6 @@ export class CategoryService implements ICategoryService {
       // If category not found, throw exception
       if (!category) {
         const errorMsg = `Category not found with ID: ${id}`;
-        this.logger.warn(errorMsg);
         throw new CustomException(
           'Category not found',
           HttpStatus.NOT_FOUND,
@@ -332,7 +294,6 @@ export class CategoryService implements ICategoryService {
       } catch (error: unknown) {
         const errorMessage =
           error instanceof Error ? error.message : 'Unknown error';
-        this.logger.error('Failed to remove category', errorMessage);
         throw new CustomException(
           'Failed to remove category',
           HttpStatus.INTERNAL_SERVER_ERROR,
@@ -346,10 +307,6 @@ export class CategoryService implements ICategoryService {
       }
       const errorMessage =
         error instanceof Error ? error.message : 'Unknown error';
-      this.logger.error(
-        'An unexpected error occurred during category removal',
-        errorMessage,
-      );
       throw new CustomException(
         'An unexpected error occurred during category removal',
         HttpStatus.INTERNAL_SERVER_ERROR,

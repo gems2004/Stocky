@@ -1,4 +1,11 @@
-import { IsEnum, IsString, IsInt, IsBoolean, Min, IsPort } from 'class-validator';
+import {
+  IsEnum,
+  IsString,
+  IsInt,
+  IsBoolean,
+  Min,
+  IsPort,
+} from 'class-validator';
 
 export enum DatabaseType {
   POSTGRES = 'postgres',

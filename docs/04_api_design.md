@@ -339,6 +339,13 @@ All API responses follow a consistent format to simplify client-side handling:
         "price": 29.99,
         "cost": 15.00,
         "categoryId": 1,
+        "category": {
+          "id": 1,
+          "name": "Electronics",
+          "description": "Electronic products",
+          "created_at": "2023-08-26T10:30:00Z",
+          "updated_at": "2023-08-26T10:30:00Z"
+        },
         "supplierId": 1,
         "barcode": "1234567890123",
         "sku": "PROD-001",
@@ -370,6 +377,13 @@ All API responses follow a consistent format to simplify client-side handling:
     "price": 29.99,
     "cost": 15.00,
     "categoryId": 1,
+    "category": {
+      "id": 1,
+      "name": "Electronics",
+      "description": "Electronic products",
+      "created_at": "2023-08-26T10:30:00Z",
+      "updated_at": "2023-08-26T10:30:00Z"
+    },
     "supplierId": 1,
     "barcode": "1234567890123",
     "sku": "PROD-001",
@@ -410,6 +424,13 @@ All API responses follow a consistent format to simplify client-side handling:
     "price": 29.99,
     "cost": 15.00,
     "categoryId": 1,
+    "category": {
+      "id": 1,
+      "name": "Electronics",
+      "description": "Electronic products",
+      "created_at": "2023-08-26T10:30:00Z",
+      "updated_at": "2023-08-26T10:30:00Z"
+    },
     "supplierId": 1,
     "barcode": "1234567890124",
     "sku": "PROD-002",
@@ -450,6 +471,13 @@ All API responses follow a consistent format to simplify client-side handling:
     "price": 39.99,
     "cost": 20.00,
     "categoryId": 2,
+    "category": {
+      "id": 2,
+      "name": "Clothing",
+      "description": "Clothing products",
+      "created_at": "2023-08-26T10:30:00Z",
+      "updated_at": "2023-08-26T11:30:00Z"
+    },
     "supplierId": 2,
     "barcode": "1234567890125",
     "sku": "PROD-003",
@@ -491,6 +519,13 @@ All API responses follow a consistent format to simplify client-side handling:
       "price": 29.99,
       "cost": 15.00,
       "categoryId": 1,
+      "category": {
+        "id": 1,
+        "name": "Electronics",
+        "description": "Electronic products",
+        "created_at": "2023-08-26T10:30:00Z",
+        "updated_at": "2023-08-26T10:30:00Z"
+      },
       "supplierId": 1,
       "barcode": "1234567890123",
       "sku": "PROD-001",
@@ -505,10 +540,95 @@ All API responses follow a consistent format to simplify client-side handling:
 ```
 
 ### Categories
-- `GET /categories` - Get all categories
-- `POST /categories` - Create new category
-- `PUT /categories/:id` - Update category
-- `DELETE /categories/:id` - Delete category
+
+#### Get All Categories
+- **Endpoint**: `GET /category`
+- **Description**: Get all categories
+- **Response Example**:
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": 1,
+      "name": "Electronics",
+      "description": "Electronic products",
+      "created_at": "2023-08-26T10:30:00Z",
+      "updated_at": "2023-08-26T10:30:00Z"
+    },
+    {
+      "id": 2,
+      "name": "Clothing",
+      "description": "Clothing products",
+      "created_at": "2023-08-26T10:30:00Z",
+      "updated_at": "2023-08-26T10:30:00Z"
+    }
+  ],
+  "message": "Categories retrieved successfully"
+}
+```
+
+#### Create New Category
+- **Endpoint**: `POST /category`
+- **Description**: Create a new category
+- **Request Body**:
+```json
+{
+  "name": "New Category",
+  "description": "Category description"
+}
+```
+- **Response Example**:
+```json
+{
+  "success": true,
+  "data": {
+    "id": 3,
+    "name": "New Category",
+    "description": "Category description",
+    "created_at": "2023-08-26T10:30:00Z",
+    "updated_at": "2023-08-26T10:30:00Z"
+  },
+  "message": "Category created successfully"
+}
+```
+
+#### Update Category
+- **Endpoint**: `PUT /category/:id`
+- **Description**: Update an existing category
+- **Request Body**:
+```json
+{
+  "name": "Updated Category",
+  "description": "Updated category description"
+}
+```
+- **Response Example**:
+```json
+{
+  "success": true,
+  "data": {
+    "id": 3,
+    "name": "Updated Category",
+    "description": "Updated category description",
+    "created_at": "2023-08-26T10:30:00Z",
+    "updated_at": "2023-08-26T11:30:00Z"
+  },
+  "message": "Category updated successfully"
+}
+```
+
+#### Delete Category
+- **Endpoint**: `DELETE /category/:id`
+- **Description**: Delete a category
+- **Response Example**:
+```json
+{
+  "success": true,
+  "data": null,
+  "message": "Category deleted successfully"
+}
+```
 
 ### Suppliers
 - `GET /suppliers` - Get all suppliers

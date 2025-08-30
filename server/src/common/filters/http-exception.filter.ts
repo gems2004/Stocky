@@ -4,6 +4,7 @@ import {
   ArgumentsHost,
   HttpException,
   HttpStatus,
+  Logger, // Import Logger
 } from '@nestjs/common';
 import { Response } from 'express';
 import { ErrorResponse } from '../types/api-response.type';
@@ -11,6 +12,8 @@ import { IRequestWithId } from '../interfaces/request.interface';
 
 @Catch()
 export class HttpExceptionFilter implements ExceptionFilter {
+  private readonly logger = new Logger(HttpExceptionFilter.name); // Create a logger instance
+
   catch(exception: unknown, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
@@ -52,6 +55,20 @@ export class HttpExceptionFilter implements ExceptionFilter {
       error: errorObject,
     };
 
+    // Log the error with request ID for better traceability
+    const requestId = errorObject.requestId || 'unknown';
+    const logMessage = `Request ID: ${requestId} - Status: ${status} - Message: ${message}`;
+    if (status >= 500) {
+      // Log server errors as errors
+      this.logger.error(
+        logMessage,
+        exception instanceof Error ? exception.stack : '',
+      );
+    } else {
+      // Log client errors (like 400, 401, 404) as warnings
+      this.logger.warn(logMessage);
+    }
+
     response.status(status).json(errorResponse);
   }
 
@@ -62,7 +79,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
       [HttpStatus.FORBIDDEN]: 'FORBIDDEN',
       [HttpStatus.NOT_FOUND]: 'NOT_FOUND',
       [HttpStatus.CONFLICT]: 'CONFLICT',
-      [HttpStatus.UNPROCESSABLE_ENTITY]: 'VALIDATION_ERROR',
+      [HttpStatus.UNPROCESSABLE_ENTITY]: 'VALIDATION_ERROR', // Validation errors
       [HttpStatus.TOO_MANY_REQUESTS]: 'RATE_LIMIT_EXCEEDED',
       [HttpStatus.INTERNAL_SERVER_ERROR]: 'INTERNAL_SERVER_ERROR',
     };

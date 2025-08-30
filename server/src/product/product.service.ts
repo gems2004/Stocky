@@ -53,10 +53,6 @@ export class ProductService implements IProductService {
       } catch (error: unknown) {
         const errorMessage =
           error instanceof Error ? error.message : 'Unknown error';
-        this.logger.error(
-          'Database query failed during product lookup',
-          errorMessage,
-        );
         throw new CustomException(
           'Database query failed during product lookup',
           HttpStatus.INTERNAL_SERVER_ERROR,
@@ -107,10 +103,6 @@ export class ProductService implements IProductService {
       }
       const errorMessage =
         error instanceof Error ? error.message : 'Unknown error';
-      this.logger.error(
-        'An unexpected error occurred while fetching all products',
-        errorMessage,
-      );
       throw new CustomException(
         'An unexpected error occurred while fetching all products',
         HttpStatus.INTERNAL_SERVER_ERROR,
@@ -126,7 +118,6 @@ export class ProductService implements IProductService {
       // Validate ID parameter
       if (!id || id <= 0) {
         const errorMsg = `Invalid product ID provided: ${id}`;
-        this.logger.warn(errorMsg);
         throw new CustomException(
           'Invalid product ID',
           HttpStatus.BAD_REQUEST,
@@ -143,10 +134,6 @@ export class ProductService implements IProductService {
       } catch (error: unknown) {
         const errorMessage =
           error instanceof Error ? error.message : 'Unknown error';
-        this.logger.error(
-          `Database query failed during product lookup for ID: ${id}`,
-          errorMessage,
-        );
         throw new CustomException(
           'Database query failed during product lookup',
           HttpStatus.INTERNAL_SERVER_ERROR,
@@ -157,7 +144,6 @@ export class ProductService implements IProductService {
       // If product not found, throw exception
       if (!product) {
         const errorMsg = `Product not found with ID: ${id}`;
-        this.logger.warn(errorMsg);
         throw new CustomException(
           'Product not found',
           HttpStatus.NOT_FOUND,
@@ -201,10 +187,6 @@ export class ProductService implements IProductService {
       }
       const errorMessage =
         error instanceof Error ? error.message : 'Unknown error';
-      this.logger.error(
-        `An unexpected error occurred while fetching product with ID: ${id}`,
-        errorMessage,
-      );
       throw new CustomException(
         'An unexpected error occurred while fetching product',
         HttpStatus.INTERNAL_SERVER_ERROR,
@@ -220,7 +202,6 @@ export class ProductService implements IProductService {
       // Validate required fields
       if (!productData.name || !productData.price) {
         const errorMsg = 'Product name and price are required';
-        this.logger.warn(errorMsg);
         throw new CustomException(
           'Product name and price are required',
           HttpStatus.BAD_REQUEST,
@@ -231,7 +212,6 @@ export class ProductService implements IProductService {
       // Validate price is positive
       if (productData.price <= 0) {
         const errorMsg = 'Product price must be positive';
-        this.logger.warn(errorMsg);
         throw new CustomException(
           'Product price must be positive',
           HttpStatus.BAD_REQUEST,
@@ -242,7 +222,6 @@ export class ProductService implements IProductService {
       // Validate cost if provided
       if (productData.cost && productData.cost <= 0) {
         const errorMsg = 'Product cost must be positive';
-        this.logger.warn(errorMsg);
         throw new CustomException(
           'Product cost must be positive',
           HttpStatus.BAD_REQUEST,
@@ -253,7 +232,6 @@ export class ProductService implements IProductService {
       // Validate minStockLevel if provided
       if (productData.minStockLevel && productData.minStockLevel < 0) {
         const errorMsg = 'Product minimum stock level cannot be negative';
-        this.logger.warn(errorMsg);
         throw new CustomException(
           'Product minimum stock level cannot be negative',
           HttpStatus.BAD_REQUEST,
@@ -273,7 +251,6 @@ export class ProductService implements IProductService {
 
           if (existingProduct) {
             const errorMsg = `Product with this barcode or SKU already exists: ${existingProduct.name}`;
-            this.logger.warn(errorMsg);
             throw new CustomException(
               'Product with this barcode or SKU already exists',
               HttpStatus.CONFLICT,
@@ -287,10 +264,6 @@ export class ProductService implements IProductService {
           ) {
             const errorMessage =
               error instanceof Error ? error.message : 'Unknown error';
-            this.logger.error(
-              'Database query failed during product existence check',
-              errorMessage,
-            );
             throw new CustomException(
               'Database query failed during product existence check',
               HttpStatus.INTERNAL_SERVER_ERROR,
@@ -324,7 +297,6 @@ export class ProductService implements IProductService {
       } catch (error: unknown) {
         const errorMessage =
           error instanceof Error ? error.message : 'Unknown error';
-        this.logger.error('Failed to save product', errorMessage);
         throw new CustomException(
           'Failed to save product',
           HttpStatus.INTERNAL_SERVER_ERROR,
@@ -357,10 +329,6 @@ export class ProductService implements IProductService {
       }
       const errorMessage =
         error instanceof Error ? error.message : 'Unknown error';
-      this.logger.error(
-        'An unexpected error occurred during product creation',
-        errorMessage,
-      );
       throw new CustomException(
         'An unexpected error occurred during product creation',
         HttpStatus.INTERNAL_SERVER_ERROR,
@@ -379,7 +347,6 @@ export class ProductService implements IProductService {
       // Validate ID parameter
       if (!id || id <= 0) {
         const errorMsg = `Invalid product ID provided: ${id}`;
-        this.logger.warn(errorMsg);
         throw new CustomException(
           'Invalid product ID',
           HttpStatus.BAD_REQUEST,
@@ -396,10 +363,6 @@ export class ProductService implements IProductService {
       } catch (error: unknown) {
         const errorMessage =
           error instanceof Error ? error.message : 'Unknown error';
-        this.logger.error(
-          `Database query failed during product lookup for ID: ${id}`,
-          errorMessage,
-        );
         throw new CustomException(
           'Database query failed during product lookup',
           HttpStatus.INTERNAL_SERVER_ERROR,
@@ -410,7 +373,6 @@ export class ProductService implements IProductService {
       // If product not found, throw exception
       if (!existingProduct) {
         const errorMsg = `Product not found with ID: ${id}`;
-        this.logger.warn(errorMsg);
         throw new CustomException(
           'Product not found',
           HttpStatus.NOT_FOUND,
@@ -421,7 +383,6 @@ export class ProductService implements IProductService {
       // Validate price if provided
       if (productData.price !== undefined && productData.price <= 0) {
         const errorMsg = 'Product price must be positive';
-        this.logger.warn(errorMsg);
         throw new CustomException(
           'Product price must be positive',
           HttpStatus.BAD_REQUEST,
@@ -432,7 +393,6 @@ export class ProductService implements IProductService {
       // Validate cost if provided
       if (productData.cost !== undefined && productData.cost <= 0) {
         const errorMsg = 'Product cost must be positive';
-        this.logger.warn(errorMsg);
         throw new CustomException(
           'Product cost must be positive',
           HttpStatus.BAD_REQUEST,
@@ -446,7 +406,6 @@ export class ProductService implements IProductService {
         productData.minStockLevel < 0
       ) {
         const errorMsg = 'Product minimum stock level cannot be negative';
-        this.logger.warn(errorMsg);
         throw new CustomException(
           'Product minimum stock level cannot be negative',
           HttpStatus.BAD_REQUEST,
@@ -477,7 +436,6 @@ export class ProductService implements IProductService {
               existingProductWithBarcodeOrSku.id !== id
             ) {
               const errorMsg = `Product with this barcode or SKU already exists: ${existingProductWithBarcodeOrSku.name}`;
-              this.logger.warn(errorMsg);
               throw new CustomException(
                 'Product with this barcode or SKU already exists',
                 HttpStatus.CONFLICT,
@@ -492,10 +450,6 @@ export class ProductService implements IProductService {
           ) {
             const errorMessage =
               error instanceof Error ? error.message : 'Unknown error';
-            this.logger.error(
-              'Database query failed during product existence check',
-              errorMessage,
-            );
             throw new CustomException(
               'Database query failed during product existence check',
               HttpStatus.INTERNAL_SERVER_ERROR,
@@ -531,7 +485,6 @@ export class ProductService implements IProductService {
       } catch (error: unknown) {
         const errorMessage =
           error instanceof Error ? error.message : 'Unknown error';
-        this.logger.error('Failed to update product', errorMessage);
         throw new CustomException(
           'Failed to update product',
           HttpStatus.INTERNAL_SERVER_ERROR,
@@ -564,10 +517,6 @@ export class ProductService implements IProductService {
       }
       const errorMessage =
         error instanceof Error ? error.message : 'Unknown error';
-      this.logger.error(
-        `An unexpected error occurred during product update for ID: ${id}`,
-        errorMessage,
-      );
       throw new CustomException(
         'An unexpected error occurred during product update',
         HttpStatus.INTERNAL_SERVER_ERROR,
@@ -583,7 +532,6 @@ export class ProductService implements IProductService {
       // Validate ID parameter
       if (!id || id <= 0) {
         const errorMsg = `Invalid product ID provided: ${id}`;
-        this.logger.warn(errorMsg);
         throw new CustomException(
           'Invalid product ID',
           HttpStatus.BAD_REQUEST,
@@ -600,10 +548,6 @@ export class ProductService implements IProductService {
       } catch (error: unknown) {
         const errorMessage =
           error instanceof Error ? error.message : 'Unknown error';
-        this.logger.error(
-          `Database query failed during product lookup for ID: ${id}`,
-          errorMessage,
-        );
         throw new CustomException(
           'Database query failed during product lookup',
           HttpStatus.INTERNAL_SERVER_ERROR,
@@ -614,7 +558,6 @@ export class ProductService implements IProductService {
       // If product not found, throw exception
       if (!existingProduct) {
         const errorMsg = `Product not found with ID: ${id}`;
-        this.logger.warn(errorMsg);
         throw new CustomException(
           'Product not found',
           HttpStatus.NOT_FOUND,
@@ -629,7 +572,6 @@ export class ProductService implements IProductService {
       } catch (error: unknown) {
         const errorMessage =
           error instanceof Error ? error.message : 'Unknown error';
-        this.logger.error('Failed to delete product', errorMessage);
         throw new CustomException(
           'Failed to delete product',
           HttpStatus.INTERNAL_SERVER_ERROR,
@@ -643,10 +585,6 @@ export class ProductService implements IProductService {
       }
       const errorMessage =
         error instanceof Error ? error.message : 'Unknown error';
-      this.logger.error(
-        `An unexpected error occurred during product deletion for ID: ${id}`,
-        errorMessage,
-      );
       throw new CustomException(
         'An unexpected error occurred during product deletion',
         HttpStatus.INTERNAL_SERVER_ERROR,
@@ -674,10 +612,6 @@ export class ProductService implements IProductService {
       } catch (error: unknown) {
         const errorMessage =
           error instanceof Error ? error.message : 'Unknown error';
-        this.logger.error(
-          'Database query failed during product search',
-          errorMessage,
-        );
         throw new CustomException(
           'Database query failed during product search',
           HttpStatus.INTERNAL_SERVER_ERROR,
@@ -723,10 +657,6 @@ export class ProductService implements IProductService {
       }
       const errorMessage =
         error instanceof Error ? error.message : 'Unknown error';
-      this.logger.error(
-        `An unexpected error occurred during product search with query: ${query.query}`,
-        errorMessage,
-      );
       throw new CustomException(
         'An unexpected error occurred during product search',
         HttpStatus.INTERNAL_SERVER_ERROR,

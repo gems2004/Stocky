@@ -5,6 +5,9 @@ import { CategoryResponseDto } from '../dto/category-response.dto';
 export interface ICategoryService {
   create(createCategoryDto: CreateCategoryDto): Promise<CategoryResponseDto>;
   findAll(): Promise<CategoryResponseDto[]>;
-  update(id: number, updateCategoryDto: UpdateCategoryDto): Promise<CategoryResponseDto>;
+  update(
+    id: number,
+    updateCategoryDto: UpdateCategoryDto,
+  ): Promise<CategoryResponseDto>;
   remove(id: number): Promise<void>;
 }

@@ -1,7 +1,8 @@
-import { Module } from '@nestjs/common';
+import { Module, ValidationPipe } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { APP_PIPE } from '@nestjs/core';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { User } from './entity/user.entity';
@@ -23,7 +24,21 @@ import { ApiResponseHelper } from '../common/helpers/api-response.helper';
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, AuthGuard, RoleGuard, LoggerService, ApiResponseHelper],
+  providers: [
+    AuthService,
+    AuthGuard,
+    RoleGuard,
+    LoggerService,
+    ApiResponseHelper,
+    {
+      provide: APP_PIPE,
+      useValue: new ValidationPipe({
+        whitelist: true,
+        forbidNonWhitelisted: true,
+        transform: true,
+      }),
+    },
+  ],
   exports: [
     TypeOrmModule.forFeature([User]),
     AuthService,

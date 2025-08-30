@@ -23,8 +23,6 @@ export class AuthService implements IAuthService {
   ) {}
   async getUserData(userId: number): Promise<AuthResponseDto> {
     try {
-      this.logger.log(`Fetching user data for user ID: ${userId}`);
-
       // Find user by ID
       let user: User | null = null;
       try {
@@ -34,10 +32,6 @@ export class AuthService implements IAuthService {
       } catch (error: unknown) {
         const errorMessage =
           error instanceof Error ? error.message : 'Unknown error';
-        this.logger.error(
-          'Database query failed during user lookup',
-          errorMessage,
-        );
         throw new CustomException(
           'Database query failed during user lookup',
           HttpStatus.INTERNAL_SERVER_ERROR,
@@ -48,15 +42,12 @@ export class AuthService implements IAuthService {
       // If user not found, throw exception
       if (!user) {
         const errorMsg = `User not found with ID: ${userId}`;
-        this.logger.warn(errorMsg);
         throw new CustomException(
           'User not found',
           HttpStatus.NOT_FOUND,
           errorMsg,
         );
       }
-
-      this.logger.log(`Successfully fetched user data for user ID: ${userId}`);
 
       // Construct response (excluding password_hash)
       const { password_hash: _, ...userWithoutPassword } = user;
@@ -78,10 +69,6 @@ export class AuthService implements IAuthService {
       }
       const errorMessage =
         error instanceof Error ? error.message : 'Unknown error';
-      this.logger.error(
-        'An unexpected error occurred while fetching user data',
-        errorMessage,
-      );
       throw new CustomException(
         'An unexpected error occurred while fetching user data',
         HttpStatus.INTERNAL_SERVER_ERROR,
@@ -103,10 +90,6 @@ export class AuthService implements IAuthService {
       } catch (error: unknown) {
         const errorMessage =
           error instanceof Error ? error.message : 'Unknown error';
-        this.logger.error(
-          'Database query failed during user existence check',
-          errorMessage,
-        );
         throw new CustomException(
           'Database query failed during user existence check',
           HttpStatus.INTERNAL_SERVER_ERROR,
@@ -116,7 +99,6 @@ export class AuthService implements IAuthService {
 
       if (existingUser) {
         const errorMsg = `User with this username or email already exists: ${userData.username} or ${userData.email}`;
-        this.logger.warn(errorMsg);
         throw new CustomException(
           'User with this username or email already exists',
           HttpStatus.CONFLICT,
@@ -135,7 +117,6 @@ export class AuthService implements IAuthService {
       } catch (error: unknown) {
         const errorMessage =
           error instanceof Error ? error.message : 'Unknown error';
-        this.logger.error('Failed to hash password', errorMessage);
         throw new CustomException(
           'Failed to hash password',
           HttpStatus.INTERNAL_SERVER_ERROR,
@@ -163,7 +144,6 @@ export class AuthService implements IAuthService {
       } catch (error: unknown) {
         const errorMessage =
           error instanceof Error ? error.message : 'Unknown error';
-        this.logger.error('Failed to save user', errorMessage);
         throw new CustomException(
           'Failed to save user',
           HttpStatus.INTERNAL_SERVER_ERROR,
@@ -190,10 +170,6 @@ export class AuthService implements IAuthService {
       } catch (error: unknown) {
         const errorMessage =
           error instanceof Error ? error.message : 'Unknown error';
-        this.logger.error(
-          'Failed to generate authentication tokens',
-          errorMessage,
-        );
         throw new CustomException(
           'Failed to generate authentication tokens',
           HttpStatus.INTERNAL_SERVER_ERROR,
@@ -219,10 +195,6 @@ export class AuthService implements IAuthService {
       }
       const errorMessage =
         error instanceof Error ? error.message : 'Unknown error';
-      this.logger.error(
-        'An unexpected error occurred during registration',
-        errorMessage,
-      );
       throw new CustomException(
         'An unexpected error occurred during registration',
         HttpStatus.INTERNAL_SERVER_ERROR,
@@ -244,10 +216,6 @@ export class AuthService implements IAuthService {
       } catch (error: unknown) {
         const errorMessage =
           error instanceof Error ? error.message : 'Unknown error';
-        this.logger.error(
-          'Database query failed during user lookup',
-          errorMessage,
-        );
         throw new CustomException(
           'Database query failed during user lookup',
           HttpStatus.INTERNAL_SERVER_ERROR,
@@ -258,7 +226,6 @@ export class AuthService implements IAuthService {
       // If user not found, throw exception
       if (!user) {
         const errorMsg = `Invalid credentials for username: ${credentials.username}`;
-        this.logger.warn(errorMsg);
         throw new CustomException(
           'Invalid credentials',
           HttpStatus.UNAUTHORIZED,
@@ -276,7 +243,6 @@ export class AuthService implements IAuthService {
       } catch (error: unknown) {
         const errorMessage =
           error instanceof Error ? error.message : 'Unknown error';
-        this.logger.error('Failed to validate password', errorMessage);
         throw new CustomException(
           'Failed to validate password',
           HttpStatus.INTERNAL_SERVER_ERROR,
@@ -287,7 +253,6 @@ export class AuthService implements IAuthService {
       // If password is invalid, throw exception
       if (!isPasswordValid) {
         const errorMsg = `Invalid password for username: ${credentials.username}`;
-        this.logger.warn(errorMsg);
         throw new CustomException(
           'Invalid credentials',
           HttpStatus.UNAUTHORIZED,
@@ -316,10 +281,6 @@ export class AuthService implements IAuthService {
       } catch (error: unknown) {
         const errorMessage =
           error instanceof Error ? error.message : 'Unknown error';
-        this.logger.error(
-          'Failed to generate authentication tokens',
-          errorMessage,
-        );
         throw new CustomException(
           'Failed to generate authentication tokens',
           HttpStatus.INTERNAL_SERVER_ERROR,
@@ -345,10 +306,6 @@ export class AuthService implements IAuthService {
       }
       const errorMessage =
         error instanceof Error ? error.message : 'Unknown error';
-      this.logger.error(
-        'An unexpected error occurred during login',
-        errorMessage,
-      );
       throw new CustomException(
         'An unexpected error occurred during login',
         HttpStatus.INTERNAL_SERVER_ERROR,
@@ -393,7 +350,6 @@ export class AuthService implements IAuthService {
       } catch (error: unknown) {
         const errorMessage =
           error instanceof Error ? error.message : 'Unknown error';
-        this.logger.warn(`Token verification failed: ${errorMessage}`);
         throw new CustomException(
           'Invalid refresh token',
           HttpStatus.UNAUTHORIZED,
@@ -413,10 +369,6 @@ export class AuthService implements IAuthService {
       } catch (error: unknown) {
         const errorMessage =
           error instanceof Error ? error.message : 'Unknown error';
-        this.logger.error(
-          'Database query failed during user lookup',
-          errorMessage,
-        );
         throw new CustomException(
           'Database query failed during user lookup',
           HttpStatus.INTERNAL_SERVER_ERROR,
@@ -427,7 +379,6 @@ export class AuthService implements IAuthService {
       // If user not found, throw exception
       if (!user) {
         const errorMsg = `User not found with ID: ${payload.sub}`;
-        this.logger.warn(errorMsg);
         throw new CustomException(
           'User not found',
           HttpStatus.NOT_FOUND,
@@ -454,10 +405,6 @@ export class AuthService implements IAuthService {
       } catch (error: unknown) {
         const errorMessage =
           error instanceof Error ? error.message : 'Unknown error';
-        this.logger.error(
-          'Failed to generate authentication tokens',
-          errorMessage,
-        );
         throw new CustomException(
           'Failed to generate authentication tokens',
           HttpStatus.INTERNAL_SERVER_ERROR,
@@ -483,10 +430,6 @@ export class AuthService implements IAuthService {
       }
       const errorMessage =
         error instanceof Error ? error.message : 'Unknown error';
-      this.logger.error(
-        'An unexpected error occurred during token refresh',
-        errorMessage,
-      );
       throw new CustomException(
         'An unexpected error occurred during token refresh',
         HttpStatus.INTERNAL_SERVER_ERROR,

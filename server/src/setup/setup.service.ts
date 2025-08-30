@@ -34,7 +34,6 @@ export class SetupService implements ISetupService {
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : 'Unknown error';
-      this.logger.error('Failed to fetch setup status', errorMessage);
       throw new CustomException(
         'Failed to fetch setup status',
         HttpStatus.INTERNAL_SERVER_ERROR,
@@ -49,7 +48,6 @@ export class SetupService implements ISetupService {
     // Validate database configuration
     if (!config.host || !config.port || !config.username || !config.database) {
       const errorMessage = 'Missing required database configuration parameters';
-      this.logger.error('Invalid database configuration', errorMessage);
       throw new CustomException(
         'Invalid database configuration',
         HttpStatus.BAD_REQUEST,
@@ -76,7 +74,6 @@ export class SetupService implements ISetupService {
     // Validate shop information
     if (!info.name || !info.currency) {
       const errorMessage = 'Missing required shop information parameters';
-      this.logger.error('Invalid shop information', errorMessage);
       throw new CustomException(
         'Invalid shop information',
         HttpStatus.BAD_REQUEST,
@@ -98,7 +95,6 @@ export class SetupService implements ISetupService {
     this.logger.log('Creating admin user');
     if (!userData.username || !userData.password) {
       const errorMessage = 'Missing required user information parameters';
-      this.logger.error('Invalid user information', errorMessage);
       throw new CustomException(
         'Invalid user information',
         HttpStatus.BAD_REQUEST,
@@ -144,7 +140,6 @@ export class SetupService implements ISetupService {
       this.logger.log('Setup process completed successfully');
     } else {
       const errorMessage = 'Not all setup steps have been completed';
-      this.logger.error('Setup incomplete', errorMessage);
       throw new CustomException(
         'Setup incomplete',
         HttpStatus.BAD_REQUEST,
@@ -197,7 +192,6 @@ export class SetupService implements ISetupService {
     } catch (error: unknown) {
       if (error instanceof Error) {
         const errorMessage = `Failed to connect to database: ${error.message}`;
-        this.logger.error('Database connection failed', errorMessage);
         throw new CustomException(
           'Database connection failed',
           HttpStatus.BAD_REQUEST,
@@ -209,13 +203,7 @@ export class SetupService implements ISetupService {
         try {
           await client.end();
         } catch (endError: unknown) {
-          if (endError instanceof Error) {
-            this.logger.warn(
-              `Error closing database connection: ${endError.message}`,
-            );
-          } else {
-            this.logger.warn('Unknown error closing database connection');
-          }
+          // Silently ignore errors when closing the connection
         }
       }
     }
@@ -260,10 +248,6 @@ export class SetupService implements ISetupService {
       this.logger.log(`Configuration exported to ${this.envFilePath}`);
     } catch (error) {
       if (error instanceof Error) {
-        this.logger.error(
-          'Failed to export configuration to .env file',
-          error.message,
-        );
         throw new CustomException(
           'Failed to export configuration',
           HttpStatus.INTERNAL_SERVER_ERROR,
