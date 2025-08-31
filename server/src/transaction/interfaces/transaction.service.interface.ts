@@ -1,6 +1,6 @@
-import { CreateTransactionDto } from './create-transaction.dto';
-import { UpdateTransactionDto } from './update-transaction.dto';
-import { TransactionResponseDto } from './transaction-response.dto';
+import { CreateTransactionDto } from '../dto/create-transaction.dto';
+import { UpdateTransactionDto } from '../dto/update-transaction.dto';
+import { TransactionResponseDto } from '../dto/transaction-response.dto';
 
 export interface ITransactionService {
   findAll(
