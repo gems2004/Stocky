@@ -16,6 +16,7 @@ import { UserModule } from './user/user.module';
 import { SupplierModule } from './supplier/supplier.module';
 import { TransactionModule } from './transaction/transaction.module';
 import { CustomerModule } from './customer/customer.module';
+import { InventoryModule } from './inventory/inventory.module';
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { CustomerModule } from './customer/customer.module';
     SupplierModule,
     TransactionModule,
     CustomerModule,
+    InventoryModule,
   ],
   controllers: [AppController],
   providers: [
