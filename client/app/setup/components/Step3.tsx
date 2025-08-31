@@ -155,7 +155,9 @@ export default function Step3({
               <FormItem>
                 <FormLabel>{"SSL Connection (Advanced):"}</FormLabel>
                 <Select
-                  onValueChange={(val) => field.onChange(val === "true")}
+                  onValueChange={(val: string) =>
+                    field.onChange(val === "true")
+                  }
                   defaultValue={String(field.value)}
                 >
                   <FormControl>
