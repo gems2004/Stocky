@@ -8,6 +8,7 @@ import {
   JoinColumn,
 } from 'typeorm';
 import { Category } from '../../category/entities/category.entity';
+import { Supplier } from '../../supplier/entities/supplier.entity';
 
 @Entity('products')
 export class Product {
@@ -32,6 +33,10 @@ export class Product {
 
   @Column({ type: 'integer', nullable: true })
   category_id: number;
+
+  @ManyToOne(() => Supplier, { nullable: true })
+  @JoinColumn({ name: 'supplier_id' })
+  supplier: Supplier;
 
   @Column({ type: 'integer', nullable: true })
   supplier_id: number;

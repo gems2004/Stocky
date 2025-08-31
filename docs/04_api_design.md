@@ -309,6 +309,16 @@ All API responses follow a consistent format to simplify client-side handling:
           "updated_at": "2023-08-26T10:30:00Z"
         },
         "supplierId": 1,
+        "supplier": {
+          "id": 1,
+          "name": "Test Supplier",
+          "contact_person": "John Supplier",
+          "email": "supplier@example.com",
+          "phone": "123-456-7890",
+          "address": "123 Supplier St, City, Country",
+          "created_at": "2023-08-26T10:30:00Z",
+          "updated_at": "2023-08-26T10:30:00Z"
+        },
         "barcode": "1234567890123",
         "sku": "PROD-001",
         "stockQuantity": 100,
@@ -347,6 +357,16 @@ All API responses follow a consistent format to simplify client-side handling:
       "updated_at": "2023-08-26T10:30:00Z"
     },
     "supplierId": 1,
+    "supplier": {
+      "id": 1,
+      "name": "Test Supplier",
+      "contact_person": "John Supplier",
+      "email": "supplier@example.com",
+      "phone": "123-456-7890",
+      "address": "123 Supplier St, City, Country",
+      "created_at": "2023-08-26T10:30:00Z",
+      "updated_at": "2023-08-26T10:30:00Z"
+    },
     "barcode": "1234567890123",
     "sku": "PROD-001",
     "stockQuantity": 100,
@@ -394,6 +414,16 @@ All API responses follow a consistent format to simplify client-side handling:
       "updated_at": "2023-08-26T10:30:00Z"
     },
     "supplierId": 1,
+    "supplier": {
+      "id": 1,
+      "name": "Test Supplier",
+      "contact_person": "John Supplier",
+      "email": "supplier@example.com",
+      "phone": "123-456-7890",
+      "address": "123 Supplier St, City, Country",
+      "created_at": "2023-08-26T10:30:00Z",
+      "updated_at": "2023-08-26T10:30:00Z"
+    },
     "barcode": "1234567890124",
     "sku": "PROD-002",
     "stockQuantity": 0,
@@ -441,6 +471,16 @@ All API responses follow a consistent format to simplify client-side handling:
       "updated_at": "2023-08-26T11:30:00Z"
     },
     "supplierId": 2,
+    "supplier": {
+      "id": 2,
+      "name": "Test Supplier 2",
+      "contact_person": "Jane Supplier",
+      "email": "supplier2@example.com",
+      "phone": "098-765-4321",
+      "address": "456 Supplier Ave, City, Country",
+      "created_at": "2023-08-26T10:30:00Z",
+      "updated_at": "2023-08-26T11:30:00Z"
+    },
     "barcode": "1234567890125",
     "sku": "PROD-003",
     "stockQuantity": 0,
@@ -489,6 +529,16 @@ All API responses follow a consistent format to simplify client-side handling:
         "updated_at": "2023-08-26T10:30:00Z"
       },
       "supplierId": 1,
+      "supplier": {
+        "id": 1,
+        "name": "Test Supplier",
+        "contact_person": "John Supplier",
+        "email": "supplier@example.com",
+        "phone": "123-456-7890",
+        "address": "123 Supplier St, City, Country",
+        "created_at": "2023-08-26T10:30:00Z",
+        "updated_at": "2023-08-26T10:30:00Z"
+      },
       "barcode": "1234567890123",
       "sku": "PROD-001",
       "stockQuantity": 100,
@@ -593,10 +643,113 @@ All API responses follow a consistent format to simplify client-side handling:
 ```
 
 ### Suppliers
-- `GET /suppliers` - Get all suppliers
-- `POST /suppliers` - Create new supplier
-- `PUT /suppliers/:id` - Update supplier
-- `DELETE /suppliers/:id` - Delete supplier
+
+#### Get All Suppliers
+- **Endpoint**: `GET /supplier`
+- **Description**: Get all suppliers
+- **Response Example**:
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": 1,
+      "name": "Test Supplier",
+      "contact_person": "John Supplier",
+      "email": "supplier@example.com",
+      "phone": "123-456-7890",
+      "address": "123 Supplier St, City, Country",
+      "created_at": "2023-08-26T10:30:00Z",
+      "updated_at": "2023-08-26T10:30:00Z"
+    },
+    {
+      "id": 2,
+      "name": "Test Supplier 2",
+      "contact_person": "Jane Supplier",
+      "email": "supplier2@example.com",
+      "phone": "098-765-4321",
+      "address": "456 Supplier Ave, City, Country",
+      "created_at": "2023-08-26T10:30:00Z",
+      "updated_at": "2023-08-26T10:30:00Z"
+    }
+  ],
+  "message": "Suppliers retrieved successfully"
+}
+```
+
+#### Create New Supplier
+- **Endpoint**: `POST /supplier`
+- **Description**: Create a new supplier
+- **Request Body**:
+```json
+{
+  "name": "New Supplier",
+  "contact_person": "Supplier Contact",
+  "email": "newsupplier@example.com",
+  "phone": "555-123-4567",
+  "address": "789 Supplier Blvd, City, Country"
+}
+```
+- **Response Example**:
+```json
+{
+  "success": true,
+  "data": {
+    "id": 3,
+    "name": "New Supplier",
+    "contact_person": "Supplier Contact",
+    "email": "newsupplier@example.com",
+    "phone": "555-123-4567",
+    "address": "789 Supplier Blvd, City, Country",
+    "created_at": "2023-08-26T10:30:00Z",
+    "updated_at": "2023-08-26T10:30:00Z"
+  },
+  "message": "Supplier created successfully"
+}
+```
+
+#### Update Supplier
+- **Endpoint**: `PUT /supplier/:id`
+- **Description**: Update an existing supplier
+- **Request Body**:
+```json
+{
+  "name": "Updated Supplier",
+  "contact_person": "Updated Contact",
+  "email": "updatedsupplier@example.com",
+  "phone": "555-987-6543",
+  "address": "987 Updated St, City, Country"
+}
+```
+- **Response Example**:
+```json
+{
+  "success": true,
+  "data": {
+    "id": 3,
+    "name": "Updated Supplier",
+    "contact_person": "Updated Contact",
+    "email": "updatedsupplier@example.com",
+    "phone": "555-987-6543",
+    "address": "987 Updated St, City, Country",
+    "created_at": "2023-08-26T10:30:00Z",
+    "updated_at": "2023-08-26T11:30:00Z"
+  },
+  "message": "Supplier updated successfully"
+}
+```
+
+#### Delete Supplier
+- **Endpoint**: `DELETE /supplier/:id`
+- **Description**: Delete a supplier
+- **Response Example**:
+```json
+{
+  "success": true,
+  "data": null,
+  "message": "Supplier deleted successfully"
+}
+```
 
 ### Customers
 - `GET /customers` - Get all customers (with pagination/filtering)

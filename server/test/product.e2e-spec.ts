@@ -90,6 +90,31 @@ describe('ProductController (e2e)', () => {
         description: 'A test category for products',
       })
       .expect(201);
+
+    // Create test suppliers for products
+    await request(app.getHttpServer())
+      .post('/supplier')
+      .set('Authorization', `Bearer ${accessToken}`)
+      .send({
+        name: 'Test Supplier 1',
+        contact_person: 'Supplier Contact 1',
+        email: 'supplier1@example.com',
+        phone: '123-456-7890',
+        address: '123 Supplier St, City, Country',
+      })
+      .expect(201);
+
+    await request(app.getHttpServer())
+      .post('/supplier')
+      .set('Authorization', `Bearer ${accessToken}`)
+      .send({
+        name: 'Test Supplier 2',
+        contact_person: 'Supplier Contact 2',
+        email: 'supplier2@example.com',
+        phone: '098-765-4321',
+        address: '456 Supplier Ave, City, Country',
+      })
+      .expect(201);
   });
 
   afterAll(async () => {

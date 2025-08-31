@@ -9,6 +9,7 @@ import { SearchProductDto } from './dto/search-product.dto';
 import { Product } from './entity/product.entity';
 import { CustomException } from '../common/exceptions/custom.exception';
 import { LoggerService } from '../common/logger.service';
+import { SupplierResponseDto } from '../supplier/dto/supplier-response.dto';
 
 @Injectable()
 export class ProductService implements IProductService {
@@ -39,7 +40,7 @@ export class ProductService implements IProductService {
         order: {
           id: 'ASC',
         },
-        relations: ['category'], // Load the category relation
+        relations: ['category', 'supplier'], // Load the category and supplier relations
       });
 
       this.logger.log(
@@ -64,6 +65,18 @@ export class ProductService implements IProductService {
             }
           : undefined,
         supplierId: product.supplier_id,
+        supplier: product.supplier
+          ? {
+              id: product.supplier.id,
+              name: product.supplier.name,
+              contact_person: product.supplier.contact_person,
+              email: product.supplier.email,
+              phone: product.supplier.phone,
+              address: product.supplier.address,
+              created_at: product.supplier.created_at,
+              updated_at: product.supplier.updated_at,
+            }
+          : undefined,
         barcode: product.barcode,
         sku: product.sku,
         stockQuantity: product.stock_quantity,
@@ -99,7 +112,7 @@ export class ProductService implements IProductService {
 
       const product = await this.productRepository.findOne({
         where: { id },
-        relations: ['category'], // Load the category relation
+        relations: ['category', 'supplier'], // Load the category and supplier relations
       });
 
       // If product not found, throw exception
@@ -132,6 +145,18 @@ export class ProductService implements IProductService {
             }
           : undefined,
         supplierId: product.supplier_id,
+        supplier: product.supplier
+          ? {
+              id: product.supplier.id,
+              name: product.supplier.name,
+              contact_person: product.supplier.contact_person,
+              email: product.supplier.email,
+              phone: product.supplier.phone,
+              address: product.supplier.address,
+              created_at: product.supplier.created_at,
+              updated_at: product.supplier.updated_at,
+            }
+          : undefined,
         barcode: product.barcode,
         sku: product.sku,
         stockQuantity: product.stock_quantity,
@@ -208,6 +233,18 @@ export class ProductService implements IProductService {
         cost: savedProduct.cost ? Number(savedProduct.cost) : undefined,
         categoryId: savedProduct.category_id,
         supplierId: savedProduct.supplier_id,
+        supplier: savedProduct.supplier
+          ? {
+              id: savedProduct.supplier.id,
+              name: savedProduct.supplier.name,
+              contact_person: savedProduct.supplier.contact_person,
+              email: savedProduct.supplier.email,
+              phone: savedProduct.supplier.phone,
+              address: savedProduct.supplier.address,
+              created_at: savedProduct.supplier.created_at,
+              updated_at: savedProduct.supplier.updated_at,
+            }
+          : undefined,
         barcode: savedProduct.barcode,
         sku: savedProduct.sku,
         stockQuantity: savedProduct.stock_quantity,
@@ -316,6 +353,18 @@ export class ProductService implements IProductService {
         cost: updatedProduct.cost ? Number(updatedProduct.cost) : undefined,
         categoryId: updatedProduct.category_id,
         supplierId: updatedProduct.supplier_id,
+        supplier: updatedProduct.supplier
+          ? {
+              id: updatedProduct.supplier.id,
+              name: updatedProduct.supplier.name,
+              contact_person: updatedProduct.supplier.contact_person,
+              email: updatedProduct.supplier.email,
+              phone: updatedProduct.supplier.phone,
+              address: updatedProduct.supplier.address,
+              created_at: updatedProduct.supplier.created_at,
+              updated_at: updatedProduct.supplier.updated_at,
+            }
+          : undefined,
         barcode: updatedProduct.barcode,
         sku: updatedProduct.sku,
         stockQuantity: updatedProduct.stock_quantity,
@@ -389,7 +438,7 @@ export class ProductService implements IProductService {
           { barcode: Like(`%${query.query}%`) },
           { sku: Like(`%${query.query}%`) },
         ],
-        relations: ['category'], // Load the category relation
+        relations: ['category', 'supplier'], // Load the category and supplier relations
       });
 
       this.logger.log(
@@ -414,6 +463,18 @@ export class ProductService implements IProductService {
             }
           : undefined,
         supplierId: product.supplier_id,
+        supplier: product.supplier
+          ? {
+              id: product.supplier.id,
+              name: product.supplier.name,
+              contact_person: product.supplier.contact_person,
+              email: product.supplier.email,
+              phone: product.supplier.phone,
+              address: product.supplier.address,
+              created_at: product.supplier.created_at,
+              updated_at: product.supplier.updated_at,
+            }
+          : undefined,
         barcode: product.barcode,
         sku: product.sku,
         stockQuantity: product.stock_quantity,
