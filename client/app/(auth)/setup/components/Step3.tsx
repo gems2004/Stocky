@@ -34,7 +34,7 @@ export default function Step3({
 }: Props) {
   const { control, handleSubmit } = form;
 
-  function onSubmit(data: DatabaseConfigForm) {
+  async function onSubmit(data: DatabaseConfigForm) {
     console.log(data);
     setSetupData((prev: any) => {
       return {

@@ -18,6 +18,7 @@ import { UseFormReturn } from "react-hook-form";
 import { Input } from "@/components/ui/input";
 import { BusinessType, Currency, ShopInfoForm, SetupDataForm } from "../schema";
 import { Button } from "@/components/ui/button";
+import { SetupShopInfo } from "@/(api)/api";
 
 interface Props {
   setSetupData: React.Dispatch<any>;
@@ -34,14 +35,16 @@ export default function Step2({
 }: Props) {
   const { control, handleSubmit } = form;
 
-  function onSubmit(data: ShopInfoForm) {
-    console.log(data);
+  async function onSubmit(data: ShopInfoForm) {
     setSetupData((prev: any) => {
       return {
         ...prev,
         ...data,
       };
     });
+    let res = await SetupShopInfo(data);
+    console.log(res);
+
     nextStep();
   }
   return (
