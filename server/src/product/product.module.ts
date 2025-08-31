@@ -9,7 +9,10 @@ import { Supplier } from '../supplier/entities/supplier.entity';
 import { AuthModule } from '../auth/auth.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Product, Category, Supplier]), AuthModule],
+  imports: [
+    TypeOrmModule.forFeature([Product, Category, Supplier]),
+    AuthModule,
+  ],
   controllers: [ProductController],
   providers: [
     ProductService,

@@ -759,11 +759,260 @@ All API responses follow a consistent format to simplify client-side handling:
 - `DELETE /customers/:id` - Delete customer
 
 ### Transactions
-- `GET /transactions` - Get all transactions (with pagination/filtering)
-- `GET /transactions/:id` - Get specific transaction
-- `POST /transactions` - Create new transaction
-- `PUT /transactions/:id` - Update transaction
-- `DELETE /transactions/:id` - Delete transaction
+
+#### Get All Transactions
+- **Endpoint**: `GET /transactions?page=1&limit=10`
+- **Description**: Get all transactions with pagination
+- **Query Parameters**:
+  - `page` (optional): Page number (default: 1)
+  - `limit` (optional): Items per page (default: 10, max: 100)
+- **Response Example**:
+```json
+{
+  "success": true,
+  "data": {
+    "data": [
+      {
+        "id": 1,
+        "customerId": null,
+        "userId": 1,
+        "user": {
+          "id": 1,
+          "username": "john_doe",
+          "email": "john@example.com",
+          "firstName": "John",
+          "lastName": "Doe",
+          "role": "CASHIER",
+          "is_active": true,
+          "created_at": "2023-08-26T10:30:00Z",
+          "updated_at": "2023-08-26T10:30:00Z"
+        },
+        "totalAmount": 89.97,
+        "taxAmount": 0,
+        "discountAmount": 0,
+        "paymentMethod": "cash",
+        "status": "completed",
+        "createdAt": "2023-08-26T10:30:00Z",
+        "transactionItems": [
+          {
+            "id": 1,
+            "productId": 1,
+            "quantity": 1,
+            "unitPrice": 29.99,
+            "totalPrice": 29.99
+          },
+          {
+            "id": 2,
+            "productId": 2,
+            "quantity": 2,
+            "unitPrice": 29.99,
+            "totalPrice": 59.98
+          }
+        ]
+      }
+    ],
+    "total": 1,
+    "page": 1,
+    "limit": 10
+  },
+  "message": "Transactions retrieved successfully"
+}
+```
+
+#### Get Specific Transaction
+- **Endpoint**: `GET /transactions/:id`
+- **Description**: Get a specific transaction by ID
+- **Response Example**:
+```json
+{
+  "success": true,
+  "data": {
+    "id": 1,
+    "customerId": null,
+    "userId": 1,
+    "user": {
+      "id": 1,
+      "username": "john_doe",
+      "email": "john@example.com",
+      "firstName": "John",
+      "lastName": "Doe",
+      "role": "CASHIER",
+      "is_active": true,
+      "created_at": "2023-08-26T10:30:00Z",
+      "updated_at": "2023-08-26T10:30:00Z"
+    },
+    "totalAmount": 89.97,
+    "taxAmount": 0,
+    "discountAmount": 0,
+    "paymentMethod": "cash",
+    "status": "completed",
+    "createdAt": "2023-08-26T10:30:00Z",
+    "transactionItems": [
+      {
+        "id": 1,
+        "productId": 1,
+        "quantity": 1,
+        "unitPrice": 29.99,
+        "totalPrice": 29.99
+      },
+      {
+        "id": 2,
+        "productId": 2,
+        "quantity": 2,
+        "unitPrice": 29.99,
+        "totalPrice": 59.98
+      }
+    ]
+  },
+  "message": "Transaction retrieved successfully"
+}
+```
+
+#### Create New Transaction
+- **Endpoint**: `POST /transactions`
+- **Description**: Create a new transaction
+- **Request Body**:
+```json
+{
+  "customerId": null,
+  "userId": 1,
+  "totalAmount": 89.97,
+  "taxAmount": 0,
+  "discountAmount": 0,
+  "paymentMethod": "cash",
+  "status": "completed",
+  "items": [
+    {
+      "productId": 1,
+      "quantity": 1,
+      "unitPrice": 29.99
+    },
+    {
+      "productId": 2,
+      "quantity": 2,
+      "unitPrice": 29.99
+    }
+  ]
+}
+```
+- **Response Example**:
+```json
+{
+  "success": true,
+  "data": {
+    "id": 1,
+    "customerId": null,
+    "userId": 1,
+    "user": {
+      "id": 1,
+      "username": "john_doe",
+      "email": "john@example.com",
+      "firstName": "John",
+      "lastName": "Doe",
+      "role": "CASHIER",
+      "is_active": true,
+      "created_at": "2023-08-26T10:30:00Z",
+      "updated_at": "2023-08-26T10:30:00Z"
+    },
+    "totalAmount": 89.97,
+    "taxAmount": 0,
+    "discountAmount": 0,
+    "paymentMethod": "cash",
+    "status": "completed",
+    "createdAt": "2023-08-26T10:30:00Z",
+    "transactionItems": [
+      {
+        "id": 1,
+        "productId": 1,
+        "quantity": 1,
+        "unitPrice": 29.99,
+        "totalPrice": 29.99
+      },
+      {
+        "id": 2,
+        "productId": 2,
+        "quantity": 2,
+        "unitPrice": 29.99,
+        "totalPrice": 59.98
+      }
+    ]
+  },
+  "message": "Transaction created successfully"
+}
+```
+
+#### Update Transaction
+- **Endpoint**: `PUT /transactions/:id`
+- **Description**: Update an existing transaction (Admin only)
+- **Request Body**:
+```json
+{
+  "customerId": 1,
+  "userId": 1,
+  "totalAmount": 99.97,
+  "taxAmount": 5,
+  "discountAmount": 0,
+  "paymentMethod": "card",
+  "status": "completed"
+}
+```
+- **Response Example**:
+```json
+{
+  "success": true,
+  "data": {
+    "id": 1,
+    "customerId": 1,
+    "userId": 1,
+    "user": {
+      "id": 1,
+      "username": "john_doe",
+      "email": "john@example.com",
+      "firstName": "John",
+      "lastName": "Doe",
+      "role": "CASHIER",
+      "is_active": true,
+      "created_at": "2023-08-26T10:30:00Z",
+      "updated_at": "2023-08-26T10:30:00Z"
+    },
+    "totalAmount": 99.97,
+    "taxAmount": 5,
+    "discountAmount": 0,
+    "paymentMethod": "card",
+    "status": "completed",
+    "createdAt": "2023-08-26T10:30:00Z",
+    "transactionItems": [
+      {
+        "id": 1,
+        "productId": 1,
+        "quantity": 1,
+        "unitPrice": 29.99,
+        "totalPrice": 29.99
+      },
+      {
+        "id": 2,
+        "productId": 2,
+        "quantity": 2,
+        "unitPrice": 29.99,
+        "totalPrice": 59.98
+      }
+    ]
+  },
+  "message": "Transaction updated successfully"
+}
+```
+
+#### Delete Transaction
+- **Endpoint**: `DELETE /transactions/:id`
+- **Description**: Delete a transaction (Admin only)
+- **Response Example**:
+```json
+{
+  "success": true,
+  "data": null,
+  "message": "Transaction deleted successfully"
+}
+```
 
 ### Inventory
 - `POST /inventory/adjust` - Adjust inventory levels

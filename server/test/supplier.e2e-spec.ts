@@ -117,7 +117,9 @@ describe('SupplierController (e2e)', () => {
           expect(res.body.data).toBeDefined();
           expect(res.body.data.id).toBeDefined();
           expect(res.body.data.name).toBe(testSupplier.name);
-          expect(res.body.data.contact_person).toBe(testSupplier.contact_person);
+          expect(res.body.data.contact_person).toBe(
+            testSupplier.contact_person,
+          );
           expect(res.body.data.email).toBe(testSupplier.email);
           expect(res.body.data.phone).toBe(testSupplier.phone);
           expect(res.body.data.address).toBe(testSupplier.address);
@@ -255,7 +257,9 @@ describe('SupplierController (e2e)', () => {
           expect(res.body.data).toBeDefined();
           expect(res.body.data.id).toBe(createdSupplierId);
           expect(res.body.data.name).toBe(updatedSupplier.name);
-          expect(res.body.data.contact_person).toBe(updatedSupplier.contact_person);
+          expect(res.body.data.contact_person).toBe(
+            updatedSupplier.contact_person,
+          );
           expect(res.body.data.email).toBe(updatedSupplier.email);
           expect(res.body.data.phone).toBe(updatedSupplier.phone);
           expect(res.body.data.address).toBe(updatedSupplier.address);
@@ -307,7 +311,7 @@ describe('SupplierController (e2e)', () => {
           address: '789 Existing Street, Existing City',
         })
         .expect(201);
-      
+
       // Create another supplier that we'll try to update
       const updateSupplierResponse = await request(app.getHttpServer())
         .post('/supplier')
@@ -320,7 +324,7 @@ describe('SupplierController (e2e)', () => {
           address: '123 Update Street, Update City',
         })
         .expect(201);
-      
+
       const updateSupplierId = updateSupplierResponse.body.data.id;
 
       // Try to update the supplier with a name that already exists

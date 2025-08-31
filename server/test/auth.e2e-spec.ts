@@ -73,7 +73,7 @@ describe('AuthController (e2e)', () => {
       lastName: 'User',
       role: 'CASHIER',
     };
-    
+
     return request(app.getHttpServer())
       .post('/users')
       .send(newUser)
