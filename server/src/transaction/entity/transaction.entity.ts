@@ -9,6 +9,7 @@ import {
 } from 'typeorm';
 import { User } from '../../user/entity/user.entity';
 import { TransactionItem } from './transaction-item.entity';
+import { Customer } from '../../customer/entities/customer.entity';
 
 @Entity('transactions')
 export class Transaction {
@@ -17,6 +18,10 @@ export class Transaction {
 
   @Column({ type: 'integer', nullable: true })
   customer_id: number;
+
+  @ManyToOne(() => Customer, { nullable: true })
+  @JoinColumn({ name: 'customer_id' })
+  customer: Customer;
 
   @ManyToOne(() => User, { nullable: false })
   @JoinColumn({ name: 'user_id' })

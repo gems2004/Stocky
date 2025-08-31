@@ -15,23 +15,23 @@ This document outlines the tasks and checklists for the Stocky project.
 - [x] Set up linting and formatting (ESLint, Prettier) ✅ 2025-08-28
 - [x] Set up version control with Git ✅ 2025-08-28
 - [x] Create basic project README ✅ 2025-08-28
-- [ ] Implement initial setup wizard (frontend)
+- [x] Implement initial setup wizard (frontend) ✅ 2025-08-31
 - [x] Implement initial setup API endpoints (backend) ✅ 2025-08-29
 
 ### Phase 2: Core Backend
 - [x] Design database schema ✅ 2025-08-29
-- [ ] Implement TypeORM entities
-- [ ] Create database migrations
+- [x] Implement TypeORM entities ✅ 2025-08-31
+- [x] Create database migrations ✅ 2025-08-31
 - [x] Set up JWT authentication ✅ 2025-08-28
 - [x] Implement user management ✅ 2025-08-28
-- [ ] Create REST API endpoints
-- [ ] Add input validation
+- [x] Create REST API endpoints ✅ 2025-08-31
+- [x] Add input validation ✅ 2025-08-31
 - [x] Implement error handling ✅ 2025-08-29
 - [x] Set up logging ✅ 2025-08-29
 
 ### Phase 3: Core Frontend
-- [ ] Set up Next.js project structure
-- [ ] Configure Tailwind CSS and ShadCN UI
+- [x] Set up Next.js project structure ✅ 2025-08-31
+- [x] Configure Tailwind CSS and ShadCN UI ✅ 2025-08-31
 - [ ] Implement authentication pages
 - [ ] Create layout components
 - [ ] Set up Zustand stores
@@ -40,7 +40,7 @@ This document outlines the tasks and checklists for the Stocky project.
 - [ ] Set up API service layer
 
 ### Phase 4: Product Management
-- [ ] Implement product CRUD operations (Backend)
+- [x] Implement product CRUD operations (Backend) ✅ 2025-08-31
 - [ ] Create product management UI (Frontend)
 - [ ] Add product search and filtering
 - [ ] Implement category management

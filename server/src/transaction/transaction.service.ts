@@ -41,7 +41,7 @@ export class TransactionService implements ITransactionService {
       // Find transactions with pagination
       const [transactions, total] =
         await this.transactionRepository.findAndCount({
-          relations: ['user', 'transactionItems'],
+          relations: ['user', 'transactionItems', 'customer'],
           order: { created_at: 'DESC' },
           skip: offset,
           take: limit,
@@ -56,6 +56,18 @@ export class TransactionService implements ITransactionService {
         (transaction) => ({
           id: transaction.id,
           customerId: transaction.customer_id,
+          customer: transaction.customer
+            ? {
+                id: transaction.customer.id,
+                first_name: transaction.customer.first_name,
+                last_name: transaction.customer.last_name,
+                email: transaction.customer.email,
+                phone: transaction.customer.phone,
+                address: transaction.customer.address,
+                loyalty_points: transaction.customer.loyalty_points,
+                created_at: transaction.customer.created_at,
+              }
+            : undefined,
           userId: transaction.user_id,
           user: transaction.user
             ? {
@@ -113,7 +125,7 @@ export class TransactionService implements ITransactionService {
 
       const transaction = await this.transactionRepository.findOne({
         where: { id },
-        relations: ['user', 'transactionItems'],
+        relations: ['user', 'transactionItems', 'customer'],
       });
 
       // If transaction not found, throw exception
@@ -132,6 +144,18 @@ export class TransactionService implements ITransactionService {
       const transactionResponseDto: TransactionResponseDto = {
         id: transaction.id,
         customerId: transaction.customer_id,
+        customer: transaction.customer
+          ? {
+              id: transaction.customer.id,
+              first_name: transaction.customer.first_name,
+              last_name: transaction.customer.last_name,
+              email: transaction.customer.email,
+              phone: transaction.customer.phone,
+              address: transaction.customer.address,
+              loyalty_points: transaction.customer.loyalty_points,
+              created_at: transaction.customer.created_at,
+            }
+          : undefined,
         userId: transaction.user_id,
         user: transaction.user
           ? {
@@ -279,39 +303,57 @@ export class TransactionService implements ITransactionService {
         `Successfully created transaction with ID: ${savedTransaction.id}`,
       );
 
-      // Fetch the user details to include in the response
-      const user = await this.transactionRepository
-        .findOne({
-          where: { id: savedTransaction.user_id },
-          relations: ['user'],
-        })
-        .then((result) => result?.user);
+      // Fetch the complete transaction with relations for response
+      const completeTransaction = await this.transactionRepository.findOne({
+        where: { id: savedTransaction.id },
+        relations: ['user', 'transactionItems', 'customer'],
+      });
+
+      if (!completeTransaction) {
+        throw new CustomException(
+          'Failed to retrieve created transaction',
+          HttpStatus.INTERNAL_SERVER_ERROR,
+          'Transaction was created but could not be retrieved',
+        );
+      }
 
       // 7. Return result
       const transactionResponseDto: TransactionResponseDto = {
-        id: savedTransaction.id,
-        customerId: savedTransaction.customer_id,
-        userId: savedTransaction.user_id,
-        user: user
+        id: completeTransaction.id,
+        customerId: completeTransaction.customer_id,
+        customer: completeTransaction.customer
           ? {
-              id: user.id,
-              username: user.username,
-              email: user.email,
-              firstName: user.first_name,
-              lastName: user.last_name,
-              role: user.role,
-              is_active: user.is_active,
-              created_at: user.created_at,
-              updated_at: user.updated_at,
+              id: completeTransaction.customer.id,
+              first_name: completeTransaction.customer.first_name,
+              last_name: completeTransaction.customer.last_name,
+              email: completeTransaction.customer.email,
+              phone: completeTransaction.customer.phone,
+              address: completeTransaction.customer.address,
+              loyalty_points: completeTransaction.customer.loyalty_points,
+              created_at: completeTransaction.customer.created_at,
             }
           : undefined,
-        totalAmount: Number(savedTransaction.total_amount),
-        taxAmount: Number(savedTransaction.tax_amount),
-        discountAmount: Number(savedTransaction.discount_amount),
-        paymentMethod: savedTransaction.payment_method,
-        status: savedTransaction.status,
-        createdAt: savedTransaction.created_at,
-        transactionItems: savedTransactionItems.map((item) => ({
+        userId: completeTransaction.user_id,
+        user: completeTransaction.user
+          ? {
+              id: completeTransaction.user.id,
+              username: completeTransaction.user.username,
+              email: completeTransaction.user.email,
+              firstName: completeTransaction.user.first_name,
+              lastName: completeTransaction.user.last_name,
+              role: completeTransaction.user.role,
+              is_active: completeTransaction.user.is_active,
+              created_at: completeTransaction.user.created_at,
+              updated_at: completeTransaction.user.updated_at,
+            }
+          : undefined,
+        totalAmount: Number(completeTransaction.total_amount),
+        taxAmount: Number(completeTransaction.tax_amount),
+        discountAmount: Number(completeTransaction.discount_amount),
+        paymentMethod: completeTransaction.payment_method,
+        status: completeTransaction.status,
+        createdAt: completeTransaction.created_at,
+        transactionItems: completeTransaction.transactionItems.map((item) => ({
           id: item.id,
           productId: item.product_id,
           quantity: item.quantity,
@@ -510,39 +552,57 @@ export class TransactionService implements ITransactionService {
         `Successfully updated transaction with ID: ${updatedTransaction.id}`,
       );
 
-      // Fetch the user details to include in the response
-      const user = await this.transactionRepository
-        .findOne({
-          where: { id: updatedTransaction.user_id },
-          relations: ['user'],
-        })
-        .then((result) => result?.user);
+      // Fetch the complete transaction with relations for response
+      const completeTransaction = await this.transactionRepository.findOne({
+        where: { id: updatedTransaction.id },
+        relations: ['user', 'transactionItems', 'customer'],
+      });
+
+      if (!completeTransaction) {
+        throw new CustomException(
+          'Failed to retrieve updated transaction',
+          HttpStatus.INTERNAL_SERVER_ERROR,
+          'Transaction was updated but could not be retrieved',
+        );
+      }
 
       // Return result
       const transactionResponseDto: TransactionResponseDto = {
-        id: updatedTransaction.id,
-        customerId: updatedTransaction.customer_id,
-        userId: updatedTransaction.user_id,
-        user: user
+        id: completeTransaction.id,
+        customerId: completeTransaction.customer_id,
+        customer: completeTransaction.customer
           ? {
-              id: user.id,
-              username: user.username,
-              email: user.email,
-              firstName: user.first_name,
-              lastName: user.last_name,
-              role: user.role,
-              is_active: user.is_active,
-              created_at: user.created_at,
-              updated_at: user.updated_at,
+              id: completeTransaction.customer.id,
+              first_name: completeTransaction.customer.first_name,
+              last_name: completeTransaction.customer.last_name,
+              email: completeTransaction.customer.email,
+              phone: completeTransaction.customer.phone,
+              address: completeTransaction.customer.address,
+              loyalty_points: completeTransaction.customer.loyalty_points,
+              created_at: completeTransaction.customer.created_at,
             }
           : undefined,
-        totalAmount: Number(updatedTransaction.total_amount),
-        taxAmount: Number(updatedTransaction.tax_amount),
-        discountAmount: Number(updatedTransaction.discount_amount),
-        paymentMethod: updatedTransaction.payment_method,
-        status: updatedTransaction.status,
-        createdAt: updatedTransaction.created_at,
-        transactionItems: savedTransactionItems.map((item) => ({
+        userId: completeTransaction.user_id,
+        user: completeTransaction.user
+          ? {
+              id: completeTransaction.user.id,
+              username: completeTransaction.user.username,
+              email: completeTransaction.user.email,
+              firstName: completeTransaction.user.first_name,
+              lastName: completeTransaction.user.last_name,
+              role: completeTransaction.user.role,
+              is_active: completeTransaction.user.is_active,
+              created_at: completeTransaction.user.created_at,
+              updated_at: completeTransaction.user.updated_at,
+            }
+          : undefined,
+        totalAmount: Number(completeTransaction.total_amount),
+        taxAmount: Number(completeTransaction.tax_amount),
+        discountAmount: Number(completeTransaction.discount_amount),
+        paymentMethod: completeTransaction.payment_method,
+        status: completeTransaction.status,
+        createdAt: completeTransaction.created_at,
+        transactionItems: completeTransaction.transactionItems.map((item) => ({
           id: item.id,
           productId: item.product_id,
           quantity: item.quantity,

@@ -149,7 +149,10 @@ export class CustomerService implements ICustomerService {
       }
 
       // Check if email is being updated and if it already exists
-      if (updateCustomerDto.email && updateCustomerDto.email !== customer.email) {
+      if (
+        updateCustomerDto.email &&
+        updateCustomerDto.email !== customer.email
+      ) {
         const existingCustomer = await this.customerRepository.findOne({
           where: { email: updateCustomerDto.email },
         });

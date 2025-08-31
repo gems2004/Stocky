@@ -1,4 +1,5 @@
 import { UserResponseDto } from '../../user/dto/user-response.dto';
+import { CustomerResponseDto } from '../../customer/dto/customer-response.dto';
 
 class TransactionItemResponseDto {
   id: number;
@@ -11,6 +12,7 @@ class TransactionItemResponseDto {
 export class TransactionResponseDto {
   id: number;
   customerId?: number;
+  customer?: CustomerResponseDto;
   userId: number;
   user?: UserResponseDto;
   totalAmount: number;

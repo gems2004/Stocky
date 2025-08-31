@@ -7,11 +7,13 @@ import { Transaction } from './entity/transaction.entity';
 import { TransactionItem } from './entity/transaction-item.entity';
 import { Product } from '../product/entity/product.entity';
 import { AuthModule } from '../auth/auth.module';
+import { CustomerModule } from '../customer/customer.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Transaction, TransactionItem, Product]),
     AuthModule,
+    CustomerModule,
   ],
   controllers: [TransactionController],
   providers: [

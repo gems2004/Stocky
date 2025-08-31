@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "04_api_design.md",
+                "file": "12_task_management.md",
                 "mode": "preview",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "04_api_design"
+              "title": "12_task_management"
             }
           }
         ]
@@ -172,9 +172,11 @@
   },
   "active": "eaf3d386b4b82475",
   "lastOpenFiles": [
-    "types.d.ts",
+    "13_licensing.md",
+    "14_initial_setup.md",
     "03_database_design.md",
     "04_api_design.md",
+    "types.d.ts",
     "12_task_management.md",
     "09_deployment_guide.md",
     "08_testing_strategy.md",
@@ -186,8 +188,6 @@
     "05_frontend_architecture.md",
     "10_roadmap.md",
     "11_user_manual.md",
-    "13_licensing.md",
-    "14_initial_setup.md",
     "15_quick_start_guide.md",
     "02_requirements.md",
     "ux_research/03_user_flows.md",

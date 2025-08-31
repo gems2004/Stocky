@@ -152,6 +152,33 @@ describe('TransactionController (e2e)', () => {
       })
       .expect(201);
 
+    // Create test customers for transactions
+    const customer1Response = await request(app.getHttpServer())
+      .post('/customer')
+      .set('Authorization', `Bearer ${adminAccessToken}`)
+      .send({
+        first_name: 'John',
+        last_name: 'Doe',
+        email: 'john.doe@example.com',
+        phone: '123-456-7890',
+        address: '123 Main St, City, Country',
+        loyalty_points: 100,
+      })
+      .expect(201);
+
+    const customer2Response = await request(app.getHttpServer())
+      .post('/customer')
+      .set('Authorization', `Bearer ${adminAccessToken}`)
+      .send({
+        first_name: 'Jane',
+        last_name: 'Smith',
+        email: 'jane.smith@example.com',
+        phone: '098-765-4321',
+        address: '456 Oak Ave, Town, Country',
+        loyalty_points: 200,
+      })
+      .expect(201);
+
     // Create a test product for transactions
     const productResponse = await request(app.getHttpServer())
       .post('/products')
@@ -181,9 +208,11 @@ describe('TransactionController (e2e)', () => {
 
     // Update userId in test data
     testTransaction.userId = 2; // testCashierUser id will be 2
+    testTransaction.customerId = 1; // First customer
     testTransaction.items[0].productId = testProductId;
 
     updatedTransaction.userId = 2;
+    updatedTransaction.customerId = 2; // Second customer
     updatedTransaction.items[0].productId = testProductId;
   });
 

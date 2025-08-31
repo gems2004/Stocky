@@ -123,7 +123,9 @@ describe('CustomerController (e2e)', () => {
           expect(res.body.data.email).toBe(testCustomer.email);
           expect(res.body.data.phone).toBe(testCustomer.phone);
           expect(res.body.data.address).toBe(testCustomer.address);
-          expect(res.body.data.loyalty_points).toBe(testCustomer.loyalty_points);
+          expect(res.body.data.loyalty_points).toBe(
+            testCustomer.loyalty_points,
+          );
           expect(res.body.message).toBe('Customer created successfully');
         });
     });
@@ -263,7 +265,9 @@ describe('CustomerController (e2e)', () => {
           expect(res.body.data.email).toBe(updatedCustomer.email);
           expect(res.body.data.phone).toBe(updatedCustomer.phone);
           expect(res.body.data.address).toBe(updatedCustomer.address);
-          expect(res.body.data.loyalty_points).toBe(updatedCustomer.loyalty_points);
+          expect(res.body.data.loyalty_points).toBe(
+            updatedCustomer.loyalty_points,
+          );
           expect(res.body.message).toBe('Customer updated successfully');
         });
     });
