@@ -15,6 +15,7 @@ import { CategoryModule } from './category/category.module';
 import { UserModule } from './user/user.module';
 import { SupplierModule } from './supplier/supplier.module';
 import { TransactionModule } from './transaction/transaction.module';
+import { CustomerModule } from './customer/customer.module';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { TransactionModule } from './transaction/transaction.module';
     UserModule,
     SupplierModule,
     TransactionModule,
+    CustomerModule,
   ],
   controllers: [AppController],
   providers: [

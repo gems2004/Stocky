@@ -752,11 +752,136 @@ All API responses follow a consistent format to simplify client-side handling:
 ```
 
 ### Customers
-- `GET /customers` - Get all customers (with pagination/filtering)
-- `GET /customers/:id` - Get specific customer
-- `POST /customers` - Create new customer
-- `PUT /customers/:id` - Update customer
-- `DELETE /customers/:id` - Delete customer
+
+#### Get All Customers
+- **Endpoint**: `GET /customer`
+- **Description**: Get all customers
+- **Response Example**:
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": 1,
+      "first_name": "John",
+      "last_name": "Doe",
+      "email": "john.doe@example.com",
+      "phone": "123-456-7890",
+      "address": "123 Main St, City, Country",
+      "loyalty_points": 100,
+      "created_at": "2023-08-26T10:30:00Z"
+    },
+    {
+      "id": 2,
+      "first_name": "Jane",
+      "last_name": "Smith",
+      "email": "jane.smith@example.com",
+      "phone": "098-765-4321",
+      "address": "456 Oak Ave, Town, Country",
+      "loyalty_points": 50,
+      "created_at": "2023-08-26T10:30:00Z"
+    }
+  ],
+  "message": "Customers retrieved successfully"
+}
+```
+
+#### Get Specific Customer
+- **Endpoint**: `GET /customer/:id`
+- **Description**: Get a specific customer by ID
+- **Response Example**:
+```json
+{
+  "success": true,
+  "data": {
+    "id": 1,
+    "first_name": "John",
+    "last_name": "Doe",
+    "email": "john.doe@example.com",
+    "phone": "123-456-7890",
+    "address": "123 Main St, City, Country",
+    "loyalty_points": 100,
+    "created_at": "2023-08-26T10:30:00Z"
+  },
+  "message": "Customer retrieved successfully"
+}
+```
+
+#### Create New Customer
+- **Endpoint**: `POST /customer`
+- **Description**: Create a new customer
+- **Request Body**:
+```json
+{
+  "first_name": "John",
+  "last_name": "Doe",
+  "email": "john.doe@example.com",
+  "phone": "123-456-7890",
+  "address": "123 Main St, City, Country",
+  "loyalty_points": 0
+}
+```
+- **Response Example**:
+```json
+{
+  "success": true,
+  "data": {
+    "id": 1,
+    "first_name": "John",
+    "last_name": "Doe",
+    "email": "john.doe@example.com",
+    "phone": "123-456-7890",
+    "address": "123 Main St, City, Country",
+    "loyalty_points": 0,
+    "created_at": "2023-08-26T10:30:00Z"
+  },
+  "message": "Customer created successfully"
+}
+```
+
+#### Update Customer
+- **Endpoint**: `PUT /customer/:id`
+- **Description**: Update an existing customer
+- **Request Body**:
+```json
+{
+  "first_name": "Jane",
+  "last_name": "Smith",
+  "email": "jane.smith@example.com",
+  "phone": "098-765-4321",
+  "address": "456 Oak Ave, Town, Country",
+  "loyalty_points": 150
+}
+```
+- **Response Example**:
+```json
+{
+  "success": true,
+  "data": {
+    "id": 1,
+    "first_name": "Jane",
+    "last_name": "Smith",
+    "email": "jane.smith@example.com",
+    "phone": "098-765-4321",
+    "address": "456 Oak Ave, Town, Country",
+    "loyalty_points": 150,
+    "created_at": "2023-08-26T10:30:00Z"
+  },
+  "message": "Customer updated successfully"
+}
+```
+
+#### Delete Customer
+- **Endpoint**: `DELETE /customer/:id`
+- **Description**: Delete a customer
+- **Response Example**:
+```json
+{
+  "success": true,
+  "data": null,
+  "message": "Customer deleted successfully"
+}
+```
 
 ### Transactions
 
