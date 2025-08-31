@@ -17,7 +17,7 @@ import { CategoryService } from './category.service';
 import { AuthGuard } from '../auth/guards/auth.guard';
 import { RoleGuard } from '../auth/guards/role.guard';
 import { Role } from '../auth/decorators/roles.decorator';
-import { UserRole } from '../auth/entity/user.entity';
+import { UserRole } from '../user/entity/user.entity';
 import { ApiResponseHelper } from '../common/helpers/api-response.helper';
 import { SuccessResponse } from '../common/types/api-response.type';
 import { CategoryResponseDto } from './dto/category-response.dto';

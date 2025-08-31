@@ -7,7 +7,6 @@ import {
   Get,
   UseGuards,
 } from '@nestjs/common';
-import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
 import { AuthResponseDto } from './dto/auth-response.dto';
@@ -22,16 +21,6 @@ import { SuccessResponse } from '../common/types/api-response.type';
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
-
-  @HttpCode(HttpStatus.CREATED)
-  @Post('register')
-  @Public()
-  async register(
-    @Body() registerDto: RegisterDto,
-  ): Promise<SuccessResponse<AuthResponseDto>> {
-    const result = await this.authService.register(registerDto);
-    return ApiResponseHelper.success(result, 'User registered successfully');
-  }
 
   @HttpCode(HttpStatus.OK)
   @Post('login')

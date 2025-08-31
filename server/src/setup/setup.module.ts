@@ -5,9 +5,10 @@ import { SetupController } from './setup.controller';
 import { LoggerService } from '../common/logger.service';
 import { ApiResponseHelper } from '../common/helpers/api-response.helper';
 import { AuthModule } from '../auth/auth.module';
+import { UserModule } from '../user/user.module';
 
 @Module({
-  imports: [AuthModule],
+  imports: [AuthModule, UserModule],
   providers: [
     SetupService,
     LoggerService,

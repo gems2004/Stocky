@@ -1,35 +1,25 @@
 import { Module, ValidationPipe } from '@nestjs/common';
-import { TypeOrmModule } from '@nestjs/typeorm';
 import { JwtModule } from '@nestjs/jwt';
-import { ConfigModule, ConfigService } from '@nestjs/config';
 import { APP_PIPE } from '@nestjs/core';
-import { AuthController } from './auth.controller';
+import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthService } from './auth.service';
-import { User } from './entity/user.entity';
-import { AuthGuard } from './guards/auth.guard';
-import { RoleGuard } from './guards/role.guard';
+import { AuthController } from './auth.controller';
+import { User } from '../user/entity/user.entity';
 import { LoggerService } from '../common/logger.service';
-import { ApiResponseHelper } from '../common/helpers/api-response.helper';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([User]),
-    JwtModule.registerAsync({
-      imports: [ConfigModule],
-      useFactory: (configService: ConfigService) => ({
-        secret: configService.get<string>('JWT_SECRET'),
-        signOptions: { expiresIn: configService.get<string>('JWT_EXPIRES_IN') },
-      }),
-      inject: [ConfigService],
+    JwtModule.register({
+      global: true,
+      secret: process.env.JWT_SECRET,
+      signOptions: { expiresIn: '15m' },
     }),
   ],
   controllers: [AuthController],
   providers: [
     AuthService,
-    AuthGuard,
-    RoleGuard,
     LoggerService,
-    ApiResponseHelper,
     {
       provide: APP_PIPE,
       useValue: new ValidationPipe({
@@ -39,12 +29,6 @@ import { ApiResponseHelper } from '../common/helpers/api-response.helper';
       }),
     },
   ],
-  exports: [
-    TypeOrmModule.forFeature([User]),
-    AuthService,
-    JwtModule,
-    AuthGuard,
-    RoleGuard,
-  ],
+  exports: [AuthService],
 })
 export class AuthModule {}

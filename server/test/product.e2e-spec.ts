@@ -65,9 +65,9 @@ describe('ProductController (e2e)', () => {
     app = moduleFixture.createNestApplication();
     await app.init();
 
-    // Register and login a test user to get access token
+    // Create and login a test user to get access token
     await request(app.getHttpServer())
-      .post('/auth/register')
+      .post('/users')
       .send(testUser)
       .expect(201);
 

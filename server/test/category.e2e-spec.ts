@@ -62,9 +62,9 @@ describe('CategoryController (e2e)', () => {
     app = moduleFixture.createNestApplication();
     await app.init();
 
-    // Register and login admin user to get access token
+    // Create and login admin user to get access token
     await request(app.getHttpServer())
-      .post('/auth/register')
+      .post('/users')
       .send(testAdminUser)
       .expect(201);
 
@@ -78,9 +78,9 @@ describe('CategoryController (e2e)', () => {
 
     adminAccessToken = adminLoginResponse.body.data.tokens.accessToken;
 
-    // Register and login cashier user to get access token
+    // Create and login cashier user to get access token
     await request(app.getHttpServer())
-      .post('/auth/register')
+      .post('/users')
       .send(testCashierUser)
       .expect(201);
 

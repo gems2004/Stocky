@@ -9,6 +9,18 @@ import { TypeOrmModuleOptions } from '@nestjs/typeorm';
 describe('AuthController (e2e)', () => {
   let app: INestApplication;
 
+  // Store tokens for later use in tests
+  let accessToken: string;
+  let refreshToken: string;
+  const testUser = {
+    username: 'testuser',
+    email: 'test@example.com',
+    password: 'password123',
+    firstName: 'Test',
+    lastName: 'User',
+    role: 'CASHIER',
+  };
+
   beforeAll(async () => {
     // Create a test database configuration with synchronization enabled
     const testDatabaseConfig: TypeOrmModuleOptions = {
@@ -28,46 +40,55 @@ describe('AuthController (e2e)', () => {
 
     app = moduleFixture.createNestApplication();
     await app.init();
+
+    // Create user first
+    await request(app.getHttpServer())
+      .post('/users')
+      .send(testUser)
+      .expect(201);
+
+    // Then login to get tokens
+    const loginResponse = await request(app.getHttpServer())
+      .post('/auth/login')
+      .send({
+        username: testUser.username,
+        password: testUser.password,
+      })
+      .expect(200);
+
+    accessToken = loginResponse.body.data.tokens.accessToken;
+    refreshToken = loginResponse.body.data.tokens.refreshToken;
   });
 
   afterAll(async () => {
     await app.close();
   });
 
-  // Store tokens for later use in tests
-  let accessToken: string;
-  let refreshToken: string;
-  const testUser = {
-    username: 'testuser',
-    email: 'test@example.com',
-    password: 'password123',
-    firstName: 'Test',
-    lastName: 'User',
-    role: 'CASHIER',
-  };
-
-  it('/auth/register (POST)', () => {
+  it('/users (POST)', () => {
+    const newUser = {
+      username: 'newtestuser',
+      email: 'newtest@example.com',
+      password: 'newpassword123',
+      firstName: 'NewTest',
+      lastName: 'User',
+      role: 'CASHIER',
+    };
+    
     return request(app.getHttpServer())
-      .post('/auth/register')
-      .send(testUser)
+      .post('/users')
+      .send(newUser)
       .expect(201)
       .expect((res) => {
         expect(res.body.success).toBe(true);
-        expect(res.body.data.user).toBeDefined();
-        expect(res.body.data.user.username).toBe(testUser.username);
-        expect(res.body.data.tokens).toBeDefined();
-        expect(res.body.data.tokens.accessToken).toBeDefined();
-        expect(res.body.data.tokens.refreshToken).toBeDefined();
-
-        // Store tokens for later use
-        accessToken = res.body.data.tokens.accessToken;
-        refreshToken = res.body.data.tokens.refreshToken;
+        expect(res.body.data).toBeDefined();
+        expect(res.body.data.username).toBe(newUser.username);
+        expect(res.body.message).toBe('User created successfully');
       });
   });
 
-  it('/auth/register (POST) - duplicate user', () => {
+  it('/users (POST) - duplicate user', () => {
     return request(app.getHttpServer())
-      .post('/auth/register')
+      .post('/users')
       .send(testUser)
       .expect(409); // Conflict
   });

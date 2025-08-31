@@ -1,4 +1,4 @@
-import { User } from '../entity/user.entity';
+import { User } from 'src/user/entity/user.entity';
 import { AuthTokens } from '../types/auth-tokens.type';
 
 export class AuthResponseDto {

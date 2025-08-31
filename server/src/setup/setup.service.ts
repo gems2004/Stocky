@@ -1,4 +1,4 @@
-import { Injectable, HttpStatus, Inject } from '@nestjs/common';
+import { Injectable, HttpStatus } from '@nestjs/common';
 import { ISetupService } from './interfaces/setup.service.interface';
 import { SetupStatusDto } from './dto/setup-status.dto';
 import { DatabaseConfigDto } from './dto/database-config.dto';
@@ -10,9 +10,9 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { Client } from 'pg';
 import { SetupConfig } from './interfaces/setup-config.interface';
-import { RegisterDto } from '../auth/dto/register.dto';
-import { UserRole } from '../auth/entity/user.entity';
-import { AuthService } from '../auth/auth.service';
+import { CreateUserDto } from 'src/user/dto/create-user.dto';
+import { UserRole } from '../user/entity/user.entity';
+import { UserService } from '../user/user.service';
 
 @Injectable()
 export class SetupService implements ISetupService {
@@ -21,7 +21,7 @@ export class SetupService implements ISetupService {
 
   constructor(
     private readonly logger: LoggerService,
-    private readonly authService: AuthService,
+    private readonly userService: UserService,
   ) {}
 
   async getStatus(): Promise<SetupStatusDto> {
@@ -102,7 +102,7 @@ export class SetupService implements ISetupService {
       );
     }
 
-    const registerData: RegisterDto = {
+    const registerData: CreateUserDto = {
       username: userData.username,
       email: userData.email,
       password: userData.password,
@@ -111,7 +111,7 @@ export class SetupService implements ISetupService {
       role: UserRole.ADMIN,
     };
 
-    await this.authService.register(registerData);
+    await this.userService.create(registerData);
 
     const setupStatus = this.readSetupConfig();
     setupStatus.isAdminUserCreated = true;

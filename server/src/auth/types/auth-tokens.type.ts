@@ -1,9 +1,9 @@
-import { UserRole } from '../entity/user.entity';
+import { UserRole } from '../../user/entity/user.entity';
 
-export type AuthTokens = {
+export interface AuthTokens {
   accessToken: string;
   refreshToken: string;
-};
+}
 
 export type JwtPayload = {
   sub: number;

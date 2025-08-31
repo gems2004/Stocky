@@ -186,44 +186,6 @@ All API responses follow a consistent format to simplify client-side handling:
 
 ### Authentication
 
-#### User Registration
-- **Endpoint**: `POST /auth/register`
-- **Description**: Register a new user
-- **Request Body**:
-```json
-{
-  "username": "john_doe",
-  "email": "john@example.com",
-  "password": "securepassword",
-  "firstName": "John",
-  "lastName": "Doe",
-  "role": "USER"
-}
-```
-- **Response Example**:
-```json
-{
-  "success": true,
-  "data": {
-    "user": {
-      "id": 1,
-      "username": "john_doe",
-      "email": "john@example.com",
-      "firstName": "John",
-      "lastName": "Doe",
-      "role": "USER",
-      "created_at": "2023-08-26T10:30:00Z",
-      "updated_at": "2023-08-26T10:30:00Z"
-    },
-    "tokens": {
-      "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-      "refreshToken": "dGhpcyBpcyBhIHJlZnJlc2ggdG9rZW4..."
-    }
-  },
-  "message": "User registered successfully"
-}
-```
-
 #### User Login
 - **Endpoint**: `POST /auth/login`
 - **Description**: Authenticate user and get tokens
@@ -245,7 +207,7 @@ All API responses follow a consistent format to simplify client-side handling:
       "email": "john@example.com",
       "firstName": "John",
       "lastName": "Doe",
-      "role": "USER",
+      "role": "CASHIER",
       "created_at": "2023-08-26T10:30:00Z",
       "updated_at": "2023-08-26T10:30:00Z"
     },
@@ -278,7 +240,7 @@ All API responses follow a consistent format to simplify client-side handling:
       "email": "john@example.com",
       "firstName": "John",
       "lastName": "Doe",
-      "role": "USER",
+      "role": "CASHIER",
       "created_at": "2023-08-26T10:30:00Z",
       "updated_at": "2023-08-26T10:30:00Z"
     },
@@ -305,7 +267,7 @@ All API responses follow a consistent format to simplify client-side handling:
       "email": "john@example.com",
       "firstName": "John",
       "lastName": "Doe",
-      "role": "USER",
+      "role": "CASHIER",
       "created_at": "2023-08-26T10:30:00Z",
       "updated_at": "2023-08-26T10:30:00Z"
     },
@@ -656,11 +618,158 @@ All API responses follow a consistent format to simplify client-side handling:
 - `GET /inventory/low-stock` - Get low stock products
 
 ### Users
-- `GET /users` - Get all users
-- `GET /users/:id` - Get specific user
-- `POST /users` - Create new user
-- `PUT /users/:id` - Update user
-- `DELETE /users/:id` - Delete user
+
+#### Get All Users
+- **Endpoint**: `GET /users?page=1&limit=10`
+- **Description**: Get all users with pagination
+- **Query Parameters**:
+  - `page` (optional): Page number (default: 1)
+  - `limit` (optional): Items per page (default: 10, max: 100)
+- **Response Example**:
+```json
+{
+  "success": true,
+  "data": {
+    "data": [
+      {
+        "id": 1,
+        "username": "john_doe",
+        "email": "john@example.com",
+        "firstName": "John",
+        "lastName": "Doe",
+        "role": "CASHIER",
+        "created_at": "2023-08-26T10:30:00Z",
+        "updated_at": "2023-08-26T10:30:00Z"
+      }
+    ],
+    "total": 1,
+    "page": 1,
+    "limit": 10
+  },
+  "message": "Users retrieved successfully"
+}
+```
+
+#### Get Specific User
+- **Endpoint**: `GET /users/:id`
+- **Description**: Get a specific user by ID
+- **Response Example**:
+```json
+{
+  "success": true,
+  "data": {
+    "id": 1,
+    "username": "john_doe",
+    "email": "john@example.com",
+    "firstName": "John",
+    "lastName": "Doe",
+    "role": "CASHIER",
+    "created_at": "2023-08-26T10:30:00Z",
+    "updated_at": "2023-08-26T10:30:00Z"
+  },
+  "message": "User retrieved successfully"
+}
+```
+
+#### Create New User
+- **Endpoint**: `POST /users`
+- **Description**: Create a new user
+- **Request Body**:
+```json
+{
+  "username": "john_doe",
+  "email": "john@example.com",
+  "password": "securepassword",
+  "firstName": "John",
+  "lastName": "Doe",
+  "role": "CASHIER"
+}
+```
+- **Response Example**:
+```json
+{
+  "success": true,
+  "data": {
+    "id": 1,
+    "username": "john_doe",
+    "email": "john@example.com",
+    "firstName": "John",
+    "lastName": "Doe",
+    "role": "CASHIER",
+    "created_at": "2023-08-26T10:30:00Z",
+    "updated_at": "2023-08-26T10:30:00Z"
+  },
+  "message": "User created successfully"
+}
+```
+
+#### Update User
+- **Endpoint**: `PUT /users/:id`
+- **Description**: Update an existing user
+- **Request Body**:
+```json
+{
+  "username": "john_doe_updated",
+  "email": "john_updated@example.com",
+  "firstName": "John",
+  "lastName": "Doe",
+  "role": "ADMIN"
+}
+```
+- **Response Example**:
+```json
+{
+  "success": true,
+  "data": {
+    "id": 1,
+    "username": "john_doe_updated",
+    "email": "john_updated@example.com",
+    "firstName": "John",
+    "lastName": "Doe",
+    "role": "ADMIN",
+    "created_at": "2023-08-26T10:30:00Z",
+    "updated_at": "2023-08-26T11:30:00Z"
+  },
+  "message": "User updated successfully"
+}
+```
+
+#### Delete User
+- **Endpoint**: `DELETE /users/:id`
+- **Description**: Delete a user
+- **Response Example**:
+```json
+{
+  "success": true,
+  "data": null,
+  "message": "User deleted successfully"
+}
+```
+
+#### Search Users
+- **Endpoint**: `GET /users/search?query=searchterm`
+- **Description**: Search users by name, email, or username
+- **Query Parameters**:
+  - `query`: Search term
+- **Response Example**:
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": 1,
+      "username": "john_doe",
+      "email": "john@example.com",
+      "firstName": "John",
+      "lastName": "Doe",
+      "role": "CASHIER",
+      "created_at": "2023-08-26T10:30:00Z",
+      "updated_at": "2023-08-26T10:30:00Z"
+    }
+  ],
+  "message": "Users search completed successfully"
+}
+```
 
 ### Reports
 - `GET /reports/sales-summary` - Get sales summary
