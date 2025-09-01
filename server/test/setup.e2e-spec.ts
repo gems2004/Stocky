@@ -33,18 +33,11 @@ describe('SetupController (e2e)', () => {
   });
 
   afterAll(async () => {
-    // Clean up files created during tests
     try {
-      const fs = require('fs');
-      const path = require('path');
-
-      // Remove .env.production from server root if it exists
-      const rootEnvProductionPath = path.join(__dirname, '../.env.production');
+      const rootEnvProductionPath = path.join(__dirname, '../../.env.production');
       if (fs.existsSync(rootEnvProductionPath)) {
         fs.unlinkSync(rootEnvProductionPath);
       }
-
-      // Remove setup-config.json if it exists
       const setupConfigPath = path.join(
         __dirname,
         '../src/setup/setup-config.json',
@@ -68,6 +61,17 @@ describe('SetupController (e2e)', () => {
     password: 'zaq321xsw',
     database: 'stocky_test_setup',
     ssl: false,
+    tablePrefix: 'test_',
+  };
+
+  const databaseConfigDataWithoutPrefix = {
+    type: DatabaseType.POSTGRES,
+    host: 'localhost',
+    port: '5432',
+    username: 'george',
+    password: 'zaq321xsw',
+    database: 'stocky_test_setup',
+    ssl: false,
   };
 
   const shopInfoData = {
@@ -76,6 +80,8 @@ describe('SetupController (e2e)', () => {
     phone: '123-456-7890',
     email: 'test@example.com',
     currency: 'USD',
+    businessType: 'retail',
+    website: 'https://testshop.com',
   };
 
   const adminUserData1 = {
@@ -113,6 +119,20 @@ describe('SetupController (e2e)', () => {
       return request(app.getHttpServer())
         .post('/setup/database')
         .send(databaseConfigData)
+        .expect(200)
+        .expect((res) => {
+          expect(res.body.success).toBe(true);
+          expect(res.body.data).toBeDefined();
+          expect(res.body.data.isSetupComplete).toBeDefined();
+          expect(typeof res.body.data.isSetupComplete).toBe('boolean');
+          expect(res.body.message).toBe('Database configured successfully');
+        });
+    });
+
+    it('should configure database without table prefix', () => {
+      return request(app.getHttpServer())
+        .post('/setup/database')
+        .send(databaseConfigDataWithoutPrefix)
         .expect(200)
         .expect((res) => {
           expect(res.body.success).toBe(true);

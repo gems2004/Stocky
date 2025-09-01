@@ -19,6 +19,9 @@ import { UserModule } from '../user/user.module';
         whitelist: true,
         forbidNonWhitelisted: true,
         transform: true,
+        transformOptions: {
+          enableImplicitConversion: true,
+        },
       }),
     },
   ],
