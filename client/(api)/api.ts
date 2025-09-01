@@ -11,14 +11,6 @@ export const GetSetupStatus = async () => {
 };
 
 export const SetupShopInfo = async (shopInfo: ShopInfoForm) => {
-  let { shop_address, shop_email, shop_name, ...rest } = shopInfo;
-  console.log(shopInfo);
-
-  let res = await api.post("/setup/shop", {
-    address: shop_address,
-    email: shop_email,
-    name: shop_name,
-    ...rest,
-  });
+  let res = await api.post("/setup/shop", { ...shopInfo });
   return res.data;
 };

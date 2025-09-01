@@ -33,23 +33,23 @@ const passwordSchema = z
   .max(32, "Password must be at most 32 characters");
 
 export const ShopInfoSchema = z.object({
-  business_type: z.enum(BusinessType, "Business type must be selected"),
-  shop_name: z
+  type: z.enum(BusinessType, "Business type must be selected"),
+  name: z
     .string("Shop name is required")
     .min(4, "Shop name must be at least 4 characters")
     .max(32, "Shop name must be at least 4 characters"),
-  shop_address: z.string("Invalid address"),
+  address: z.string("Invalid address"),
   phone: z
     .string("Phone number must be entered")
     .regex(/^\+\d{11,15}$/, "Invalid phone number"),
-  shop_email: z.email("Invalid Email Address"),
+  email: z.email("Invalid Email Address"),
   website: z.url("Must be a valid URL").optional().or(z.literal("")),
   currency: z.enum(Currency, "Currency must be selected"),
 });
 
 export const DatabaseConfigSchema = z.object({
-  db_type: z.enum(DatabaseType),
-  db_name: z
+  type: z.enum(DatabaseType),
+  database: z
     .string("Database name is required")
     .min(3, "Database name must be at least 3 characters")
     .max(16, "Database name must be at most 16 characters"),
@@ -58,8 +58,8 @@ export const DatabaseConfigSchema = z.object({
     .string("Port is required")
     .min(1, "Port must be between 1 and 65535")
     .max(65535, "Port must be between 1 and 65535"),
-  db_username: usernameSchema,
-  db_password: passwordSchema,
+  username: usernameSchema,
+  password: passwordSchema,
   ssl: z.boolean().default(true),
   table_prefix: z.string().optional(),
 });
@@ -68,11 +68,11 @@ export const AdminUserSchema = z.object({
   username: usernameSchema,
   email: z.email("Invalid Email Address"),
   password: passwordSchema,
-  first_name: z
+  firstName: z
     .string("First name is required")
     .min(2, "First name must be at least 2 characters")
     .max(16, "First name must be at most 16 characters"),
-  last_name: z.string().optional(),
+  lastName: z.string().optional(),
 });
 
 export const SetupDataSchema = z.object({
