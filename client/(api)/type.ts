@@ -1,3 +1,9 @@
+import {
+  BusinessType,
+  Currency,
+  DatabaseType,
+} from "@/app/(auth)/setup/schema";
+
 export interface SuccessResponse<T> {
   success: true;
   data: T;
@@ -240,6 +246,9 @@ export interface DatabaseConfigDto {
   username: string;
   password: string;
   database: string;
+  type: DatabaseType;
+  ssl: boolean;
+  tablePrefix?: string;
 }
 
 export interface SetupStatusDto {
@@ -253,4 +262,7 @@ export interface ShopInfoDto {
   address: string;
   phone: string;
   email: string;
+  type: BusinessType;
+  currency: Currency;
+  website?: string;
 }
