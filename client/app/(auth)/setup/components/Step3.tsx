@@ -18,30 +18,20 @@ import {
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { useSetupStore } from "@/store/setupState";
 
 interface Props {
-  setSetupData: React.Dispatch<any>;
   form: UseFormReturn<DatabaseConfigForm>;
   previousStep: () => void;
   nextStep: () => void;
 }
 
-export default function Step3({
-  setSetupData,
-  form,
-  previousStep,
-  nextStep,
-}: Props) {
+export default function Step3({ form, previousStep, nextStep }: Props) {
   const { control, handleSubmit } = form;
+  const { setDatabaseConfig } = useSetupStore();
 
   async function onSubmit(data: DatabaseConfigForm) {
-    console.log(data);
-    setSetupData((prev: any) => {
-      return {
-        ...prev,
-        ...data,
-      };
-    });
+    setDatabaseConfig({ ...data, port: Number(data.port) });
     nextStep();
   }
   return (
@@ -50,7 +40,7 @@ export default function Step3({
         <div className="grid grid-cols-2 gap-4 w-full">
           <FormField
             control={control}
-            name="db_type"
+            name="type"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Database Type:</FormLabel>
@@ -74,7 +64,7 @@ export default function Step3({
           />
           <FormField
             control={control}
-            name="db_name"
+            name="database"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Database Name:</FormLabel>
@@ -120,7 +110,7 @@ export default function Step3({
           />
           <FormField
             control={control}
-            name="db_username"
+            name="username"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Username:</FormLabel>
@@ -133,7 +123,7 @@ export default function Step3({
           />
           <FormField
             control={control}
-            name="db_password"
+            name="password"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Password:</FormLabel>

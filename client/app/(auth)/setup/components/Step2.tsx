@@ -18,32 +18,20 @@ import { UseFormReturn } from "react-hook-form";
 import { Input } from "@/components/ui/input";
 import { BusinessType, Currency, ShopInfoForm, SetupDataForm } from "../schema";
 import { Button } from "@/components/ui/button";
-import { SetupShopInfo } from "@/(api)/api";
+import { useSetupStore } from "@/store/setupState";
 
 interface Props {
-  setSetupData: React.Dispatch<any>;
   form: UseFormReturn<ShopInfoForm>;
   nextStep: () => void;
   previousStep: () => void;
 }
 
-export default function Step2({
-  setSetupData,
-  form,
-  nextStep,
-  previousStep,
-}: Props) {
+export default function Step2({ form, nextStep, previousStep }: Props) {
   const { control, handleSubmit } = form;
+  const { setShopInfo } = useSetupStore();
 
   async function onSubmit(data: ShopInfoForm) {
-    setSetupData((prev: any) => {
-      return {
-        ...prev,
-        ...data,
-      };
-    });
-    let res = await SetupShopInfo(data);
-    console.log(res);
+    setShopInfo(data);
 
     nextStep();
   }
@@ -53,7 +41,7 @@ export default function Step2({
         <div className="grid grid-cols-2 gap-4 w-full">
           <FormField
             control={control}
-            name="shop_name"
+            name="name"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Shop Name:</FormLabel>
@@ -66,7 +54,7 @@ export default function Step2({
           />
           <FormField
             control={control}
-            name="shop_address"
+            name="address"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Shop Address:</FormLabel>
@@ -96,7 +84,7 @@ export default function Step2({
           />
           <FormField
             control={control}
-            name="shop_email"
+            name="email"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Shop Email Address:</FormLabel>
@@ -124,7 +112,7 @@ export default function Step2({
           </div>
           <FormField
             control={control}
-            name="business_type"
+            name="type"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Business Type:</FormLabel>

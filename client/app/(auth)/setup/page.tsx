@@ -13,7 +13,6 @@ import {
   AdminUserSchema,
   DatabaseConfigForm,
   DatabaseConfigSchema,
-  SetupDataForm,
   ShopInfoForm,
   ShopInfoSchema,
 } from "./schema";
@@ -21,8 +20,6 @@ import {
 export default function SetupForm() {
   const [currentStep, setCurrentStep] = useState(1);
   const totalSteps = 5;
-
-  const [setupData, setSetupData] = useState<SetupDataForm>();
 
   const step2Form = useForm<ShopInfoForm>({
     resolver: zodResolver(ShopInfoSchema),
@@ -56,7 +53,6 @@ export default function SetupForm() {
       case 2:
         return (
           <Step2
-            setSetupData={setSetupData}
             form={step2Form}
             nextStep={nextStep}
             previousStep={previousStep}
@@ -65,7 +61,6 @@ export default function SetupForm() {
       case 3:
         return (
           <Step3
-            setSetupData={setSetupData}
             form={step3Form}
             nextStep={nextStep}
             previousStep={previousStep}
@@ -74,14 +69,13 @@ export default function SetupForm() {
       case 4:
         return (
           <Step4
-            setSetupData={setSetupData}
             form={step4Form}
             nextStep={nextStep}
             previousStep={previousStep}
           />
         );
       case 5:
-        return <Step5 setupData={setupData} />;
+        return <Step5 />;
     }
   }
   return (
