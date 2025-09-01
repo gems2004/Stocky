@@ -45,16 +45,6 @@ export class SetupService implements ISetupService {
   async configureDatabase(config: DatabaseConfigDto): Promise<SetupStatusDto> {
     this.logger.log('Configuring database');
 
-    // Validate database configuration
-    if (!config.host || !config.port || !config.username || !config.database) {
-      const errorMessage = 'Missing required database configuration parameters';
-      throw new CustomException(
-        'Invalid database configuration',
-        HttpStatus.BAD_REQUEST,
-        errorMessage,
-      );
-    }
-
     // Test database connection
     await this.testDatabaseConnection(config);
 
@@ -176,7 +166,7 @@ export class SetupService implements ISetupService {
     try {
       client = new Client({
         host: config.host,
-        port: config.port,
+        port: parseInt(config.port, 10),
         user: config.username,
         password: config.password,
         database: config.database,
@@ -225,6 +215,7 @@ export class SetupService implements ISetupService {
         envContent += `DB_USERNAME=${config.databaseConfig.username}\n`;
         envContent += `DB_PASSWORD=${config.databaseConfig.password}\n`;
         envContent += `DB_NAME=${config.databaseConfig.database}\n`;
+        envContent += `TABLE_PREFIX=${config.databaseConfig.tablePrefix}\n`;
         envContent += `DB_SSL=${config.databaseConfig.ssl}\n`;
       }
 
@@ -232,6 +223,12 @@ export class SetupService implements ISetupService {
       if (config.shopInfo) {
         envContent += `SHOP_NAME=${config.shopInfo.name}\n`;
         envContent += `SHOP_CURRENCY=${config.shopInfo.currency}\n`;
+        if (config.shopInfo.businessType) {
+          envContent += `SHOP_BUSINESS_TYPE=${config.shopInfo.businessType}\n`;
+        }
+        if (config.shopInfo.website) {
+          envContent += `SHOP_WEBSITE=${config.shopInfo.website}\n`;
+        }
         if (config.shopInfo.address) {
           envContent += `SHOP_ADDRESS=${config.shopInfo.address}\n`;
         }

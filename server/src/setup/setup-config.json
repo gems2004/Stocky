@@ -1,0 +1,25 @@
+{
+  "isDatabaseConfigured": true,
+  "isShopConfigured": true,
+  "isAdminUserCreated": true,
+  "isSetupComplete": true,
+  "databaseConfig": {
+    "type": "postgres",
+    "host": "localhost",
+    "port": "5432",
+    "username": "george",
+    "password": "zaq321xsw",
+    "database": "stocky_test_setup",
+    "ssl": false,
+    "tablePrefix": "test_"
+  },
+  "shopInfo": {
+    "name": "Test Shop",
+    "address": "123 Test Street",
+    "phone": "123-456-7890",
+    "email": "test@example.com",
+    "currency": "USD",
+    "businessType": "retail",
+    "website": "https://testshop.com"
+  }
+}
