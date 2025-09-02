@@ -263,7 +263,7 @@ export interface ShopInfoDto {
   address: string;
   phone: string;
   email: string;
-  type: BusinessType;
+  businessType: BusinessType;
   currency: Currency;
   website?: string;
 }

@@ -1,4 +1,4 @@
-import { DatabaseConfigDto, SetupStatusDto, ShopInfoDto } from "@/(api)/type";
+import { DatabaseConfigDto, SetupStatusDto, ShopInfoDto } from "@/api/type";
 import { create } from "zustand";
 
 type Admin = {
