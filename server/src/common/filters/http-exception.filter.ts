@@ -29,6 +29,12 @@ export class HttpExceptionFilter implements ExceptionFilter {
         ? exception.message
         : 'Internal server error';
 
+    // Get detailed error response from exception
+    const exceptionResponse = 
+      exception instanceof HttpException 
+        ? exception.getResponse() 
+        : null;
+
     // Prepare the base error object
     const errorObject: ErrorResponse['error'] = {
       message:
@@ -45,6 +51,23 @@ export class HttpExceptionFilter implements ExceptionFilter {
       timestamp: new Date().toISOString(),
     };
 
+    // Add validation errors if present
+    let validationDetails: string | undefined;
+    if (status === HttpStatus.BAD_REQUEST && exceptionResponse) {
+      // For validation errors, we want to extract the detailed information
+      if (typeof exceptionResponse === 'object' && exceptionResponse !== null) {
+        const responseObj = exceptionResponse as any;
+        if (responseObj.message && Array.isArray(responseObj.message)) {
+          // This is a validation error with detailed messages
+          validationDetails = responseObj.message.join(', ');
+          errorObject.validationErrors = responseObj.message;
+        } else if (responseObj.message) {
+          // This is a simple error message
+          validationDetails = responseObj.message;
+        }
+      }
+    }
+
     // Add requestId only if it exists
     if (request.requestId) {
       errorObject.requestId = request.requestId;
@@ -57,7 +80,13 @@ export class HttpExceptionFilter implements ExceptionFilter {
 
     // Log the error with request ID for better traceability
     const requestId = errorObject.requestId || 'unknown';
-    const logMessage = `Request ID: ${requestId} - Status: ${status} - Message: ${message}`;
+    
+    // Create a more detailed log message for validation errors
+    let logMessage = `Request ID: ${requestId} - Status: ${status} - Message: ${message}`;
+    if (validationDetails) {
+      logMessage += ` - Validation Details: ${validationDetails}`;
+    }
+    
     if (status >= 500) {
       // Log server errors as errors
       this.logger.error(

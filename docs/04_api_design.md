@@ -29,6 +29,7 @@ All API responses follow a consistent format to simplify client-side handling:
     "message": "User-friendly error message for UI display",
     "code": "ERROR_CODE",
     "technicalDetails": "Detailed technical information for logging/debugging",
+    "validationErrors": ["Array of detailed validation error messages (for validation errors only)"],
     "timestamp": "2023-08-26T10:30:00Z",
     "requestId": "unique-request-identifier"
   }
@@ -58,6 +59,23 @@ All API responses follow a consistent format to simplify client-side handling:
     "message": "Unable to process your request at the moment. Please try again later.",
     "code": "DATABASE_ERROR",
     "technicalDetails": "Database connection failed: Connection timeout occurred after 30 seconds while trying to connect to host 'db.example.com' on port 5432",
+    "timestamp": "2023-08-26T10:30:00Z",
+    "requestId": "req_1234567890"
+  }
+}
+```
+
+#### Validation Error Response
+```json
+{
+  "success": false,
+  "error": {
+    "message": "Bad Request Exception",
+    "code": "VALIDATION_ERROR",
+    "validationErrors": [
+      "username must be a string",
+      "password must be longer than or equal to 6 characters"
+    ],
     "timestamp": "2023-08-26T10:30:00Z",
     "requestId": "req_1234567890"
   }

@@ -10,6 +10,7 @@ export interface ErrorResponse {
     message: string;
     code: string;
     technicalDetails?: string;
+    validationErrors?: string[];
     timestamp: string;
     requestId?: string;
   };
