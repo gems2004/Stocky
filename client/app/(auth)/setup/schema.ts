@@ -5,6 +5,7 @@ export enum BusinessType {
   FOOD = "food",
   CLOTHING = "clothing",
   GENERAL_RETAIL = "general_retail",
+  EMPTY = "",
 }
 export enum Currency {
   USD = "USD", // US Dollar
@@ -15,11 +16,13 @@ export enum Currency {
   AUD = "AUD", // Australian Dollar
   SAR = "SAR", // Saudi Riyal
   SYP = "SYP", // Syrian Pound
+  EMPTY = "",
 }
 export enum DatabaseType {
   POSTGRES = "postgres",
   MYSQL = "mysql",
   SQLITE = "sqlite",
+  EMPTY = "",
 }
 
 const usernameSchema = z
@@ -33,7 +36,9 @@ const passwordSchema = z
   .max(32, "Password must be at most 32 characters");
 
 export const ShopInfoSchema = z.object({
-  type: z.enum(BusinessType, "Business type must be selected"),
+  type: z
+    .enum(BusinessType, "Business type must be selected")
+    .default(BusinessType.EMPTY),
   name: z
     .string("Shop name is required")
     .min(4, "Shop name must be at least 4 characters")
@@ -44,11 +49,13 @@ export const ShopInfoSchema = z.object({
     .regex(/^\+\d{11,15}$/, "Invalid phone number"),
   email: z.email("Invalid Email Address"),
   website: z.url("Must be a valid URL").optional().or(z.literal("")),
-  currency: z.enum(Currency, "Currency must be selected"),
+  currency: z
+    .enum(Currency, "Currency must be selected")
+    .default(Currency.EMPTY),
 });
 
 export const DatabaseConfigSchema = z.object({
-  type: z.enum(DatabaseType),
+  type: z.enum(DatabaseType).default(DatabaseType.EMPTY),
   database: z
     .string("Database name is required")
     .min(3, "Database name must be at least 3 characters")

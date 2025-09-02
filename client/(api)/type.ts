@@ -255,6 +255,7 @@ export interface SetupStatusDto {
   isDatabaseConfigured: boolean;
   isShopInfoSet: boolean;
   isAdminUserCreated: boolean;
+  isSetupComplete: boolean;
 }
 
 export interface ShopInfoDto {

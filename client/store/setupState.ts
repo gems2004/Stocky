@@ -34,6 +34,7 @@ export const useSetupStore = create<SetupStore>((set) => ({
     isAdminUserCreated: false,
     isDatabaseConfigured: false,
     isShopInfoSet: false,
+    isSetupComplete: false,
   },
   setSetupStatus: (status) => set({ setupStatus: status }),
 }));

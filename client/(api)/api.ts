@@ -1,8 +1,9 @@
 import { ShopInfoForm } from "@/app/(auth)/setup/schema";
 import axios from "axios";
+import { SetupStatusDto, SuccessResponse } from "./type";
 
 const api = axios.create({
-  baseURL: "http://localhost:3500",
+  baseURL: process.env.NEXT_PUBLIC_BACKEND_URL,
 });
 
 export const GetSetupStatus = async () => {
@@ -10,7 +11,9 @@ export const GetSetupStatus = async () => {
   return res.data;
 };
 
-export const SetupShopInfo = async (shopInfo: ShopInfoForm) => {
+export const SetupShopInfo = async (
+  shopInfo: ShopInfoForm
+): Promise<SuccessResponse<SetupStatusDto>> => {
   let res = await api.post("/setup/shop", { ...shopInfo });
   return res.data;
 };

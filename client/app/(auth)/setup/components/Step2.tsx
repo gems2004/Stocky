@@ -16,9 +16,10 @@ import {
 import React from "react";
 import { UseFormReturn } from "react-hook-form";
 import { Input } from "@/components/ui/input";
-import { BusinessType, Currency, ShopInfoForm, SetupDataForm } from "../schema";
+import { BusinessType, Currency, ShopInfoForm } from "../schema";
 import { Button } from "@/components/ui/button";
 import { useSetupStore } from "@/store/setupState";
+import { SetupShopInfo } from "@/(api)/api";
 
 interface Props {
   form: UseFormReturn<ShopInfoForm>;
@@ -32,6 +33,7 @@ export default function Step2({ form, nextStep, previousStep }: Props) {
 
   async function onSubmit(data: ShopInfoForm) {
     setShopInfo(data);
+    // let res = await SetupShopInfo(data);
 
     nextStep();
   }
