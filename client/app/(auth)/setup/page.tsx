@@ -11,9 +11,11 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import {
   AdminUserForm,
   AdminUserSchema,
+  BusinessType,
+  Currency,
   DatabaseConfigForm,
   DatabaseConfigSchema,
-  SetupDataForm,
+  DatabaseType,
   ShopInfoForm,
   ShopInfoSchema,
 } from "./schema";
@@ -22,19 +24,40 @@ export default function SetupForm() {
   const [currentStep, setCurrentStep] = useState(1);
   const totalSteps = 5;
 
-  const [setupData, setSetupData] = useState<SetupDataForm>();
-
   const step2Form = useForm<ShopInfoForm>({
     resolver: zodResolver(ShopInfoSchema),
+    defaultValues: {
+      address: "",
+      email: "",
+      name: "",
+      phone: "",
+      website: "",
+      currency: Currency.EMPTY,
+      type: BusinessType.EMPTY,
+    },
   });
   const step3Form = useForm<DatabaseConfigForm>({
     resolver: zodResolver(DatabaseConfigSchema),
     defaultValues: {
       ssl: true,
+      database: "",
+      host: "",
+      port: "",
+      password: "",
+      username: "",
+      table_prefix: "",
+      type: DatabaseType.EMPTY,
     },
   });
   const step4Form = useForm<AdminUserForm>({
     resolver: zodResolver(AdminUserSchema),
+    defaultValues: {
+      email: "",
+      firstName: "",
+      lastName: "",
+      password: "",
+      username: "",
+    },
   });
 
   async function nextStep() {
@@ -56,7 +79,6 @@ export default function SetupForm() {
       case 2:
         return (
           <Step2
-            setSetupData={setSetupData}
             form={step2Form}
             nextStep={nextStep}
             previousStep={previousStep}
@@ -65,7 +87,6 @@ export default function SetupForm() {
       case 3:
         return (
           <Step3
-            setSetupData={setSetupData}
             form={step3Form}
             nextStep={nextStep}
             previousStep={previousStep}
@@ -74,14 +95,13 @@ export default function SetupForm() {
       case 4:
         return (
           <Step4
-            setSetupData={setSetupData}
             form={step4Form}
             nextStep={nextStep}
             previousStep={previousStep}
           />
         );
       case 5:
-        return <Step5 setupData={setupData} />;
+        return <Step5 />;
     }
   }
   return (

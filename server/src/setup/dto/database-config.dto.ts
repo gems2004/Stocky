@@ -5,6 +5,7 @@ import {
   IsBoolean,
   Min,
   IsPort,
+  IsOptional,
 } from 'class-validator';
 
 export enum DatabaseType {
@@ -21,7 +22,7 @@ export class DatabaseConfigDto {
   host: string;
 
   @IsPort()
-  port: number;
+  port: string;
 
   @IsString()
   username: string;
@@ -34,4 +35,8 @@ export class DatabaseConfigDto {
 
   @IsBoolean()
   ssl: boolean;
+
+  @IsOptional()
+  @IsString()
+  tablePrefix?: string;
 }
