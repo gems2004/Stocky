@@ -46,7 +46,7 @@ export default function Step5() {
             <p>
               Business Type:{" "}
               <span className="font-normal text-secondary">
-                {shopInfo.type}
+                {shopInfo.businessType}
               </span>
             </p>
             <p>

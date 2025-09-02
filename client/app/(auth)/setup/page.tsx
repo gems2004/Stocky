@@ -33,7 +33,7 @@ export default function SetupForm() {
       phone: "",
       website: "",
       currency: Currency.EMPTY,
-      type: BusinessType.EMPTY,
+      businessType: BusinessType.EMPTY,
     },
   });
   const step3Form = useForm<DatabaseConfigForm>({
@@ -45,7 +45,7 @@ export default function SetupForm() {
       port: "",
       password: "",
       username: "",
-      table_prefix: "",
+      tablePrefix: "",
       type: DatabaseType.EMPTY,
     },
   });
