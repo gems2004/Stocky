@@ -19,7 +19,9 @@ import { Input } from "@/components/ui/input";
 import { BusinessType, Currency, ShopInfoForm } from "../schema";
 import { Button } from "@/components/ui/button";
 import { useSetupStore } from "@/store/setupState";
-import { SetupShopInfo } from "@/(api)/api";
+import { useSetupShopInfo } from "@/api/setupApi";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { AlertCircleIcon } from "lucide-react";
 
 interface Props {
   form: UseFormReturn<ShopInfoForm>;
@@ -30,13 +32,21 @@ interface Props {
 export default function Step2({ form, nextStep, previousStep }: Props) {
   const { control, handleSubmit } = form;
   const { setShopInfo } = useSetupStore();
+  const {
+    mutateAsync: setupShopInfo,
+    isPending,
+    isError,
+    error,
+  } = useSetupShopInfo();
 
   async function onSubmit(data: ShopInfoForm) {
     setShopInfo(data);
-    // let res = await SetupShopInfo(data);
 
-    nextStep();
+    let res = await setupShopInfo(data);
+
+    if (res.success) nextStep();
   }
+
   return (
     <Form {...form}>
       <form className="flex flex-col gap-20 justify-center items-center w-1/2">
@@ -114,7 +124,7 @@ export default function Step2({ form, nextStep, previousStep }: Props) {
           </div>
           <FormField
             control={control}
-            name="type"
+            name="businessType"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Business Type:</FormLabel>
@@ -172,6 +182,19 @@ export default function Step2({ form, nextStep, previousStep }: Props) {
               </FormItem>
             )}
           />
+          {/* Display React Query errors (network issues, etc.) */}
+          {isError && (
+            <Alert variant="destructive">
+              <AlertCircleIcon />
+              <AlertTitle>Error setting up shop info!</AlertTitle>
+              <AlertDescription>
+                <p>
+                  {error?.message ||
+                    "Failed to setup shop information. Please try again."}
+                </p>
+              </AlertDescription>
+            </Alert>
+          )}
         </div>
         <div className="flex justify-between w-full">
           <Button
@@ -179,11 +202,17 @@ export default function Step2({ form, nextStep, previousStep }: Props) {
             onClick={previousStep}
             variant={"outline"}
             type="button"
+            disabled={isPending}
           >
             Back
           </Button>
-          <Button size="xl" onClick={handleSubmit(onSubmit)} type="button">
-            Next
+          <Button
+            size="xl"
+            onClick={handleSubmit(onSubmit)}
+            type="button"
+            disabled={isPending}
+          >
+            {isPending ? "Saving..." : "Next"}
           </Button>
         </div>
       </form>
