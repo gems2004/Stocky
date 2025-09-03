@@ -12,7 +12,7 @@ import { ProductModule } from '../product/product.module';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([InventoryLog, Product]), 
+    TypeOrmModule.forFeature([InventoryLog, Product]),
     AuthModule,
     ProductModule,
   ],

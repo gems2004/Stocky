@@ -30,10 +30,8 @@ export class HttpExceptionFilter implements ExceptionFilter {
         : 'Internal server error';
 
     // Get detailed error response from exception
-    const exceptionResponse = 
-      exception instanceof HttpException 
-        ? exception.getResponse() 
-        : null;
+    const exceptionResponse =
+      exception instanceof HttpException ? exception.getResponse() : null;
 
     // Prepare the base error object
     const errorObject: ErrorResponse['error'] = {
@@ -80,13 +78,13 @@ export class HttpExceptionFilter implements ExceptionFilter {
 
     // Log the error with request ID for better traceability
     const requestId = errorObject.requestId || 'unknown';
-    
+
     // Create a more detailed log message for validation errors
     let logMessage = `Request ID: ${requestId} - Status: ${status} - Message: ${message}`;
     if (validationDetails) {
       logMessage += ` - Validation Details: ${validationDetails}`;
     }
-    
+
     if (status >= 500) {
       // Log server errors as errors
       this.logger.error(

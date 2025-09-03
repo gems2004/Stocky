@@ -31,19 +31,17 @@ export class InventoryController {
   async adjustInventory(
     @Body() adjustInventoryDto: AdjustInventoryDto,
   ): Promise<SuccessResponse<InventoryLogResponseDto>> {
-    const result = await this.inventoryService.adjustInventory(
-      adjustInventoryDto,
-    );
-    return ApiResponseHelper.success(
-      result,
-      'Inventory adjusted successfully',
-    );
+    const result =
+      await this.inventoryService.adjustInventory(adjustInventoryDto);
+    return ApiResponseHelper.success(result, 'Inventory adjusted successfully');
   }
 
   @HttpCode(HttpStatus.OK)
   @Get('logs')
   @Role(UserRole.ADMIN)
-  async getInventoryLogs(): Promise<SuccessResponse<InventoryLogResponseDto[]>> {
+  async getInventoryLogs(): Promise<
+    SuccessResponse<InventoryLogResponseDto[]>
+  > {
     const result = await this.inventoryService.getInventoryLogs();
     return ApiResponseHelper.success(
       result,
@@ -57,7 +55,8 @@ export class InventoryController {
     @Query('threshold') threshold?: string,
   ): Promise<SuccessResponse<Product[]>> {
     const thresholdValue = threshold ? parseInt(threshold, 10) : 10;
-    const result = await this.inventoryService.getLowStockProducts(thresholdValue);
+    const result =
+      await this.inventoryService.getLowStockProducts(thresholdValue);
     return ApiResponseHelper.success(
       result,
       'Low stock products retrieved successfully',

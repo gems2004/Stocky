@@ -237,7 +237,9 @@ describe('InventoryController (e2e)', () => {
           expect(res.body.success).toBe(true);
           expect(res.body.data).toBeDefined();
           expect(Array.isArray(res.body.data)).toBe(true);
-          expect(res.body.message).toBe('Inventory logs retrieved successfully');
+          expect(res.body.message).toBe(
+            'Inventory logs retrieved successfully',
+          );
         });
     });
 

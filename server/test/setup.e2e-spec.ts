@@ -34,7 +34,10 @@ describe('SetupController (e2e)', () => {
 
   afterAll(async () => {
     try {
-      const rootEnvProductionPath = path.join(__dirname, '../../.env.production');
+      const rootEnvProductionPath = path.join(
+        __dirname,
+        '../../.env.production',
+      );
       if (fs.existsSync(rootEnvProductionPath)) {
         fs.unlinkSync(rootEnvProductionPath);
       }

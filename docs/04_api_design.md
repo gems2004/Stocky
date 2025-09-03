@@ -1410,6 +1410,96 @@ All API responses follow a consistent format to simplify client-side handling:
 ```
 
 ### Reports
-- `GET /reports/sales-summary` - Get sales summary
-- `GET /reports/top-products` - Get top selling products
-- `GET /reports/profit-margin` - Get profit margin report
+
+#### Get Sales Summary
+- **Endpoint**: `GET /reports/sales-summary`
+- **Description**: Get sales summary report including total sales, transaction count, and average transaction value
+- **Query Parameters**:
+  - `startDate` (optional): Start date for the report (format: YYYY-MM-DD)
+  - `endDate` (optional): End date for the report (format: YYYY-MM-DD)
+- **Response Example**:
+```json
+{
+  "success": true,
+  "data": {
+    "total_sales": 1500.75,
+    "total_transactions": 25,
+    "average_transaction_value": 60.03,
+    "date_range": {
+      "start": "2023-08-01T00:00:00.000Z",
+      "end": "2023-08-31T23:59:59.999Z"
+    }
+  },
+  "message": "Sales summary retrieved successfully"
+}
+```
+
+#### Get Top Products
+- **Endpoint**: `GET /reports/top-products`
+- **Description**: Get top selling products report
+- **Query Parameters**:
+  - `limit` (optional): Number of products to return (default: 10)
+  - `startDate` (optional): Start date for the report (format: YYYY-MM-DD)
+  - `endDate` (optional): End date for the report (format: YYYY-MM-DD)
+- **Response Example**:
+```json
+{
+  "success": true,
+  "data": {
+    "products": [
+      {
+        "product_id": 1,
+        "product_name": "Product 1",
+        "quantity_sold": 50,
+        "total_revenue": 1499.50,
+        "rank": 1
+      },
+      {
+        "product_id": 2,
+        "product_name": "Product 2",
+        "quantity_sold": 30,
+        "total_revenue": 899.70,
+        "rank": 2
+      }
+    ],
+    "date_range": {
+      "start": "2023-08-01T00:00:00.000Z",
+      "end": "2023-08-31T23:59:59.999Z"
+    }
+  },
+  "message": "Top products retrieved successfully"
+}
+```
+
+#### Get Profit Margin Report
+- **Endpoint**: `GET /reports/profit-margin`
+- **Description**: Get profit margin report for all products
+- **Query Parameters**:
+  - `startDate` (optional): Start date for the report (format: YYYY-MM-DD)
+  - `endDate` (optional): End date for the report (format: YYYY-MM-DD)
+- **Response Example**:
+```json
+{
+  "success": true,
+  "data": {
+    "products": [
+      {
+        "product_id": 1,
+        "product_name": "Product 1",
+        "cost": 15.00,
+        "price": 29.99,
+        "profit": 14.99,
+        "profit_margin_percentage": 49.98,
+        "quantity_sold": 50,
+        "total_profit": 749.50
+      }
+    ],
+    "overall_profit_margin_percentage": 45.50,
+    "date_range": {
+      "start": "2023-08-01T00:00:00.000Z",
+      "end": "2023-08-31T23:59:59.999Z"
+    }
+  },
+  "message": "Profit margin report retrieved successfully"
+}
+```
