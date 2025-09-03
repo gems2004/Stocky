@@ -2,13 +2,14 @@ import React from "react";
 import H4 from "@/components/typography/H4";
 import { SetupDataForm } from "../schema";
 import { Button } from "@/components/ui/button";
+import { useSetupStore } from "@/store/setupState";
 
-interface Props {
-  setupData: SetupDataForm;
-}
+export default function Step5() {
+  const { shopInfo, databaseConfig, user } = useSetupStore();
 
-export default function Step5({ setupData }: Props) {
-  console.log(setupData);
+  if (!shopInfo || !databaseConfig || !user) {
+    return <p>Please complete setup</p>;
+  }
 
   return (
     <>
@@ -19,19 +20,19 @@ export default function Step5({ setupData }: Props) {
             <p>
               Shop Name:{" "}
               <span className="font-normal text-secondary">
-                {setupData.shop_name}
+                {shopInfo.name}
               </span>
             </p>
             <p>
               Shop Address:{" "}
               <span className="font-normal text-secondary">
-                {setupData.shop_address}
+                {shopInfo.address}
               </span>
             </p>
             <p>
               Phone Number:{" "}
               <span className="font-normal text-secondary">
-                {setupData.phone}
+                {shopInfo.phone}
               </span>
             </p>
           </div>
@@ -39,27 +40,27 @@ export default function Step5({ setupData }: Props) {
             <p>
               Shop Email:{" "}
               <span className="font-normal text-secondary">
-                {setupData.shop_email}
+                {shopInfo.email}
               </span>
             </p>
             <p>
               Business Type:{" "}
               <span className="font-normal text-secondary">
-                {setupData.business_type}
+                {shopInfo.type}
               </span>
             </p>
             <p>
               Currency:{" "}
               <span className="font-normal text-secondary">
-                {setupData.currency}
+                {shopInfo.currency}
               </span>
             </p>
           </div>
-          {setupData.website && (
+          {shopInfo.website && (
             <p>
               Website:{" "}
               <span className="font-normal text-secondary">
-                {setupData.website}
+                {shopInfo.website}
               </span>
             </p>
           )}
@@ -70,19 +71,19 @@ export default function Step5({ setupData }: Props) {
             <p>
               Database Type:{" "}
               <span className="font-normal text-secondary">
-                {setupData.db_type}
+                {databaseConfig.type}
               </span>
             </p>
             <p>
               Database Name:{" "}
               <span className="font-normal text-secondary">
-                {setupData.db_name}
+                {databaseConfig.database}
               </span>
             </p>
             <p>
               Hostname:{" "}
               <span className="font-normal text-secondary">
-                {setupData.host}
+                {databaseConfig.host}
               </span>
             </p>
           </div>
@@ -90,34 +91,34 @@ export default function Step5({ setupData }: Props) {
             <p>
               Port:{" "}
               <span className="font-normal text-secondary">
-                {setupData.port}
+                {databaseConfig.port}
               </span>
             </p>
             <p>
               Username:{" "}
               <span className="font-normal text-secondary">
-                {setupData.db_username}
+                {databaseConfig.username}
               </span>
             </p>
-            <p>
+            {/* <p>
               Password:{" "}
               <span className="font-normal text-secondary">
-                {setupData.db_password}
+                {databaseConfig.db_password}
               </span>
-            </p>
+            </p> */}
           </div>
           <div className="flex flex-col grow gap-4">
             <p>
               SSL:{" "}
               <span className="font-normal text-secondary">
-                {setupData.ssl ? "Enabled" : "Disabled"}
+                {databaseConfig.ssl ? "Enabled" : "Disabled"}
               </span>
             </p>
-            {setupData.table_prefix && (
+            {databaseConfig.tablePrefix && (
               <p>
                 Table Prefix:{" "}
                 <span className="font-normal text-secondary">
-                  {setupData.table_prefix}
+                  {databaseConfig.tablePrefix}
                 </span>
               </p>
             )}
@@ -129,28 +130,26 @@ export default function Step5({ setupData }: Props) {
             <p>
               Username:{" "}
               <span className="font-normal text-secondary">
-                {setupData.username}
+                {user.username}
               </span>
             </p>
             <p>
               Email:{" "}
-              <span className="font-normal text-secondary">
-                {setupData.email}
-              </span>
+              <span className="font-normal text-secondary">{user.email}</span>
             </p>
           </div>
           <div className="flex flex-col grow gap-4">
             <p>
               First Name:{" "}
               <span className="font-normal text-secondary">
-                {setupData.first_name}
+                {user.firstName}
               </span>
             </p>
-            {setupData.last_name && (
+            {user.lastName && (
               <p>
                 Last Name:{" "}
                 <span className="font-normal text-secondary">
-                  {setupData.last_name}
+                  {user.lastName}
                 </span>
               </p>
             )}

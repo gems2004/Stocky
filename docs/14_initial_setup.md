@@ -50,6 +50,7 @@ Users need to configure the database connection:
 -   **Create New Database**: Option to create a new database if it doesn't exist
 -   **Use Existing Database**: Option to use an existing database (with warnings about data loss)
 -   **Connection Test**: Button to verify database connectivity
+-   **Table Prefix**: Optional prefix for database tables (useful for shared databases)
 
 ### 4. Administrator Account Setup
 
@@ -82,6 +83,7 @@ The backend creates a `.env` file in the server directory with:
 -   Database connection string
 -   JWT secret
 -   Server port
+-   Table prefix (if specified)
 -   Other environment-specific settings
 
 ### Client Configuration

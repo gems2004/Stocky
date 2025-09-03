@@ -11,29 +11,24 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { useSetupStore } from "@/store/setupState";
 
 interface Props {
-  setSetupData: React.Dispatch<any>;
   form: UseFormReturn<AdminUserForm>;
   previousStep: () => void;
   nextStep: () => void;
 }
 
-export default function Step4({
-  setSetupData,
-  form,
-  previousStep,
-  nextStep,
-}: Props) {
+export default function Step4({ form, previousStep, nextStep }: Props) {
   const { control, handleSubmit } = form;
+  const { setUser } = useSetupStore();
 
   function onSubmit(data: AdminUserForm) {
-    console.log(data);
-    setSetupData((prev: any) => {
-      return {
-        ...prev,
-        ...data,
-      };
+    setUser({
+      email: data.email,
+      username: data.username,
+      firstName: data.firstName,
+      lastName: data.lastName,
     });
     nextStep();
   }
@@ -108,7 +103,7 @@ export default function Step4({
           />
           <FormField
             control={control}
-            name="first_name"
+            name="firstName"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>First Name:</FormLabel>
@@ -121,7 +116,7 @@ export default function Step4({
           />
           <FormField
             control={control}
-            name="last_name"
+            name="lastName"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>{"Last Name (Optional):"}</FormLabel>

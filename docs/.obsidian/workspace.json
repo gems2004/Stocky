@@ -171,6 +171,7 @@
   },
   "active": "eaf3d386b4b82475",
   "lastOpenFiles": [
+    "api_types_for_frontend.md",
     "04_api_design.md",
     "03_database_design.md",
     "01_project_overview.md",
@@ -197,7 +198,6 @@
     "ux_research/README.md",
     "tasks/task_report.md",
     "ux_research",
-    "tasks/tasks_queries.md",
-    "tasks/02_backend_development.md"
+    "tasks/tasks_queries.md"
   ]
 }

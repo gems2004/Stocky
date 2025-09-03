@@ -111,11 +111,12 @@ All API responses follow a consistent format to simplify client-side handling:
 {
   "type": "postgres",
   "host": "localhost",
-  "port": 5432,
+  "port": "5432",
   "username": "admin",
   "password": "password",
   "database": "stocky",
-  "ssl": false
+  "ssl": false,
+  "tablePrefix": "stocky_" // Optional
 }
 ```
 - **Response Example**:
