@@ -1158,9 +1158,101 @@ All API responses follow a consistent format to simplify client-side handling:
 ```
 
 ### Inventory
-- `POST /inventory/adjust` - Adjust inventory levels
-- `GET /inventory/logs` - Get inventory adjustment logs
-- `GET /inventory/low-stock` - Get low stock products
+
+#### Adjust Inventory
+- **Endpoint**: `POST /inventory/adjust`
+- **Description**: Adjust inventory levels for a product
+- **Request Body**:
+```json
+{
+  "product_id": 1,
+  "change_amount": 10,
+  "reason": "Stock adjustment"
+}
+```
+- **Response Example**:
+```json
+{
+  "success": true,
+  "data": {
+    "id": 1,
+    "product_id": 1,
+    "change_amount": 10,
+    "reason": "Stock adjustment",
+    "user_id": 1,
+    "created_at": "2023-08-26T10:30:00Z"
+  },
+  "message": "Inventory adjusted successfully"
+}
+```
+
+#### Get Inventory Logs
+- **Endpoint**: `GET /inventory/logs`
+- **Description**: Get all inventory adjustment logs
+- **Response Example**:
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": 1,
+      "product_id": 1,
+      "change_amount": 10,
+      "reason": "Stock adjustment",
+      "user_id": 1,
+      "created_at": "2023-08-26T10:30:00Z"
+    }
+  ],
+  "message": "Inventory logs retrieved successfully"
+}
+```
+
+#### Get Low Stock Products
+- **Endpoint**: `GET /inventory/low-stock?threshold=10`
+- **Description**: Get products with stock levels below the specified threshold
+- **Query Parameters**:
+  - `threshold` (optional): Minimum stock level threshold (default: 10)
+- **Response Example**:
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": 1,
+      "name": "Product 1",
+      "description": "Product description",
+      "price": 29.99,
+      "cost": 15.00,
+      "categoryId": 1,
+      "category": {
+        "id": 1,
+        "name": "Electronics",
+        "description": "Electronic products",
+        "created_at": "2023-08-26T10:30:00Z",
+        "updated_at": "2023-08-26T10:30:00Z"
+      },
+      "supplierId": 1,
+      "supplier": {
+        "id": 1,
+        "name": "Test Supplier",
+        "contact_person": "John Supplier",
+        "email": "supplier@example.com",
+        "phone": "123-456-7890",
+        "address": "123 Supplier St, City, Country",
+        "created_at": "2023-08-26T10:30:00Z",
+        "updated_at": "2023-08-26T10:30:00Z"
+      },
+      "barcode": "1234567890123",
+      "sku": "PROD-001",
+      "stockQuantity": 5,
+      "minStockLevel": 10,
+      "createdAt": "2023-08-26T10:30:00Z",
+      "updatedAt": "2023-08-26T10:30:00Z"
+    }
+  ],
+  "message": "Low stock products retrieved successfully"
+}
+```
 
 ### Users
 
