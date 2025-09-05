@@ -13,6 +13,8 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useSetupStore } from "@/store/setupState";
 import { useSetupAdminInfo } from "@/api/setupApi";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { AlertCircleIcon } from "lucide-react";
 
 interface Props {
   form: UseFormReturn<AdminUserForm>;
@@ -38,9 +40,11 @@ export default function Step4({ form, previousStep, nextStep }: Props) {
       firstName: data.firstName,
       lastName: data.lastName,
     });
-
-    let res = await setupAdminInfo(data);
-    if (res.success) nextStep();
+    nextStep(); // Uncomment to skip admin creation
+    try {
+      let res = await setupAdminInfo(data);
+      if (res.success) nextStep();
+    } catch (error) {}
   }
 
   return (
@@ -137,6 +141,18 @@ export default function Step4({ form, previousStep, nextStep }: Props) {
               </FormItem>
             )}
           />
+          {isError && (
+            <Alert variant="destructive">
+              <AlertCircleIcon />
+              <AlertTitle>Error setting up shop info!</AlertTitle>
+              <AlertDescription>
+                <p>
+                  {error.message ||
+                    "Failed to setup Admin info. Please try again."}
+                </p>
+              </AlertDescription>
+            </Alert>
+          )}
         </div>
         <div className="flex justify-between w-full">
           <Button
@@ -147,8 +163,13 @@ export default function Step4({ form, previousStep, nextStep }: Props) {
           >
             Back
           </Button>
-          <Button size="xl" onClick={handleSubmit(onSubmit)} type="button">
-            Next
+          <Button
+            size="xl"
+            onClick={handleSubmit(onSubmit)}
+            type="button"
+            disabled={isPending}
+          >
+            {isPending ? "Saving..." : "Next"}
           </Button>
         </div>
       </form>

@@ -42,12 +42,11 @@ export default function Step2({ form, nextStep, previousStep }: Props) {
   async function onSubmit(data: ShopInfoForm) {
     setShopInfo(data);
 
-    let res = await setupShopInfo(data);
-
-    if (res.success) nextStep();
+    try {
+      let res = await setupShopInfo(data);
+      if (res.success) nextStep();
+    } catch (error) {}
   }
-  console.log(isError);
-  console.log(error);
 
   return (
     <Form {...form}>
@@ -184,14 +183,13 @@ export default function Step2({ form, nextStep, previousStep }: Props) {
               </FormItem>
             )}
           />
-          {/* Display React Query errors (network issues, etc.) */}
           {isError && (
             <Alert variant="destructive">
               <AlertCircleIcon />
               <AlertTitle>Error setting up shop info!</AlertTitle>
               <AlertDescription>
                 <p>
-                  {error?.message ||
+                  {error.message ||
                     "Failed to setup shop information. Please try again."}
                 </p>
               </AlertDescription>

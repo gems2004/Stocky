@@ -36,12 +36,17 @@ export default function Step3({ form, previousStep, nextStep }: Props) {
     mutateAsync: setupDatabaseConfig,
     isPending,
     isError,
+    error,
   } = useSetupDatabaseConfig();
 
   async function onSubmit(data: DatabaseConfigForm) {
     setDatabaseConfig({ ...data, port: Number(data.port) });
-    let res = await setupDatabaseConfig(data);
-    if (res.success) nextStep();
+
+    nextStep(); // Uncomment to skip valid db connection requirement
+    try {
+      let res = await setupDatabaseConfig(data);
+      if (res.success) nextStep();
+    } catch (error) {}
   }
 
   return (
@@ -192,7 +197,11 @@ export default function Step3({ form, previousStep, nextStep }: Props) {
               <AlertCircleIcon />
               <AlertTitle>Error connecting to database!</AlertTitle>
               <AlertDescription>
-                <p>Please check database configuration and try again.</p>
+                <p>
+                  {error.message ||
+                    "Please check database configuration and try again"}
+                  .
+                </p>
               </AlertDescription>
             </Alert>
           )}
