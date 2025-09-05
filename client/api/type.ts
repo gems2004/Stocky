@@ -4,21 +4,30 @@ import {
   DatabaseType,
 } from "@/app/(auth)/setup/schema";
 
+// ==================================
+// API Response Types
+// ==================================
+
 export interface SuccessResponse<T> {
   success: true;
   data: T;
   message?: string;
 }
+
+export interface ApiError {
+  message: string;
+  code: string;
+  technicalDetails?: string;
+  validationErrors?: string[];
+  timestamp: string;
+  requestId?: string;
+}
+
 export interface ErrorResponse {
   success: false;
-  error: {
-    message: string;
-    code: string;
-    technicalDetails?: string;
-    timestamp: string;
-    requestId?: string;
-  };
+  error: ApiError;
 }
+
 export type ApiResponse<T> = SuccessResponse<T> | ErrorResponse;
 
 // ==================================
@@ -263,7 +272,7 @@ export interface ShopInfoDto {
   address: string;
   phone: string;
   email: string;
-  type: BusinessType;
+  businessType: BusinessType;
   currency: Currency;
   website?: string;
 }

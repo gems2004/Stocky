@@ -19,6 +19,9 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useSetupStore } from "@/store/setupState";
+import { useSetupDatabaseConfig } from "@/api/setupApi";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { AlertCircleIcon } from "lucide-react";
 
 interface Props {
   form: UseFormReturn<DatabaseConfigForm>;
@@ -29,11 +32,23 @@ interface Props {
 export default function Step3({ form, previousStep, nextStep }: Props) {
   const { control, handleSubmit } = form;
   const { setDatabaseConfig } = useSetupStore();
+  const {
+    mutateAsync: setupDatabaseConfig,
+    isPending,
+    isError,
+    error,
+  } = useSetupDatabaseConfig();
 
   async function onSubmit(data: DatabaseConfigForm) {
     setDatabaseConfig({ ...data, port: Number(data.port) });
-    nextStep();
+
+    nextStep(); // Uncomment to skip valid db connection requirement
+    try {
+      let res = await setupDatabaseConfig(data);
+      if (res.success) nextStep();
+    } catch (error) {}
   }
+
   return (
     <Form {...form}>
       <form className="flex flex-col gap-20 justify-center items-center w-1/2">
@@ -166,7 +181,7 @@ export default function Step3({ form, previousStep, nextStep }: Props) {
           />
           <FormField
             control={control}
-            name="table_prefix"
+            name="tablePrefix"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>{"Table Prefix (Optional):"}</FormLabel>
@@ -177,6 +192,19 @@ export default function Step3({ form, previousStep, nextStep }: Props) {
               </FormItem>
             )}
           />
+          {isError && (
+            <Alert variant="destructive">
+              <AlertCircleIcon />
+              <AlertTitle>Error connecting to database!</AlertTitle>
+              <AlertDescription>
+                <p>
+                  {error.message ||
+                    "Please check database configuration and try again"}
+                  .
+                </p>
+              </AlertDescription>
+            </Alert>
+          )}
         </div>
         <div className="flex justify-between w-full">
           <Button
@@ -184,11 +212,17 @@ export default function Step3({ form, previousStep, nextStep }: Props) {
             onClick={previousStep}
             variant={"outline"}
             type="button"
+            disabled={isPending}
           >
             Back
           </Button>
-          <Button size="xl" onClick={handleSubmit(onSubmit)} type="button">
-            Next
+          <Button
+            size="xl"
+            onClick={handleSubmit(onSubmit)}
+            type="button"
+            disabled={isPending}
+          >
+            {isPending ? "Saving..." : "Next"}
           </Button>
         </div>
       </form>

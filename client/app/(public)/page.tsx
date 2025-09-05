@@ -1,5 +1,3 @@
-import { GetSetupStatus } from "@/(api)/api";
-
 export default async function Home() {
   return (
     <div>
