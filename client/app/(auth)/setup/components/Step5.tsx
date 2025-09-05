@@ -1,15 +1,18 @@
 import React from "react";
 import H4 from "@/components/typography/H4";
-import { SetupDataForm } from "../schema";
 import { Button } from "@/components/ui/button";
 import { useSetupStore } from "@/store/setupState";
+import { useGetSetupStatus } from "@/api/setupApi";
 
 export default function Step5() {
   const { shopInfo, databaseConfig, user } = useSetupStore();
+  const { data: setup } = useGetSetupStatus();
 
   if (!shopInfo || !databaseConfig || !user) {
     return <p>Please complete setup</p>;
   }
+
+  if (!setup) return <p>Loading...</p>;
 
   return (
     <>
@@ -155,9 +158,20 @@ export default function Step5() {
             )}
           </div>
         </div>
-        <Button size="xl" className="w-fit self-center">
-          Done
-        </Button>
+        {setup.success && setup.data.isSetupComplete ? (
+          <Button size="xl" className="w-fit self-center">
+            Done
+          </Button>
+        ) : (
+          <>
+            <p className="text-destructive self-center">
+              Please complete setup before advancing
+            </p>
+            <Button size="xl" className="w-fit self-center" variant="outline">
+              Go Back
+            </Button>
+          </>
+        )}
       </div>
     </>
   );
