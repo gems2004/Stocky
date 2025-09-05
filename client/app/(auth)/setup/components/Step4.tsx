@@ -12,6 +12,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useSetupStore } from "@/store/setupState";
+import { useSetupAdminInfo } from "@/api/setupApi";
 
 interface Props {
   form: UseFormReturn<AdminUserForm>;
@@ -23,14 +24,23 @@ export default function Step4({ form, previousStep, nextStep }: Props) {
   const { control, handleSubmit } = form;
   const { setUser } = useSetupStore();
 
-  function onSubmit(data: AdminUserForm) {
+  const {
+    mutateAsync: setupAdminInfo,
+    isPending,
+    isError,
+    error,
+  } = useSetupAdminInfo();
+
+  async function onSubmit(data: AdminUserForm) {
     setUser({
       email: data.email,
       username: data.username,
       firstName: data.firstName,
       lastName: data.lastName,
     });
-    nextStep();
+
+    let res = await setupAdminInfo(data);
+    if (res.success) nextStep();
   }
 
   return (

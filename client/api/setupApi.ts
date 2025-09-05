@@ -1,4 +1,8 @@
-import { DatabaseConfigForm, ShopInfoForm } from "@/app/(auth)/setup/schema";
+import {
+  AdminUserForm,
+  DatabaseConfigForm,
+  ShopInfoForm,
+} from "@/app/(auth)/setup/schema";
 import { SetupStatusDto, ApiResponse } from "./type";
 import { api } from "./api";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -43,6 +47,20 @@ export const setupDatabaseConfig = async (
   }
 };
 
+export const setupAdminInfo = async (
+  adminInfo: AdminUserForm
+): Promise<ApiResponse<SetupStatusDto>> => {
+  try {
+    const res = await api.post("/setup/admin", { ...adminInfo });
+    return res.data;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      throw new Error(error.response?.data.error.message);
+    }
+    throw error;
+  }
+};
+
 // React Query hooks with proper error handling
 export const useSetupStatus = () => {
   return useQuery({
@@ -67,6 +85,17 @@ export const useSetupDatabaseConfig = () => {
 
   return useMutation({
     mutationFn: setupDatabaseConfig,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["setupStatus"] });
+    },
+  });
+};
+
+export const useSetupAdminInfo = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: setupAdminInfo,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["setupStatus"] });
     },

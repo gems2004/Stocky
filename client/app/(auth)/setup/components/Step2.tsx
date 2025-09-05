@@ -46,6 +46,8 @@ export default function Step2({ form, nextStep, previousStep }: Props) {
 
     if (res.success) nextStep();
   }
+  console.log(isError);
+  console.log(error);
 
   return (
     <Form {...form}>
