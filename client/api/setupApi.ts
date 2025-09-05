@@ -4,9 +4,8 @@ import {
   ShopInfoForm,
 } from "@/app/(auth)/setup/schema";
 import { SetupStatusDto, ApiResponse } from "./type";
-import { api } from "./api";
+import api from "./interceptor";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import axios from "axios";
 
 export const getSetupStatus = async (): Promise<
   ApiResponse<SetupStatusDto>
@@ -18,51 +17,32 @@ export const getSetupStatus = async (): Promise<
 export const setupShopInfo = async (
   shopInfo: ShopInfoForm
 ): Promise<ApiResponse<SetupStatusDto>> => {
-  try {
-    const res = await api.post<ApiResponse<SetupStatusDto>>("/setup/shop", {
-      ...shopInfo,
-    });
-    return res.data;
-  } catch (error) {
-    if (axios.isAxiosError(error)) {
-      throw new Error(error.response?.data.error.message);
-    }
-    throw error;
-  }
+  const res = await api.post<ApiResponse<SetupStatusDto>>("/setup/shop", {
+    ...shopInfo,
+  });
+  return res.data;
 };
 
 export const setupDatabaseConfig = async (
   dbInfo: DatabaseConfigForm
 ): Promise<ApiResponse<SetupStatusDto>> => {
-  try {
-    const res = await api.post<ApiResponse<SetupStatusDto>>("/setup/database", {
-      ...dbInfo,
-    });
-    return res.data;
-  } catch (error) {
-    if (axios.isAxiosError(error)) {
-      throw new Error(error.response?.data.error.message);
-    }
-    throw error;
-  }
+  const res = await api.post<ApiResponse<SetupStatusDto>>("/setup/database", {
+    ...dbInfo,
+  });
+  return res.data;
 };
 
 export const setupAdminInfo = async (
   adminInfo: AdminUserForm
 ): Promise<ApiResponse<SetupStatusDto>> => {
-  try {
-    const res = await api.post("/setup/admin", { ...adminInfo });
-    return res.data;
-  } catch (error) {
-    if (axios.isAxiosError(error)) {
-      throw new Error(error.response?.data.error.message);
-    }
-    throw error;
-  }
+  const res = await api.post<ApiResponse<SetupStatusDto>>("/setup/admin", {
+    ...adminInfo,
+  });
+  return res.data;
 };
 
 // React Query hooks with proper error handling
-export const useSetupStatus = () => {
+export const useGetSetupStatus = () => {
   return useQuery({
     queryKey: ["setupStatus"],
     queryFn: getSetupStatus,
