@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "04_api_design.md",
+                "file": "02_requirements.md",
                 "mode": "preview",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "04_api_design"
+              "title": "02_requirements"
             }
           }
         ]
@@ -160,27 +160,27 @@
   },
   "left-ribbon": {
     "hiddenItems": {
+      "bases:Create new base": false,
       "switcher:Open quick switcher": false,
       "graph:Open graph view": false,
       "canvas:Create new canvas": false,
       "daily-notes:Open today's daily note": false,
       "templates:Insert template": false,
-      "command-palette:Open command palette": false,
-      "mermaid-tools:Open Mermaid Toolbar": false
+      "command-palette:Open command palette": false
     }
   },
   "active": "eaf3d386b4b82475",
   "lastOpenFiles": [
+    "12_task_management.md",
+    "04_api_design.md",
     "03_database_design.md",
     "api_types_for_frontend.md",
-    "04_api_design.md",
     "01_project_overview.md",
     "05_frontend_architecture.md",
     "06_ui_design.md",
     "15_quick_start_guide.md",
     "07_development_plan.md",
     "02_requirements.md",
-    "12_task_management.md",
     "13_licensing.md",
     "14_initial_setup.md",
     "types.d.ts",
