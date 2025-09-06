@@ -36,8 +36,7 @@ const passwordSchema = z
   .max(32, "Password must be at most 32 characters");
 
 export const ShopInfoSchema = z.object({
-  businessType: z
-    .enum(BusinessType, "Business type must be selected"),
+  businessType: z.enum(BusinessType, "Business type must be selected"),
   name: z
     .string("Shop name is required")
     .min(4, "Shop name must be at least 4 characters")
@@ -47,9 +46,8 @@ export const ShopInfoSchema = z.object({
     .string("Phone number must be entered")
     .regex(/^\+\d{11,15}$/, "Invalid phone number"),
   email: z.email("Invalid Email Address"),
-  website: z.string().url("Must be a valid URL").optional().or(z.literal("")).optional(),
-  currency: z
-    .enum(Currency, "Currency must be selected"),
+  website: z.url("Must be a valid URL").optional().or(z.literal("")).optional(),
+  currency: z.enum(Currency, "Currency must be selected"),
 });
 
 export const DatabaseConfigSchema = z.object({
