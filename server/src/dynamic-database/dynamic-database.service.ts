@@ -1,5 +1,10 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
-import { DataSource, DataSourceOptions } from 'typeorm';
+import {
+  DataSource,
+  DataSourceOptions,
+  Repository,
+  ObjectLiteral,
+} from 'typeorm';
 import { AppStateService, AppState } from './app-state.service';
 import { LoggerService } from '../common/logger.service';
 import * as fs from 'fs';
@@ -79,6 +84,31 @@ export class DynamicDatabaseService implements OnModuleInit {
     return this.dataSource;
   }
 
+  /**
+   * Checks if the DataSource is initialized and throws an appropriate error if not.
+   * This should be called at the beginning of service methods that require database access.
+   */
+  ensureDataSourceInitialized(): void {
+    if (!this.dataSource) {
+      throw new Error(
+        'DataSource not initialized. Please complete the setup process first.',
+      );
+    }
+  }
+
+  /**
+   * Gets a repository for the specified entity.
+   * This method should be called after ensuring the DataSource is initialized.
+   * @param entityClass The entity class for which to get the repository
+   * @returns The repository for the specified entity
+   */
+  getRepository<T extends ObjectLiteral>(
+    entityClass: new () => T,
+  ): Repository<T> {
+    this.ensureDataSourceInitialized();
+    return this.dataSource!.getRepository(entityClass);
+  }
+
   private async createDataSource(config: any): Promise<void> {
     // Close existing connection if any
     if (this.dataSource && this.dataSource.isInitialized) {
@@ -93,7 +123,7 @@ export class DynamicDatabaseService implements OnModuleInit {
       password: config.password,
       database: config.database,
       entities: [__dirname + '/../**/*.entity{.ts,.js}'],
-      migrations: [__dirname + '/../database/migrations/**/*{.ts,.js}'],
+      migrations: [__dirname + '/../dynamic-database/migrations/**/*{.ts,.js}'],
       synchronize: false,
       logging: process.env.NODE_ENV === 'development',
       ssl: config.ssl ? { rejectUnauthorized: false } : false,
@@ -109,10 +139,11 @@ export class DynamicDatabaseService implements OnModuleInit {
       const data = fs.readFileSync(setupConfigPath, 'utf8');
       return JSON.parse(data) as SetupConfig;
     } catch (error) {
+      // If the setup config file doesn't exist or can't be read, return default values
+      // This is expected behavior when the application is first started
       return {
         isDatabaseConfigured: false,
         isShopConfigured: false,
-        isAdminUserCreated: false,
         isSetupComplete: false,
       };
     }

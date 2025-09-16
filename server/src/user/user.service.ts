@@ -1,6 +1,5 @@
-import { Injectable, HttpStatus } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, Like } from 'typeorm';
+import { Injectable, HttpStatus, Inject } from '@nestjs/common';
+import { Repository, Like, DataSource } from 'typeorm';
 import { IUserService } from './interfaces/user.service.interface';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -10,14 +9,20 @@ import { User } from './entity/user.entity';
 import { CustomException } from '../common/exceptions/custom.exception';
 import { LoggerService } from '../common/logger.service';
 import * as bcrypt from 'bcryptjs';
+import { DynamicDatabaseService } from '../dynamic-database/dynamic-database.service';
 
 @Injectable()
 export class UserService implements IUserService {
+  private userRepository: Repository<User>;
+
   constructor(
-    @InjectRepository(User)
-    private readonly userRepository: Repository<User>,
+    private readonly dynamicDatabaseService: DynamicDatabaseService,
     private readonly logger: LoggerService,
-  ) {}
+  ) {
+    // Get the user repository from the dynamic data source
+    const dataSource = this.dynamicDatabaseService.getDataSource();
+    this.userRepository = dataSource.getRepository(User);
+  }
 
   async findAll(
     page: number = 1,
@@ -29,6 +34,12 @@ export class UserService implements IUserService {
     limit: number;
   }> {
     try {
+      this.dynamicDatabaseService.ensureDataSourceInitialized();
+      
+      if (!this.userRepository) {
+        throw new Error('User repository not initialized');
+      }
+      
       this.logger.log(`Fetching users - page: ${page}, limit: ${limit}`);
 
       let users: User[] = [];

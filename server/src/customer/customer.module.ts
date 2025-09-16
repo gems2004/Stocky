@@ -1,15 +1,14 @@
 import { Module, ValidationPipe } from '@nestjs/common';
-import { TypeOrmModule } from '@nestjs/typeorm';
 import { APP_PIPE } from '@nestjs/core';
 import { CustomerService } from './customer.service';
 import { CustomerController } from './customer.controller';
-import { Customer } from './entities/customer.entity';
 import { LoggerService } from '../common/logger.service';
 import { ApiResponseHelper } from '../common/helpers/api-response.helper';
 import { AuthModule } from '../auth/auth.module';
+import { DynamicDatabaseModule } from '../dynamic-database/dynamic-database.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Customer]), AuthModule],
+  imports: [AuthModule, DynamicDatabaseModule],
   providers: [
     CustomerService,
     LoggerService,
@@ -24,6 +23,6 @@ import { AuthModule } from '../auth/auth.module';
     },
   ],
   controllers: [CustomerController],
-  exports: [TypeOrmModule.forFeature([Customer]), CustomerService],
+  exports: [CustomerService],
 })
 export class CustomerModule {}

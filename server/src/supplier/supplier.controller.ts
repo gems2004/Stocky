@@ -21,9 +21,10 @@ import { UserRole } from '../user/entity/user.entity';
 import { ApiResponseHelper } from '../common/helpers/api-response.helper';
 import { SuccessResponse } from '../common/types/api-response.type';
 import { SupplierResponseDto } from './dto/supplier-response.dto';
+import { AppReadyGuard } from '../dynamic-database/guards/app-ready.guard';
 
 @Controller('supplier')
-@UseGuards(AuthGuard, RoleGuard)
+@UseGuards(AuthGuard, RoleGuard, AppReadyGuard)
 export class SupplierController {
   constructor(private readonly supplierService: SupplierService) {}
 

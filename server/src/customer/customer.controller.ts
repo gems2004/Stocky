@@ -21,9 +21,10 @@ import { UserRole } from '../user/entity/user.entity';
 import { ApiResponseHelper } from '../common/helpers/api-response.helper';
 import { SuccessResponse } from '../common/types/api-response.type';
 import { CustomerResponseDto } from './dto/customer-response.dto';
+import { AppReadyGuard } from '../dynamic-database/guards/app-ready.guard';
 
 @Controller('customer')
-@UseGuards(AuthGuard, RoleGuard)
+@UseGuards(AuthGuard, RoleGuard, AppReadyGuard)
 export class CustomerController {
   constructor(private readonly customerService: CustomerService) {}
 

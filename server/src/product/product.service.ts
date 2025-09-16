@@ -1,6 +1,5 @@
-import { Injectable, HttpStatus } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, Like } from 'typeorm';
+import { Injectable, HttpStatus, Inject } from '@nestjs/common';
+import { Repository, Like, DataSource } from 'typeorm';
 import { IProductService } from './interfaces/product.service.interface';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
@@ -10,14 +9,20 @@ import { Product } from './entity/product.entity';
 import { CustomException } from '../common/exceptions/custom.exception';
 import { LoggerService } from '../common/logger.service';
 import { SupplierResponseDto } from '../supplier/dto/supplier-response.dto';
+import { DynamicDatabaseService } from '../dynamic-database/dynamic-database.service';
 
 @Injectable()
 export class ProductService implements IProductService {
+  private productRepository: Repository<Product>;
+
   constructor(
-    @InjectRepository(Product)
-    private readonly productRepository: Repository<Product>,
+    private readonly dynamicDatabaseService: DynamicDatabaseService,
     private readonly logger: LoggerService,
-  ) {}
+  ) {
+    // Get the product repository from the dynamic data source
+    // This will throw an error if the database hasn't been configured yet
+    this.productRepository = this.dynamicDatabaseService.getRepository(Product);
+  }
 
   async findAll(
     page: number = 1,

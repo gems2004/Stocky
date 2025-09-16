@@ -19,9 +19,10 @@ import { ApiResponseHelper } from '../common/helpers/api-response.helper';
 import { SuccessResponse } from '../common/types/api-response.type';
 import { InventoryLogResponseDto } from './dto/inventory-log-response.dto';
 import { Product } from '../product/entity/product.entity';
+import { AppReadyGuard } from '../dynamic-database/guards/app-ready.guard';
 
 @Controller('inventory')
-@UseGuards(AuthGuard, RoleGuard)
+@UseGuards(AuthGuard, RoleGuard, AppReadyGuard)
 export class InventoryController {
   constructor(private readonly inventoryService: InventoryService) {}
 

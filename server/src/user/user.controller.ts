@@ -11,6 +11,7 @@ import {
   HttpStatus,
   UseGuards,
   ParseIntPipe,
+  Inject,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -24,9 +25,10 @@ import { RoleGuard } from '../auth/guards/role.guard';
 import { Public } from '../auth/decorators/public.decorator';
 import { Role } from '../auth/decorators/roles.decorator';
 import { UserRole } from './entity/user.entity';
+import { AppReadyGuard } from '../dynamic-database/guards/app-ready.guard';
 
 @Controller('users')
-@UseGuards(AuthGuard)
+@UseGuards(AuthGuard, AppReadyGuard)
 export class UserController {
   constructor(private readonly userService: UserService) {}
 

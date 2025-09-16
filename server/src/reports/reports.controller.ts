@@ -15,9 +15,10 @@ import { SuccessResponse } from '../common/types/api-response.type';
 import { SalesSummaryDto } from './dto/sales-summary.dto';
 import { TopProductsResponseDto } from './dto/top-products.dto';
 import { ProfitMarginResponseDto } from './dto/profit-margin.dto';
+import { AppReadyGuard } from '../dynamic-database/guards/app-ready.guard';
 
 @Controller('reports')
-@UseGuards(AuthGuard, RoleGuard)
+@UseGuards(AuthGuard, RoleGuard, AppReadyGuard)
 export class ReportsController {
   constructor(private readonly reportsService: ReportsService) {}
 

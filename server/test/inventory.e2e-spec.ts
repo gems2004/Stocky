@@ -3,7 +3,6 @@ import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
 import { AppModule } from '../src/app.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { databaseConfig } from '../src/database/config';
 import { TypeOrmModuleOptions } from '@nestjs/typeorm';
 
 describe('InventoryController (e2e)', () => {
@@ -58,10 +57,15 @@ describe('InventoryController (e2e)', () => {
   beforeAll(async () => {
     // Create a test database configuration with synchronization enabled
     const testDatabaseConfig: TypeOrmModuleOptions = {
-      ...databaseConfig,
+      type: 'postgres',
+      host: 'localhost',
+      port: 5432,
+      username: 'george',
+      password: 'zaq321xsw',
       database: 'stocky_test', // Use a separate test database
       synchronize: true, // Enable synchronization for tests
       dropSchema: true, // drop schema after each run
+      entities: [__dirname + '/../src/**/entity/*{.ts,.js}'],
     } as TypeOrmModuleOptions;
 
     const moduleFixture: TestingModule = await Test.createTestingModule({

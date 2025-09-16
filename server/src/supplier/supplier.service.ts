@@ -1,6 +1,5 @@
-import { Injectable, HttpStatus } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Injectable, HttpStatus, Inject } from '@nestjs/common';
+import { Repository, DataSource } from 'typeorm';
 import { ISupplierService } from './interfaces/supplier.service.interface';
 import { Supplier } from './entities/supplier.entity';
 import { CreateSupplierDto } from './dto/create-supplier.dto';
@@ -8,14 +7,20 @@ import { UpdateSupplierDto } from './dto/update-supplier.dto';
 import { SupplierResponseDto } from './dto/supplier-response.dto';
 import { CustomException } from '../common/exceptions/custom.exception';
 import { LoggerService } from '../common/logger.service';
+import { DynamicDatabaseService } from '../dynamic-database/dynamic-database.service';
 
 @Injectable()
 export class SupplierService implements ISupplierService {
+  private supplierRepository: Repository<Supplier>;
+
   constructor(
-    @InjectRepository(Supplier)
-    private readonly supplierRepository: Repository<Supplier>,
+    private readonly dynamicDatabaseService: DynamicDatabaseService,
     private readonly logger: LoggerService,
-  ) {}
+  ) {
+    // Get the supplier repository from the dynamic data source
+    // This will throw an error if the database hasn't been configured yet
+    this.supplierRepository = this.dynamicDatabaseService.getRepository(Supplier);
+  }
 
   async create(
     createSupplierDto: CreateSupplierDto,

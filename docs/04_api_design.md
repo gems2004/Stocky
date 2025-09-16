@@ -96,7 +96,6 @@ All API responses follow a consistent format to simplify client-side handling:
   "data": {
     "isDatabaseConfigured": true,
     "isShopConfigured": true,
-    "isAdminCreated": true,
     "isSetupComplete": true
   },
   "message": "Setup status retrieved successfully"
@@ -126,7 +125,6 @@ All API responses follow a consistent format to simplify client-side handling:
   "data": {
     "isDatabaseConfigured": true,
     "isShopConfigured": false,
-    "isAdminCreated": false,
     "isSetupComplete": false
   },
   "message": "Database configured successfully"
@@ -152,37 +150,9 @@ All API responses follow a consistent format to simplify client-side handling:
   "data": {
     "isDatabaseConfigured": true,
     "isShopConfigured": true,
-    "isAdminCreated": false,
     "isSetupComplete": false
   },
   "message": "Shop information configured successfully"
-}
-```
-
-#### Create Administrator Account
-- **Endpoint**: `POST /setup/admin`
-- **Description**: Create administrator account
-- **Request Body**:
-```json
-{
-  "username": "admin",
-  "email": "admin@example.com",
-  "password": "securepassword",
-  "firstName": "Admin",
-  "lastName": "User"
-}
-```
-- **Response Example**:
-```json
-{
-  "success": true,
-  "data": {
-    "isDatabaseConfigured": true,
-    "isShopConfigured": true,
-    "isAdminCreated": true,
-    "isSetupComplete": false
-  },
-  "message": "Admin user created successfully"
 }
 ```
 
@@ -196,7 +166,6 @@ All API responses follow a consistent format to simplify client-side handling:
   "data": {
     "isDatabaseConfigured": true,
     "isShopConfigured": true,
-    "isAdminCreated": true,
     "isSetupComplete": true
   },
   "message": "Setup process completed successfully"

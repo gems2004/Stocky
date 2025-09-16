@@ -1,6 +1,5 @@
-import { Injectable, HttpStatus } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, Between } from 'typeorm';
+import { Injectable, HttpStatus, Inject } from '@nestjs/common';
+import { Repository, Between, DataSource } from 'typeorm';
 import { Transaction } from '../transaction/entity/transaction.entity';
 import { TransactionItem } from '../transaction/entity/transaction-item.entity';
 import { Product } from '../product/entity/product.entity';
@@ -16,18 +15,24 @@ import {
   TopProductsRawResult,
   ProfitMarginRawResult,
 } from './interfaces/transaction-items.interface';
+import { DynamicDatabaseService } from '../dynamic-database/dynamic-database.service';
 
 @Injectable()
 export class ReportsService {
+  private transactionRepository: Repository<Transaction>;
+  private transactionItemRepository: Repository<TransactionItem>;
+  private productRepository: Repository<Product>;
+
   constructor(
-    @InjectRepository(Transaction)
-    private readonly transactionRepository: Repository<Transaction>,
-    @InjectRepository(TransactionItem)
-    private readonly transactionItemRepository: Repository<TransactionItem>,
-    @InjectRepository(Product)
-    private readonly productRepository: Repository<Product>,
+    private readonly dynamicDatabaseService: DynamicDatabaseService,
     private readonly logger: LoggerService,
-  ) {}
+  ) {
+    // Get the repositories from the dynamic data source
+    // This will throw an error if the database hasn't been configured yet
+    this.transactionRepository = this.dynamicDatabaseService.getRepository(Transaction);
+    this.transactionItemRepository = this.dynamicDatabaseService.getRepository(TransactionItem);
+    this.productRepository = this.dynamicDatabaseService.getRepository(Product);
+  }
 
   async getSalesSummary(
     startDate?: Date,

@@ -1,7 +1,6 @@
-import { Injectable, HttpStatus } from '@nestjs/common';
+import { Injectable, HttpStatus, Inject } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, DataSource } from 'typeorm';
 import * as bcrypt from 'bcryptjs';
 import { User, UserRole } from '../user/entity/user.entity';
 import { LoginDto } from './dto/login.dto';
@@ -11,14 +10,22 @@ import { RefreshTokenDto } from './dto/refresh-token.dto';
 import { IAuthService } from './interfaces/auth.service.interface';
 import { CustomException } from '../common/exceptions/custom.exception';
 import { LoggerService } from '../common/logger.service';
+import { DynamicDatabaseService } from '../dynamic-database/dynamic-database.service';
+
 @Injectable()
 export class AuthService implements IAuthService {
+  private userRepository: Repository<User>;
+
   constructor(
-    @InjectRepository(User)
-    private readonly userRepository: Repository<User>,
+    private readonly dynamicDatabaseService: DynamicDatabaseService,
     private readonly jwtService: JwtService,
     private readonly logger: LoggerService,
-  ) {}
+  ) {
+    // Get the user repository from the dynamic data source
+    // This will throw an error if the database hasn't been configured yet
+    this.userRepository = this.dynamicDatabaseService.getRepository(User);
+  }
+
   async getUserData(userId: number): Promise<AuthResponseDto> {
     try {
       // Find user by ID

@@ -23,9 +23,10 @@ import { AuthGuard } from '../auth/guards/auth.guard';
 import { RoleGuard } from '../auth/guards/role.guard';
 import { Role } from '../auth/decorators/roles.decorator';
 import { UserRole } from '../user/entity/user.entity';
+import { AppReadyGuard } from '../dynamic-database/guards/app-ready.guard';
 
 @Controller('transactions')
-@UseGuards(AuthGuard)
+@UseGuards(AuthGuard, AppReadyGuard)
 export class TransactionController {
   constructor(private readonly transactionService: TransactionService) {}
 

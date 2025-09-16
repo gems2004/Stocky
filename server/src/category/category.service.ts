@@ -1,6 +1,5 @@
-import { Injectable, HttpStatus } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Injectable, HttpStatus, Inject } from '@nestjs/common';
+import { Repository, DataSource } from 'typeorm';
 import { ICategoryService } from './interfaces/category.service.interface';
 import { Category } from './entities/category.entity';
 import { CreateCategoryDto } from './dto/create-category.dto';
@@ -8,14 +7,20 @@ import { UpdateCategoryDto } from './dto/update-category.dto';
 import { CategoryResponseDto } from './dto/category-response.dto';
 import { CustomException } from '../common/exceptions/custom.exception';
 import { LoggerService } from '../common/logger.service';
+import { DynamicDatabaseService } from '../dynamic-database/dynamic-database.service';
 
 @Injectable()
 export class CategoryService implements ICategoryService {
+  private categoryRepository: Repository<Category>;
+
   constructor(
-    @InjectRepository(Category)
-    private readonly categoryRepository: Repository<Category>,
+    private readonly dynamicDatabaseService: DynamicDatabaseService,
     private readonly logger: LoggerService,
-  ) {}
+  ) {
+    // Get the category repository from the dynamic data source
+    // This will throw an error if the database hasn't been configured yet
+    this.categoryRepository = this.dynamicDatabaseService.getRepository(Category);
+  }
 
   async create(
     createCategoryDto: CreateCategoryDto,

@@ -1,6 +1,5 @@
-import { Injectable, HttpStatus } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Injectable, HttpStatus, Inject } from '@nestjs/common';
+import { Repository, DataSource } from 'typeorm';
 import { ICustomerService } from './interfaces/customer.service.interface';
 import { Customer } from './entities/customer.entity';
 import { CreateCustomerDto } from './dto/create-customer.dto';
@@ -8,14 +7,20 @@ import { UpdateCustomerDto } from './dto/update-customer.dto';
 import { CustomerResponseDto } from './dto/customer-response.dto';
 import { CustomException } from '../common/exceptions/custom.exception';
 import { LoggerService } from '../common/logger.service';
+import { DynamicDatabaseService } from '../dynamic-database/dynamic-database.service';
 
 @Injectable()
 export class CustomerService implements ICustomerService {
+  private customerRepository: Repository<Customer>;
+
   constructor(
-    @InjectRepository(Customer)
-    private readonly customerRepository: Repository<Customer>,
+    private readonly dynamicDatabaseService: DynamicDatabaseService,
     private readonly logger: LoggerService,
-  ) {}
+  ) {
+    // Get the customer repository from the dynamic data source
+    // This will throw an error if the database hasn't been configured yet
+    this.customerRepository = this.dynamicDatabaseService.getRepository(Customer);
+  }
 
   async create(
     createCustomerDto: CreateCustomerDto,
