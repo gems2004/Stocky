@@ -1,20 +1,18 @@
 import { Module, ValidationPipe } from '@nestjs/common';
-import { TypeOrmModule } from '@nestjs/typeorm';
 import { APP_PIPE } from '@nestjs/core';
 import { InventoryService } from './inventory.service';
 import { InventoryController } from './inventory.controller';
-import { InventoryLog } from './entities/inventory-log.entity';
-import { Product } from '../product/entity/product.entity';
 import { LoggerService } from '../common/logger.service';
 import { ApiResponseHelper } from '../common/helpers/api-response.helper';
 import { AuthModule } from '../auth/auth.module';
 import { ProductModule } from '../product/product.module';
+import { DynamicDatabaseModule } from '../dynamic-database/dynamic-database.module';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([InventoryLog, Product]),
     AuthModule,
     ProductModule,
+    DynamicDatabaseModule,
   ],
   providers: [
     InventoryService,
@@ -30,6 +28,6 @@ import { ProductModule } from '../product/product.module';
     },
   ],
   controllers: [InventoryController],
-  exports: [TypeOrmModule.forFeature([InventoryLog]), InventoryService],
+  exports: [InventoryService],
 })
 export class InventoryModule {}

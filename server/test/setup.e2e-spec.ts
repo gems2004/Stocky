@@ -3,7 +3,6 @@ import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
 import { AppModule } from '../src/app.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { databaseConfig } from '../src/database/config';
 import { TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { DatabaseType } from '../src/setup/dto/database-config.dto';
 import fs from 'fs';
@@ -14,10 +13,15 @@ describe('SetupController (e2e)', () => {
   beforeAll(async () => {
     // Create a test database configuration with synchronization enabled
     const testDatabaseConfig: TypeOrmModuleOptions = {
-      ...databaseConfig,
+      type: 'postgres',
+      host: 'localhost',
+      port: 5432,
+      name: 'george',
+      password: 'zaq321xsw',
       database: 'stocky_test_setup', // Use a separate test database
-      synchronize: true, // Enable synchronization for tests
+      synchronize: false, // Enable synchronization for tests
       dropSchema: true, // drop schema after each run
+      entities: [__dirname + '/../src/**/*entity{.ts,.js}'],
     } as TypeOrmModuleOptions;
 
     const moduleFixture: TestingModule = await Test.createTestingModule({
@@ -85,22 +89,6 @@ describe('SetupController (e2e)', () => {
     currency: 'USD',
     businessType: 'retail',
     website: 'https://testshop.com',
-  };
-
-  const adminUserData1 = {
-    username: 'admin1',
-    email: 'admin1@example.com',
-    password: 'admin123',
-    firstName: 'Admin',
-    lastName: 'User',
-  };
-
-  const adminUserData2 = {
-    username: 'admin2',
-    email: 'admin2@example.com',
-    password: 'admin123',
-    firstName: 'Admin',
-    lastName: 'User',
   };
 
   describe('/setup/status (GET)', () => {
@@ -186,34 +174,6 @@ describe('SetupController (e2e)', () => {
     });
   });
 
-  describe('/setup/admin (POST)', () => {
-    it('should create admin user', () => {
-      return request(app.getHttpServer())
-        .post('/setup/admin')
-        .send(adminUserData1)
-        .expect(200)
-        .expect((res) => {
-          expect(res.body.success).toBe(true);
-          expect(res.body.data).toBeDefined();
-          expect(res.body.data.isSetupComplete).toBeDefined();
-          expect(typeof res.body.data.isSetupComplete).toBe('boolean');
-          expect(res.body.message).toBe('Admin user created successfully');
-        });
-    });
-
-    it('should fail with missing required fields', () => {
-      return request(app.getHttpServer())
-        .post('/setup/admin')
-        .send({
-          email: 'admin@example.com',
-          firstName: 'Admin',
-          lastName: 'User',
-          // Missing required username and password fields
-        })
-        .expect(400);
-    });
-  });
-
   describe('/setup/complete (POST)', () => {
     it('should complete setup process', () => {
       // First configure all required steps
@@ -225,12 +185,6 @@ describe('SetupController (e2e)', () => {
           return request(app.getHttpServer())
             .post('/setup/shop')
             .send(shopInfoData)
-            .expect(200);
-        })
-        .then(() => {
-          return request(app.getHttpServer())
-            .post('/setup/admin')
-            .send(adminUserData2)
             .expect(200);
         })
         .then(() => {

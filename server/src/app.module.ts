@@ -1,4 +1,9 @@
-import { Module, NestModule, MiddlewareConsumer } from '@nestjs/common';
+import {
+  Module,
+  NestModule,
+  MiddlewareConsumer,
+  OnModuleInit,
+} from '@nestjs/common';
 import { APP_FILTER } from '@nestjs/core';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -6,8 +11,6 @@ import { AuthModule } from './auth/auth.module';
 import { CommonModule } from './common/common.module';
 import { HttpExceptionFilter } from './common/filters/http-exception.filter';
 import { RequestIdMiddleware } from './common/middleware/request-id.middleware';
-import { databaseConfig } from './database/config';
-import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
 import { SetupModule } from './setup/setup.module';
 import { ProductModule } from './product/product.module';
@@ -18,10 +21,12 @@ import { TransactionModule } from './transaction/transaction.module';
 import { CustomerModule } from './customer/customer.module';
 import { InventoryModule } from './inventory/inventory.module';
 import { ReportsModule } from './reports/reports.module';
+import { DynamicDatabaseModule } from './dynamic-database/dynamic-database.module';
+import { DynamicDatabaseService } from './dynamic-database/dynamic-database.service';
 
 @Module({
   imports: [
-    TypeOrmModule.forRoot(databaseConfig),
+    DynamicDatabaseModule,
     ConfigModule.forRoot({ isGlobal: true }),
     AuthModule,
     CommonModule,
@@ -38,13 +43,20 @@ import { ReportsModule } from './reports/reports.module';
   controllers: [AppController],
   providers: [
     AppService,
+    DynamicDatabaseService,
     {
       provide: APP_FILTER,
       useClass: HttpExceptionFilter,
     },
   ],
 })
-export class AppModule implements NestModule {
+export class AppModule implements NestModule, OnModuleInit {
+  constructor(private readonly databaseService: DynamicDatabaseService) {}
+
+  async onModuleInit() {
+    await this.databaseService.initializeIfConfigured();
+  }
+
   configure(consumer: MiddlewareConsumer) {
     consumer.apply(RequestIdMiddleware).forRoutes('*');
   }

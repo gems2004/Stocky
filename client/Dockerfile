@@ -17,7 +17,7 @@ RUN pnpm config set fetch-retry-maxtimeout 300000
 COPY package.json pnpm-lock.yaml ./
 
 # Install all dependencies (including dev dependencies for building)
-RUN pnpm install --prefer-offline
+RUN pnpm install 
 
 # Copy source code
 COPY . .

@@ -4,11 +4,10 @@ import { SetupService } from './setup.service';
 import { SetupController } from './setup.controller';
 import { LoggerService } from '../common/logger.service';
 import { ApiResponseHelper } from '../common/helpers/api-response.helper';
-import { AuthModule } from '../auth/auth.module';
-import { UserModule } from '../user/user.module';
+import { DynamicDatabaseModule } from '../dynamic-database/dynamic-database.module';
 
 @Module({
-  imports: [AuthModule, UserModule],
+  imports: [DynamicDatabaseModule],
   providers: [
     SetupService,
     LoggerService,

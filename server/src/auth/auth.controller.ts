@@ -17,6 +17,7 @@ import { CurrentUser } from './decorators/current-user.decorator';
 import { JwtPayload } from './types/auth-tokens.type';
 import { ApiResponseHelper } from '../common/helpers/api-response.helper';
 import { SuccessResponse } from '../common/types/api-response.type';
+import { AppReadyGuard } from '../dynamic-database/guards/app-ready.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -44,7 +45,7 @@ export class AuthController {
 
   @HttpCode(HttpStatus.OK)
   @Get('profile')
-  @UseGuards(AuthGuard)
+  @UseGuards(AuthGuard, AppReadyGuard)
   async getProfile(
     @CurrentUser() user: JwtPayload,
   ): Promise<SuccessResponse<AuthResponseDto>> {

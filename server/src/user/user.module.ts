@@ -1,13 +1,12 @@
 import { Module, ValidationPipe } from '@nestjs/common';
-import { TypeOrmModule } from '@nestjs/typeorm';
 import { APP_PIPE } from '@nestjs/core';
 import { UserController } from './user.controller';
 import { UserService } from './user.service';
-import { User } from './entity/user.entity';
 import { AuthModule } from '../auth/auth.module';
+import { DynamicDatabaseModule } from '../dynamic-database/dynamic-database.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([User]), AuthModule],
+  imports: [AuthModule, DynamicDatabaseModule],
   controllers: [UserController],
   providers: [
     UserService,

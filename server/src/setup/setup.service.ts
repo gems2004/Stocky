@@ -3,16 +3,13 @@ import { ISetupService } from './interfaces/setup.service.interface';
 import { SetupStatusDto } from './dto/setup-status.dto';
 import { DatabaseConfigDto } from './dto/database-config.dto';
 import { ShopInfoDto } from './dto/shop-info.dto';
-import { AdminUserDto } from './dto/admin-user.dto';
 import { CustomException } from '../common/exceptions/custom.exception';
 import { LoggerService } from '../common/logger.service';
 import * as fs from 'fs';
 import * as path from 'path';
 import { Client } from 'pg';
 import { SetupConfig } from './interfaces/setup-config.interface';
-import { CreateUserDto } from 'src/user/dto/create-user.dto';
-import { UserRole } from '../user/entity/user.entity';
-import { UserService } from '../user/user.service';
+import { DynamicDatabaseService } from '../dynamic-database/dynamic-database.service';
 
 @Injectable()
 export class SetupService implements ISetupService {
@@ -21,7 +18,7 @@ export class SetupService implements ISetupService {
 
   constructor(
     private readonly logger: LoggerService,
-    private readonly userService: UserService,
+    private readonly dynamicDatabaseService: DynamicDatabaseService,
   ) {}
 
   async getStatus(): Promise<SetupStatusDto> {
@@ -47,6 +44,9 @@ export class SetupService implements ISetupService {
 
     // Test database connection
     await this.testDatabaseConnection(config);
+
+    // Configure and initialize database
+    await this.dynamicDatabaseService.configureAndInitialize(config);
 
     // Save database configuration
     const setupStatus = this.readSetupConfig();
@@ -81,36 +81,6 @@ export class SetupService implements ISetupService {
     return { isSetupComplete: setupStatus.isSetupComplete };
   }
 
-  async createAdminUser(userData: AdminUserDto): Promise<SetupStatusDto> {
-    this.logger.log('Creating admin user');
-    if (!userData.username || !userData.password) {
-      const errorMessage = 'Missing required user information parameters';
-      throw new CustomException(
-        'Invalid user information',
-        HttpStatus.BAD_REQUEST,
-        errorMessage,
-      );
-    }
-
-    const registerData: CreateUserDto = {
-      username: userData.username,
-      email: userData.email,
-      password: userData.password,
-      firstName: userData.firstName,
-      lastName: userData.lastName,
-      role: UserRole.ADMIN,
-    };
-
-    await this.userService.create(registerData);
-
-    const setupStatus = this.readSetupConfig();
-    setupStatus.isAdminUserCreated = true;
-    this.writeSetupConfig(setupStatus);
-
-    this.logger.log('Admin user created successfully');
-    return { isSetupComplete: setupStatus.isSetupComplete };
-  }
-
   completeSetup(): SetupStatusDto {
     this.logger.log('Completing setup process');
 
@@ -118,14 +88,12 @@ export class SetupService implements ISetupService {
 
     if (
       setupStatus.isDatabaseConfigured &&
-      setupStatus.isShopConfigured &&
-      setupStatus.isAdminUserCreated
+      setupStatus.isShopConfigured
     ) {
       setupStatus.isSetupComplete = true;
       this.writeSetupConfig(setupStatus);
 
       // Export configuration to .env file for production
-      this.exportConfigToEnvFile(setupStatus);
 
       this.logger.log('Setup process completed successfully');
     } else {
@@ -148,7 +116,6 @@ export class SetupService implements ISetupService {
       return {
         isDatabaseConfigured: false,
         isShopConfigured: false,
-        isAdminUserCreated: false,
         isSetupComplete: false,
       };
     }
@@ -195,61 +162,6 @@ export class SetupService implements ISetupService {
         } catch (endError: unknown) {
           // Silently ignore errors when closing the connection
         }
-      }
-    }
-  }
-
-  private exportConfigToEnvFile(config: SetupConfig): void {
-    if (!config.isSetupComplete) {
-      this.logger.warn('Setup is not complete. Skipping .env file export.');
-      return;
-    }
-
-    try {
-      let envContent = '# Production Environment Variables\n';
-
-      // Add database configuration
-      if (config.databaseConfig) {
-        envContent += `DB_HOST=${config.databaseConfig.host}\n`;
-        envContent += `DB_PORT=${config.databaseConfig.port}\n`;
-        envContent += `DB_USERNAME=${config.databaseConfig.username}\n`;
-        envContent += `DB_PASSWORD=${config.databaseConfig.password}\n`;
-        envContent += `DB_NAME=${config.databaseConfig.database}\n`;
-        envContent += `TABLE_PREFIX=${config.databaseConfig.tablePrefix}\n`;
-        envContent += `DB_SSL=${config.databaseConfig.ssl}\n`;
-      }
-
-      // Add shop information
-      if (config.shopInfo) {
-        envContent += `SHOP_NAME=${config.shopInfo.name}\n`;
-        envContent += `SHOP_CURRENCY=${config.shopInfo.currency}\n`;
-        if (config.shopInfo.businessType) {
-          envContent += `SHOP_BUSINESS_TYPE=${config.shopInfo.businessType}\n`;
-        }
-        if (config.shopInfo.website) {
-          envContent += `SHOP_WEBSITE=${config.shopInfo.website}\n`;
-        }
-        if (config.shopInfo.address) {
-          envContent += `SHOP_ADDRESS=${config.shopInfo.address}\n`;
-        }
-        if (config.shopInfo.phone) {
-          envContent += `SHOP_PHONE=${config.shopInfo.phone}\n`;
-        }
-        if (config.shopInfo.email) {
-          envContent += `SHOP_EMAIL=${config.shopInfo.email}\n`;
-        }
-      }
-
-      // Write to .env.production file
-      fs.writeFileSync(this.envFilePath, envContent);
-      this.logger.log(`Configuration exported to ${this.envFilePath}`);
-    } catch (error) {
-      if (error instanceof Error) {
-        throw new CustomException(
-          'Failed to export configuration',
-          HttpStatus.INTERNAL_SERVER_ERROR,
-          `Error exporting to .env file: ${error.message}`,
-        );
       }
     }
   }

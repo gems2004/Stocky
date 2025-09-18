@@ -1,6 +1,5 @@
-import { Injectable, HttpStatus } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Injectable, HttpStatus, Inject } from '@nestjs/common';
+import { Repository, DataSource } from 'typeorm';
 import { ISupplierService } from './interfaces/supplier.service.interface';
 import { Supplier } from './entities/supplier.entity';
 import { CreateSupplierDto } from './dto/create-supplier.dto';
@@ -8,25 +7,56 @@ import { UpdateSupplierDto } from './dto/update-supplier.dto';
 import { SupplierResponseDto } from './dto/supplier-response.dto';
 import { CustomException } from '../common/exceptions/custom.exception';
 import { LoggerService } from '../common/logger.service';
+import { DynamicDatabaseService } from '../dynamic-database/dynamic-database.service';
 
 @Injectable()
 export class SupplierService implements ISupplierService {
   constructor(
-    @InjectRepository(Supplier)
-    private readonly supplierRepository: Repository<Supplier>,
+    private readonly dynamicDatabaseService: DynamicDatabaseService,
     private readonly logger: LoggerService,
-  ) {}
+  ) {
+    // No initialization in constructor
+  }
+
+  private async getSupplierRepository(): Promise<Repository<Supplier>> {
+    try {
+      // Ensure the database is ready
+      await this.ensureDatabaseReady();
+      this.dynamicDatabaseService.ensureDataSourceInitialized();
+      const dataSource = this.dynamicDatabaseService.getDataSource();
+      return dataSource.getRepository(Supplier);
+    } catch (error) {
+      this.logger.error(`Failed to get supplier repository: ${error.message}`);
+      throw new CustomException(
+        'Database connection error',
+        HttpStatus.SERVICE_UNAVAILABLE,
+        `Database may not be properly configured: ${error.message}`,
+      );
+    }
+  }
+
+  private async ensureDatabaseReady(): Promise<void> {
+    try {
+      this.dynamicDatabaseService.ensureDataSourceInitialized();
+    } catch (error) {
+      // If the datasource is not initialized, try to initialize it
+      this.logger.log('Attempting to reinitialize database connection');
+      await this.dynamicDatabaseService.initializeIfConfigured();
+      this.dynamicDatabaseService.ensureDataSourceInitialized();
+    }
+  }
 
   async create(
     createSupplierDto: CreateSupplierDto,
   ): Promise<SupplierResponseDto> {
     try {
+      const supplierRepository = await this.getSupplierRepository();
       this.logger.log(
         `Attempting to create supplier: ${createSupplierDto.name}`,
       );
 
       // Check if supplier already exists
-      const existingSupplier = await this.supplierRepository.findOne({
+      const existingSupplier = await supplierRepository.findOne({
         where: { name: createSupplierDto.name },
       });
 
@@ -40,7 +70,7 @@ export class SupplierService implements ISupplierService {
       }
 
       // Create new supplier entity
-      const newSupplier = this.supplierRepository.create({
+      const newSupplier = supplierRepository.create({
         name: createSupplierDto.name,
         contact_person: createSupplierDto.contact_person,
         email: createSupplierDto.email,
@@ -49,7 +79,7 @@ export class SupplierService implements ISupplierService {
       });
 
       // Save the supplier
-      const savedSupplier = await this.supplierRepository.save(newSupplier);
+      const savedSupplier = await supplierRepository.save(newSupplier);
       this.logger.log(
         `Successfully created supplier with ID: ${savedSupplier.id}`,
       );
@@ -84,10 +114,11 @@ export class SupplierService implements ISupplierService {
 
   async findAll(): Promise<SupplierResponseDto[]> {
     try {
+      const supplierRepository = await this.getSupplierRepository();
       this.logger.log('Fetching all suppliers');
 
       // Find all suppliers
-      const suppliers = await this.supplierRepository.find({
+      const suppliers = await supplierRepository.find({
         order: { name: 'ASC' },
       });
 
@@ -128,10 +159,11 @@ export class SupplierService implements ISupplierService {
     updateSupplierDto: UpdateSupplierDto,
   ): Promise<SupplierResponseDto> {
     try {
+      const supplierRepository = await this.getSupplierRepository();
       this.logger.log(`Attempting to update supplier ID: ${id}`);
 
       // Find supplier by ID
-      const supplier = await this.supplierRepository.findOne({
+      const supplier = await supplierRepository.findOne({
         where: { id },
       });
 
@@ -147,7 +179,7 @@ export class SupplierService implements ISupplierService {
 
       // Check if name is being updated and if it already exists
       if (updateSupplierDto.name && updateSupplierDto.name !== supplier.name) {
-        const existingSupplier = await this.supplierRepository.findOne({
+        const existingSupplier = await supplierRepository.findOne({
           where: { name: updateSupplierDto.name },
         });
 
@@ -179,7 +211,7 @@ export class SupplierService implements ISupplierService {
       }
 
       // Save the updated supplier
-      const updatedSupplier = await this.supplierRepository.save(supplier);
+      const updatedSupplier = await supplierRepository.save(supplier);
       this.logger.log(
         `Successfully updated supplier with ID: ${updatedSupplier.id}`,
       );
@@ -214,10 +246,11 @@ export class SupplierService implements ISupplierService {
 
   async remove(id: number): Promise<void> {
     try {
+      const supplierRepository = await this.getSupplierRepository();
       this.logger.log(`Attempting to remove supplier ID: ${id}`);
 
       // Find supplier by ID
-      const supplier = await this.supplierRepository.findOne({
+      const supplier = await supplierRepository.findOne({
         where: { id },
       });
 
@@ -232,7 +265,7 @@ export class SupplierService implements ISupplierService {
       }
 
       // Remove the supplier
-      await this.supplierRepository.remove(supplier);
+      await supplierRepository.remove(supplier);
       this.logger.log(`Successfully removed supplier with ID: ${id}`);
     } catch (error) {
       // Re-throw if it's already a CustomException, otherwise wrap in CustomException

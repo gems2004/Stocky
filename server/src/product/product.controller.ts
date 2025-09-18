@@ -11,6 +11,7 @@ import {
   HttpStatus,
   UseGuards,
   ParseIntPipe,
+  Inject,
 } from '@nestjs/common';
 import { ProductService } from './product.service';
 import { CreateProductDto } from './dto/create-product.dto';
@@ -20,9 +21,10 @@ import { ProductResponseDto } from './dto/product-response.dto';
 import { ApiResponseHelper } from '../common/helpers/api-response.helper';
 import { SuccessResponse } from '../common/types/api-response.type';
 import { AuthGuard } from '../auth/guards/auth.guard';
+import { AppReadyGuard } from '../dynamic-database/guards/app-ready.guard';
 
 @Controller('products')
-@UseGuards(AuthGuard)
+@UseGuards(AuthGuard, AppReadyGuard)
 export class ProductController {
   constructor(private readonly productService: ProductService) {}
 

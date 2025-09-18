@@ -1,7 +1,6 @@
-import { Injectable, HttpStatus } from '@nestjs/common';
+import { Injectable, HttpStatus, Inject } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, DataSource } from 'typeorm';
 import * as bcrypt from 'bcryptjs';
 import { User, UserRole } from '../user/entity/user.entity';
 import { LoginDto } from './dto/login.dto';
@@ -11,18 +10,51 @@ import { RefreshTokenDto } from './dto/refresh-token.dto';
 import { IAuthService } from './interfaces/auth.service.interface';
 import { CustomException } from '../common/exceptions/custom.exception';
 import { LoggerService } from '../common/logger.service';
+import { DynamicDatabaseService } from '../dynamic-database/dynamic-database.service';
+
 @Injectable()
 export class AuthService implements IAuthService {
   constructor(
-    @InjectRepository(User)
-    private readonly userRepository: Repository<User>,
+    private readonly dynamicDatabaseService: DynamicDatabaseService,
     private readonly jwtService: JwtService,
     private readonly logger: LoggerService,
-  ) {}
+  ) {
+    // No initialization in constructor
+  }
+
+  private async getUserRepository(): Promise<Repository<User>> {
+    try {
+      // Ensure the database is ready
+      await this.ensureDatabaseReady();
+      this.dynamicDatabaseService.ensureDataSourceInitialized();
+      const dataSource = this.dynamicDatabaseService.getDataSource();
+      return dataSource.getRepository(User);
+    } catch (error) {
+      this.logger.error(`Failed to get user repository: ${error.message}`);
+      throw new CustomException(
+        'Database connection error',
+        HttpStatus.SERVICE_UNAVAILABLE,
+        `Database may not be properly configured: ${error.message}`,
+      );
+    }
+  }
+
+  private async ensureDatabaseReady(): Promise<void> {
+    try {
+      this.dynamicDatabaseService.ensureDataSourceInitialized();
+    } catch (error) {
+      // If the datasource is not initialized, try to initialize it
+      this.logger.log('Attempting to reinitialize database connection');
+      await this.dynamicDatabaseService.initializeIfConfigured();
+      this.dynamicDatabaseService.ensureDataSourceInitialized();
+    }
+  }
+
   async getUserData(userId: number): Promise<AuthResponseDto> {
     try {
+      const userRepository = await this.getUserRepository();
       // Find user by ID
-      const user = await this.userRepository.findOne({
+      const user = await userRepository.findOne({
         where: { id: userId },
       });
 
@@ -66,10 +98,11 @@ export class AuthService implements IAuthService {
 
   async login(credentials: LoginDto): Promise<AuthResponseDto> {
     try {
+      const userRepository = await this.getUserRepository();
       this.logger.log(`Login attempt for username: ${credentials.username}`);
 
       // Find user by username
-      const user = await this.userRepository.findOne({
+      const user = await userRepository.findOne({
         where: { username: credentials.username },
       });
 
@@ -143,6 +176,7 @@ export class AuthService implements IAuthService {
     refreshTokenData: RefreshTokenDto,
   ): Promise<AuthResponseDto> {
     try {
+      const userRepository = await this.getUserRepository();
       this.logger.log('Attempting to refresh token');
 
       // Verify the refresh token
@@ -175,7 +209,7 @@ export class AuthService implements IAuthService {
       // Extract user ID with proper type checking
       const userId = payload.sub;
 
-      const user = await this.userRepository.findOne({
+      const user = await userRepository.findOne({
         where: { id: userId },
       });
 

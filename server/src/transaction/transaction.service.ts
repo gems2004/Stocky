@@ -1,6 +1,5 @@
-import { Injectable, HttpStatus } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Injectable, HttpStatus, Inject } from '@nestjs/common';
+import { Repository, DataSource } from 'typeorm';
 import { ITransactionService } from './interfaces/transaction.service.interface';
 import { CreateTransactionDto } from './dto/create-transaction.dto';
 import { UpdateTransactionDto } from './dto/update-transaction.dto';
@@ -10,18 +9,78 @@ import { TransactionItem } from './entity/transaction-item.entity';
 import { Product } from '../product/entity/product.entity';
 import { CustomException } from '../common/exceptions/custom.exception';
 import { LoggerService } from '../common/logger.service';
+import { DynamicDatabaseService } from '../dynamic-database/dynamic-database.service';
 
 @Injectable()
 export class TransactionService implements ITransactionService {
   constructor(
-    @InjectRepository(Transaction)
-    private readonly transactionRepository: Repository<Transaction>,
-    @InjectRepository(TransactionItem)
-    private readonly transactionItemRepository: Repository<TransactionItem>,
-    @InjectRepository(Product)
-    private readonly productRepository: Repository<Product>,
+    private readonly dynamicDatabaseService: DynamicDatabaseService,
     private readonly logger: LoggerService,
-  ) {}
+  ) {
+    // No initialization in constructor
+  }
+
+  private async getTransactionRepository(): Promise<Repository<Transaction>> {
+    try {
+      // Ensure the database is ready
+      await this.ensureDatabaseReady();
+      this.dynamicDatabaseService.ensureDataSourceInitialized();
+      const dataSource = this.dynamicDatabaseService.getDataSource();
+      return dataSource.getRepository(Transaction);
+    } catch (error) {
+      this.logger.error(`Failed to get transaction repository: ${error.message}`);
+      throw new CustomException(
+        'Database connection error',
+        HttpStatus.SERVICE_UNAVAILABLE,
+        `Database may not be properly configured: ${error.message}`,
+      );
+    }
+  }
+
+  private async getTransactionItemRepository(): Promise<Repository<TransactionItem>> {
+    try {
+      // Ensure the database is ready
+      await this.ensureDatabaseReady();
+      this.dynamicDatabaseService.ensureDataSourceInitialized();
+      const dataSource = this.dynamicDatabaseService.getDataSource();
+      return dataSource.getRepository(TransactionItem);
+    } catch (error) {
+      this.logger.error(`Failed to get transaction item repository: ${error.message}`);
+      throw new CustomException(
+        'Database connection error',
+        HttpStatus.SERVICE_UNAVAILABLE,
+        `Database may not be properly configured: ${error.message}`,
+      );
+    }
+  }
+
+  private async getProductRepository(): Promise<Repository<Product>> {
+    try {
+      // Ensure the database is ready
+      await this.ensureDatabaseReady();
+      this.dynamicDatabaseService.ensureDataSourceInitialized();
+      const dataSource = this.dynamicDatabaseService.getDataSource();
+      return dataSource.getRepository(Product);
+    } catch (error) {
+      this.logger.error(`Failed to get product repository: ${error.message}`);
+      throw new CustomException(
+        'Database connection error',
+        HttpStatus.SERVICE_UNAVAILABLE,
+        `Database may not be properly configured: ${error.message}`,
+      );
+    }
+  }
+
+  private async ensureDatabaseReady(): Promise<void> {
+    try {
+      this.dynamicDatabaseService.ensureDataSourceInitialized();
+    } catch (error) {
+      // If the datasource is not initialized, try to initialize it
+      this.logger.log('Attempting to reinitialize database connection');
+      await this.dynamicDatabaseService.initializeIfConfigured();
+      this.dynamicDatabaseService.ensureDataSourceInitialized();
+    }
+  }
 
   async findAll(
     page: number = 1,
@@ -33,6 +92,7 @@ export class TransactionService implements ITransactionService {
     limit: number;
   }> {
     try {
+      const transactionRepository = await this.getTransactionRepository();
       this.logger.log(`Fetching transactions - page: ${page}, limit: ${limit}`);
 
       // Calculate offset for pagination
@@ -40,7 +100,7 @@ export class TransactionService implements ITransactionService {
 
       // Find transactions with pagination
       const [transactions, total] =
-        await this.transactionRepository.findAndCount({
+        await transactionRepository.findAndCount({
           relations: ['user', 'transactionItems', 'customer'],
           order: { created_at: 'DESC' },
           skip: offset,
@@ -121,9 +181,10 @@ export class TransactionService implements ITransactionService {
 
   async findOne(id: number): Promise<TransactionResponseDto> {
     try {
+      const transactionRepository = await this.getTransactionRepository();
       this.logger.log(`Fetching transaction with ID: ${id}`);
 
-      const transaction = await this.transactionRepository.findOne({
+      const transaction = await transactionRepository.findOne({
         where: { id },
         relations: ['user', 'transactionItems', 'customer'],
       });
@@ -205,11 +266,14 @@ export class TransactionService implements ITransactionService {
     transactionData: CreateTransactionDto,
   ): Promise<TransactionResponseDto> {
     try {
+      const transactionRepository = await this.getTransactionRepository();
+      const transactionItemRepository = await this.getTransactionItemRepository();
+      const productRepository = await this.getProductRepository();
       this.logger.log('Creating a new transaction');
 
       // 1. Validate product availability
       for (const item of transactionData.items) {
-        const product = await this.productRepository.findOne({
+        const product = await productRepository.findOne({
           where: { id: item.productId },
         });
 
@@ -237,7 +301,7 @@ export class TransactionService implements ITransactionService {
       const transactionItemsData: Partial<TransactionItem>[] = [];
 
       for (const item of transactionData.items) {
-        const product = await this.productRepository.findOne({
+        const product = await productRepository.findOne({
           where: { id: item.productId },
         });
 
@@ -259,7 +323,7 @@ export class TransactionService implements ITransactionService {
       );
 
       // 3. Create transaction record
-      const newTransaction = this.transactionRepository.create({
+      const newTransaction = transactionRepository.create({
         customer_id: transactionData.customerId,
         user_id: transactionData.userId,
         total_amount: totalAmount,
@@ -270,11 +334,11 @@ export class TransactionService implements ITransactionService {
       });
 
       const savedTransaction =
-        await this.transactionRepository.save(newTransaction);
+        await transactionRepository.save(newTransaction);
 
       // 4. Create transaction items
       const transactionItemsToSave = transactionItemsData.map((itemData) =>
-        this.transactionItemRepository.create({
+        transactionItemRepository.create({
           transaction_id: savedTransaction.id,
           product_id: itemData.product_id,
           quantity: itemData.quantity,
@@ -283,20 +347,20 @@ export class TransactionService implements ITransactionService {
         }),
       );
 
-      const savedTransactionItems = await this.transactionItemRepository.save(
+      const savedTransactionItems = await transactionItemRepository.save(
         transactionItemsToSave,
       );
 
       // 5. Update inventory
       for (const item of transactionData.items) {
-        const product = await this.productRepository.findOne({
+        const product = await productRepository.findOne({
           where: { id: item.productId },
         });
 
         // We already validated product existence and stock earlier,
         // so we can safely assert product is not null here.
         product!.stock_quantity -= item.quantity;
-        await this.productRepository.save(product!);
+        await productRepository.save(product!);
       }
 
       this.logger.log(
@@ -304,7 +368,7 @@ export class TransactionService implements ITransactionService {
       );
 
       // Fetch the complete transaction with relations for response
-      const completeTransaction = await this.transactionRepository.findOne({
+      const completeTransaction = await transactionRepository.findOne({
         where: { id: savedTransaction.id },
         relations: ['user', 'transactionItems', 'customer'],
       });
@@ -383,10 +447,13 @@ export class TransactionService implements ITransactionService {
     transactionData: UpdateTransactionDto,
   ): Promise<TransactionResponseDto> {
     try {
+      const transactionRepository = await this.getTransactionRepository();
+      const transactionItemRepository = await this.getTransactionItemRepository();
+      const productRepository = await this.getProductRepository();
       this.logger.log(`Updating transaction with ID: ${id}`);
 
       // Find the existing transaction with its items
-      const existingTransaction = await this.transactionRepository.findOne({
+      const existingTransaction = await transactionRepository.findOne({
         where: { id },
         relations: ['transactionItems'],
       });
@@ -412,7 +479,7 @@ export class TransactionService implements ITransactionService {
 
       // Validate product availability for new items
       for (const item of itemsToUpdate) {
-        const product = await this.productRepository.findOne({
+        const product = await productRepository.findOne({
           where: { id: item.productId },
         });
 
@@ -454,21 +521,21 @@ export class TransactionService implements ITransactionService {
 
       // Update inventory: first revert the old quantities
       for (const item of existingTransaction.transactionItems) {
-        const product = await this.productRepository.findOne({
+        const product = await productRepository.findOne({
           where: { id: item.product_id },
         });
 
         if (product) {
           // Revert the quantity that was deducted
           product.stock_quantity += item.quantity;
-          await this.productRepository.save(product);
+          await productRepository.save(product);
         }
       }
 
       // Apply new quantities and calculate new totals
       const transactionItemsData: Partial<TransactionItem>[] = [];
       for (const item of itemsToUpdate) {
-        const product = await this.productRepository.findOne({
+        const product = await productRepository.findOne({
           where: { id: item.productId },
         });
 
@@ -485,7 +552,7 @@ export class TransactionService implements ITransactionService {
         // Update inventory with new quantities
         if (product) {
           product.stock_quantity -= item.quantity;
-          await this.productRepository.save(product);
+          await productRepository.save(product);
         }
       }
 
@@ -521,21 +588,21 @@ export class TransactionService implements ITransactionService {
 
       // Save the updated transaction
       const updatedTransaction =
-        await this.transactionRepository.save(existingTransaction);
+        await transactionRepository.save(existingTransaction);
 
       // Remove existing transaction items
       if (
         existingTransaction.transactionItems &&
         existingTransaction.transactionItems.length > 0
       ) {
-        await this.transactionItemRepository.remove(
+        await transactionItemRepository.remove(
           existingTransaction.transactionItems,
         );
       }
 
       // Create new transaction items
       const transactionItemsToSave = transactionItemsData.map((itemData) =>
-        this.transactionItemRepository.create({
+        transactionItemRepository.create({
           transaction_id: updatedTransaction.id,
           product_id: itemData.product_id,
           quantity: itemData.quantity,
@@ -544,7 +611,7 @@ export class TransactionService implements ITransactionService {
         }),
       );
 
-      const savedTransactionItems = await this.transactionItemRepository.save(
+      const savedTransactionItems = await transactionItemRepository.save(
         transactionItemsToSave,
       );
 
@@ -553,7 +620,7 @@ export class TransactionService implements ITransactionService {
       );
 
       // Fetch the complete transaction with relations for response
-      const completeTransaction = await this.transactionRepository.findOne({
+      const completeTransaction = await transactionRepository.findOne({
         where: { id: updatedTransaction.id },
         relations: ['user', 'transactionItems', 'customer'],
       });
@@ -629,10 +696,12 @@ export class TransactionService implements ITransactionService {
 
   async delete(id: number): Promise<void> {
     try {
+      const transactionRepository = await this.getTransactionRepository();
+      const transactionItemRepository = await this.getTransactionItemRepository();
       this.logger.log(`Attempting to delete transaction ID: ${id}`);
 
       // Find transaction by ID with its items
-      const transaction = await this.transactionRepository.findOne({
+      const transaction = await transactionRepository.findOne({
         where: { id },
         relations: ['transactionItems'],
       });
@@ -652,13 +721,13 @@ export class TransactionService implements ITransactionService {
         transaction.transactionItems &&
         transaction.transactionItems.length > 0
       ) {
-        await this.transactionItemRepository.remove(
+        await transactionItemRepository.remove(
           transaction.transactionItems,
         );
       }
 
       // Delete the transaction
-      await this.transactionRepository.remove(transaction);
+      await transactionRepository.remove(transaction);
       this.logger.log(`Successfully deleted transaction with ID: ${id}`);
     } catch (error) {
       // Re-throw if it's already a CustomException, otherwise wrap in CustomException

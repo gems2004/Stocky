@@ -17,16 +17,16 @@ RUN pnpm config set fetch-retry-maxtimeout 300000
 COPY package.json pnpm-lock.yaml ./
 
 # Install all dependencies (including dev dependencies for building)
-RUN pnpm install --prefer-offline
+RUN npm install 
 
 # Copy source code
 COPY . .
 
 # Create dist directory and build the application
-RUN pnpm run build
+RUN npm run build
 
 # Expose port
 EXPOSE 3000
 
 # Start the application
-CMD ["pnpm", "start:prod"]
+CMD ["npm", "run", "start:prod"]

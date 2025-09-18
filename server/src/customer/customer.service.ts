@@ -1,6 +1,5 @@
-import { Injectable, HttpStatus } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Injectable, HttpStatus, Inject } from '@nestjs/common';
+import { Repository, DataSource } from 'typeorm';
 import { ICustomerService } from './interfaces/customer.service.interface';
 import { Customer } from './entities/customer.entity';
 import { CreateCustomerDto } from './dto/create-customer.dto';
@@ -8,26 +7,57 @@ import { UpdateCustomerDto } from './dto/update-customer.dto';
 import { CustomerResponseDto } from './dto/customer-response.dto';
 import { CustomException } from '../common/exceptions/custom.exception';
 import { LoggerService } from '../common/logger.service';
+import { DynamicDatabaseService } from '../dynamic-database/dynamic-database.service';
 
 @Injectable()
 export class CustomerService implements ICustomerService {
   constructor(
-    @InjectRepository(Customer)
-    private readonly customerRepository: Repository<Customer>,
+    private readonly dynamicDatabaseService: DynamicDatabaseService,
     private readonly logger: LoggerService,
-  ) {}
+  ) {
+    // No initialization in constructor
+  }
+
+  private async getCustomerRepository(): Promise<Repository<Customer>> {
+    try {
+      // Ensure the database is ready
+      await this.ensureDatabaseReady();
+      this.dynamicDatabaseService.ensureDataSourceInitialized();
+      const dataSource = this.dynamicDatabaseService.getDataSource();
+      return dataSource.getRepository(Customer);
+    } catch (error) {
+      this.logger.error(`Failed to get customer repository: ${error.message}`);
+      throw new CustomException(
+        'Database connection error',
+        HttpStatus.SERVICE_UNAVAILABLE,
+        `Database may not be properly configured: ${error.message}`,
+      );
+    }
+  }
+
+  private async ensureDatabaseReady(): Promise<void> {
+    try {
+      this.dynamicDatabaseService.ensureDataSourceInitialized();
+    } catch (error) {
+      // If the datasource is not initialized, try to initialize it
+      this.logger.log('Attempting to reinitialize database connection');
+      await this.dynamicDatabaseService.initializeIfConfigured();
+      this.dynamicDatabaseService.ensureDataSourceInitialized();
+    }
+  }
 
   async create(
     createCustomerDto: CreateCustomerDto,
   ): Promise<CustomerResponseDto> {
     try {
+      const customerRepository = await this.getCustomerRepository();
       this.logger.log(
         `Attempting to create customer: ${createCustomerDto.first_name} ${createCustomerDto.last_name}`,
       );
 
       // Check if customer with same email already exists (if email is provided)
       if (createCustomerDto.email) {
-        const existingCustomer = await this.customerRepository.findOne({
+        const existingCustomer = await customerRepository.findOne({
           where: { email: createCustomerDto.email },
         });
 
@@ -42,7 +72,7 @@ export class CustomerService implements ICustomerService {
       }
 
       // Create new customer entity
-      const newCustomer = this.customerRepository.create({
+      const newCustomer = customerRepository.create({
         first_name: createCustomerDto.first_name,
         last_name: createCustomerDto.last_name,
         email: createCustomerDto.email,
@@ -52,7 +82,7 @@ export class CustomerService implements ICustomerService {
       });
 
       // Save the customer
-      const savedCustomer = await this.customerRepository.save(newCustomer);
+      const savedCustomer = await customerRepository.save(newCustomer);
       this.logger.log(
         `Successfully created customer with ID: ${savedCustomer.id}`,
       );
@@ -87,10 +117,11 @@ export class CustomerService implements ICustomerService {
 
   async findAll(): Promise<CustomerResponseDto[]> {
     try {
+      const customerRepository = await this.getCustomerRepository();
       this.logger.log('Fetching all customers');
 
       // Find all customers
-      const customers = await this.customerRepository.find({
+      const customers = await customerRepository.find({
         order: { first_name: 'ASC', last_name: 'ASC' },
       });
 
@@ -131,10 +162,11 @@ export class CustomerService implements ICustomerService {
     updateCustomerDto: UpdateCustomerDto,
   ): Promise<CustomerResponseDto> {
     try {
+      const customerRepository = await this.getCustomerRepository();
       this.logger.log(`Attempting to update customer ID: ${id}`);
 
       // Find customer by ID
-      const customer = await this.customerRepository.findOne({
+      const customer = await customerRepository.findOne({
         where: { id },
       });
 
@@ -153,7 +185,7 @@ export class CustomerService implements ICustomerService {
         updateCustomerDto.email &&
         updateCustomerDto.email !== customer.email
       ) {
-        const existingCustomer = await this.customerRepository.findOne({
+        const existingCustomer = await customerRepository.findOne({
           where: { email: updateCustomerDto.email },
         });
 
@@ -188,7 +220,7 @@ export class CustomerService implements ICustomerService {
       }
 
       // Save the updated customer
-      const updatedCustomer = await this.customerRepository.save(customer);
+      const updatedCustomer = await customerRepository.save(customer);
       this.logger.log(
         `Successfully updated customer with ID: ${updatedCustomer.id}`,
       );
@@ -223,10 +255,11 @@ export class CustomerService implements ICustomerService {
 
   async remove(id: number): Promise<void> {
     try {
+      const customerRepository = await this.getCustomerRepository();
       this.logger.log(`Attempting to remove customer ID: ${id}`);
 
       // Find customer by ID
-      const customer = await this.customerRepository.findOne({
+      const customer = await customerRepository.findOne({
         where: { id },
       });
 
@@ -241,7 +274,7 @@ export class CustomerService implements ICustomerService {
       }
 
       // Remove the customer
-      await this.customerRepository.remove(customer);
+      await customerRepository.remove(customer);
       this.logger.log(`Successfully removed customer with ID: ${id}`);
     } catch (error) {
       // Re-throw if it's already a CustomException, otherwise wrap in CustomException

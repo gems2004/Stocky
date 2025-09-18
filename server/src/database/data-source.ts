@@ -1,17 +1,19 @@
 import { DataSource } from 'typeorm';
-import * as dotenv from 'dotenv';
+import { ConfigService } from '@nestjs/config';
 
-dotenv.config();
-
-export const AppDataSource = new DataSource({
+// For CLI commands, we use a static configuration
+// In production, you should use environment variables
+const dataSource = new DataSource({
   type: 'postgres',
-  host: process.env.DB_HOST || 'localhost',
-  port: parseInt(process.env.DB_PORT || '5432', 10),
-  username: process.env.DB_USERNAME || 'stocky',
-  password: process.env.DB_PASSWORD || 'stocky',
-  database: process.env.DB_NAME || 'stocky',
-  entities: [__dirname + '/../**/*.entity{.ts,.js}'],
-  migrations: [__dirname + './migrations/**/*{.ts,.js}'],
+  host: 'localhost',
+  port: 5432,
+  username: 'george',
+  password: 'zaq321xsw',
+  database: 'stocky',
+  entities: ['src/**/*.entity{.ts,.js}'],
+  migrations: ['src/dynamic-database/migrations/**/*{.ts,.js}'],
   synchronize: false,
-  logging: process.env.NODE_ENV === 'development',
+  logging: false,
 });
+
+export default dataSource;
