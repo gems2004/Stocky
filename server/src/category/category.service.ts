@@ -11,27 +11,52 @@ import { DynamicDatabaseService } from '../dynamic-database/dynamic-database.ser
 
 @Injectable()
 export class CategoryService implements ICategoryService {
-  private categoryRepository: Repository<Category>;
-
   constructor(
     private readonly dynamicDatabaseService: DynamicDatabaseService,
     private readonly logger: LoggerService,
   ) {
-    // Get the category repository from the dynamic data source
-    // This will throw an error if the database hasn't been configured yet
-    this.categoryRepository = this.dynamicDatabaseService.getRepository(Category);
+    // No initialization in constructor
+  }
+
+  private async getCategoryRepository(): Promise<Repository<Category>> {
+    try {
+      // Ensure the database is ready
+      await this.ensureDatabaseReady();
+      this.dynamicDatabaseService.ensureDataSourceInitialized();
+      const dataSource = this.dynamicDatabaseService.getDataSource();
+      return dataSource.getRepository(Category);
+    } catch (error) {
+      this.logger.error(`Failed to get category repository: ${error.message}`);
+      throw new CustomException(
+        'Database connection error',
+        HttpStatus.SERVICE_UNAVAILABLE,
+        `Database may not be properly configured: ${error.message}`,
+      );
+    }
+  }
+
+  private async ensureDatabaseReady(): Promise<void> {
+    try {
+      this.dynamicDatabaseService.ensureDataSourceInitialized();
+    } catch (error) {
+      // If the datasource is not initialized, try to initialize it
+      this.logger.log('Attempting to reinitialize database connection');
+      await this.dynamicDatabaseService.initializeIfConfigured();
+      this.dynamicDatabaseService.ensureDataSourceInitialized();
+    }
   }
 
   async create(
     createCategoryDto: CreateCategoryDto,
   ): Promise<CategoryResponseDto> {
     try {
+      const categoryRepository = await this.getCategoryRepository();
       this.logger.log(
         `Attempting to create category: ${createCategoryDto.name}`,
       );
 
       // Check if category already exists
-      const existingCategory = await this.categoryRepository.findOne({
+      const existingCategory = await categoryRepository.findOne({
         where: { name: createCategoryDto.name },
       });
 
@@ -45,13 +70,13 @@ export class CategoryService implements ICategoryService {
       }
 
       // Create new category entity
-      const newCategory = this.categoryRepository.create({
+      const newCategory = categoryRepository.create({
         name: createCategoryDto.name,
         description: createCategoryDto.description,
       });
 
       // Save the category
-      const savedCategory = await this.categoryRepository.save(newCategory);
+      const savedCategory = await categoryRepository.save(newCategory);
       this.logger.log(
         `Successfully created category with ID: ${savedCategory.id}`,
       );
@@ -83,10 +108,11 @@ export class CategoryService implements ICategoryService {
 
   async findAll(): Promise<CategoryResponseDto[]> {
     try {
+      const categoryRepository = await this.getCategoryRepository();
       this.logger.log('Fetching all categories');
 
       // Find all categories
-      const categories = await this.categoryRepository.find({
+      const categories = await categoryRepository.find({
         order: { name: 'ASC' },
       });
 
@@ -124,10 +150,11 @@ export class CategoryService implements ICategoryService {
     updateCategoryDto: UpdateCategoryDto,
   ): Promise<CategoryResponseDto> {
     try {
+      const categoryRepository = await this.getCategoryRepository();
       this.logger.log(`Attempting to update category ID: ${id}`);
 
       // Find category by ID
-      const category = await this.categoryRepository.findOne({
+      const category = await categoryRepository.findOne({
         where: { id },
       });
 
@@ -143,7 +170,7 @@ export class CategoryService implements ICategoryService {
 
       // Check if name is being updated and if it already exists
       if (updateCategoryDto.name && updateCategoryDto.name !== category.name) {
-        const existingCategory = await this.categoryRepository.findOne({
+        const existingCategory = await categoryRepository.findOne({
           where: { name: updateCategoryDto.name },
         });
 
@@ -166,7 +193,7 @@ export class CategoryService implements ICategoryService {
       }
 
       // Save the updated category
-      const updatedCategory = await this.categoryRepository.save(category);
+      const updatedCategory = await categoryRepository.save(category);
       this.logger.log(
         `Successfully updated category with ID: ${updatedCategory.id}`,
       );
@@ -198,10 +225,11 @@ export class CategoryService implements ICategoryService {
 
   async remove(id: number): Promise<void> {
     try {
+      const categoryRepository = await this.getCategoryRepository();
       this.logger.log(`Attempting to remove category ID: ${id}`);
 
       // Find category by ID
-      const category = await this.categoryRepository.findOne({
+      const category = await categoryRepository.findOne({
         where: { id },
       });
 
@@ -216,7 +244,7 @@ export class CategoryService implements ICategoryService {
       }
 
       // Remove the category
-      await this.categoryRepository.remove(category);
+      await categoryRepository.remove(category);
       this.logger.log(`Successfully removed category with ID: ${id}`);
     } catch (error) {
       // Re-throw if it's already a CustomException, otherwise wrap in CustomException

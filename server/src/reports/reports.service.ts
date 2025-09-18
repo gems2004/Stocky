@@ -19,19 +19,73 @@ import { DynamicDatabaseService } from '../dynamic-database/dynamic-database.ser
 
 @Injectable()
 export class ReportsService {
-  private transactionRepository: Repository<Transaction>;
-  private transactionItemRepository: Repository<TransactionItem>;
-  private productRepository: Repository<Product>;
-
   constructor(
     private readonly dynamicDatabaseService: DynamicDatabaseService,
     private readonly logger: LoggerService,
   ) {
-    // Get the repositories from the dynamic data source
-    // This will throw an error if the database hasn't been configured yet
-    this.transactionRepository = this.dynamicDatabaseService.getRepository(Transaction);
-    this.transactionItemRepository = this.dynamicDatabaseService.getRepository(TransactionItem);
-    this.productRepository = this.dynamicDatabaseService.getRepository(Product);
+    // No initialization in constructor
+  }
+
+  private async getTransactionRepository(): Promise<Repository<Transaction>> {
+    try {
+      // Ensure the database is ready
+      await this.ensureDatabaseReady();
+      this.dynamicDatabaseService.ensureDataSourceInitialized();
+      const dataSource = this.dynamicDatabaseService.getDataSource();
+      return dataSource.getRepository(Transaction);
+    } catch (error) {
+      this.logger.error(`Failed to get transaction repository: ${error.message}`);
+      throw new CustomException(
+        'Database connection error',
+        HttpStatus.SERVICE_UNAVAILABLE,
+        `Database may not be properly configured: ${error.message}`,
+      );
+    }
+  }
+
+  private async getTransactionItemRepository(): Promise<Repository<TransactionItem>> {
+    try {
+      // Ensure the database is ready
+      await this.ensureDatabaseReady();
+      this.dynamicDatabaseService.ensureDataSourceInitialized();
+      const dataSource = this.dynamicDatabaseService.getDataSource();
+      return dataSource.getRepository(TransactionItem);
+    } catch (error) {
+      this.logger.error(`Failed to get transaction item repository: ${error.message}`);
+      throw new CustomException(
+        'Database connection error',
+        HttpStatus.SERVICE_UNAVAILABLE,
+        `Database may not be properly configured: ${error.message}`,
+      );
+    }
+  }
+
+  private async getProductRepository(): Promise<Repository<Product>> {
+    try {
+      // Ensure the database is ready
+      await this.ensureDatabaseReady();
+      this.dynamicDatabaseService.ensureDataSourceInitialized();
+      const dataSource = this.dynamicDatabaseService.getDataSource();
+      return dataSource.getRepository(Product);
+    } catch (error) {
+      this.logger.error(`Failed to get product repository: ${error.message}`);
+      throw new CustomException(
+        'Database connection error',
+        HttpStatus.SERVICE_UNAVAILABLE,
+        `Database may not be properly configured: ${error.message}`,
+      );
+    }
+  }
+
+  private async ensureDatabaseReady(): Promise<void> {
+    try {
+      this.dynamicDatabaseService.ensureDataSourceInitialized();
+    } catch (error) {
+      // If the datasource is not initialized, try to initialize it
+      this.logger.log('Attempting to reinitialize database connection');
+      await this.dynamicDatabaseService.initializeIfConfigured();
+      this.dynamicDatabaseService.ensureDataSourceInitialized();
+    }
   }
 
   async getSalesSummary(
@@ -39,6 +93,7 @@ export class ReportsService {
     endDate?: Date,
   ): Promise<SalesSummaryDto> {
     try {
+      const transactionRepository = await this.getTransactionRepository();
       this.logger.log('Generating sales summary report');
 
       // Set default date range if not provided (last 30 days)
@@ -50,7 +105,7 @@ export class ReportsService {
       const end = endDate || now;
 
       // Get transactions in date range
-      const transactions = await this.transactionRepository.find({
+      const transactions = await transactionRepository.find({
         where: {
           created_at: Between(start, end),
           status: 'completed',
@@ -101,6 +156,7 @@ export class ReportsService {
     endDate?: Date,
   ): Promise<TopProductsResponseDto> {
     try {
+      const transactionItemRepository = await this.getTransactionItemRepository();
       this.logger.log('Generating top products report');
 
       // Set default date range if not provided (last 30 days)
@@ -112,7 +168,7 @@ export class ReportsService {
       const end = endDate || now;
 
       // Get transaction items with product info in date range
-      const transactionItems = await this.transactionItemRepository
+      const transactionItems = await transactionItemRepository
         .createQueryBuilder('item')
         .innerJoin('item.transaction', 'transaction')
         .innerJoin('item.product', 'product')
@@ -170,6 +226,8 @@ export class ReportsService {
     endDate?: Date,
   ): Promise<ProfitMarginResponseDto> {
     try {
+      const transactionItemRepository = await this.getTransactionItemRepository();
+      const productRepository = await this.getProductRepository();
       this.logger.log('Generating profit margin report');
 
       // Set default date range if not provided (last 30 days)
@@ -181,7 +239,7 @@ export class ReportsService {
       const end = endDate || now;
 
       // Get transaction items with product info in date range
-      const transactionItems = await this.transactionItemRepository
+      const transactionItems = await transactionItemRepository
         .createQueryBuilder('item')
         .innerJoin('item.transaction', 'transaction')
         .innerJoin('item.product', 'product')

@@ -1,9 +1,10 @@
-import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
-import { AppModule } from '../src/app.module';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { TypeOrmModuleOptions } from '@nestjs/typeorm';
+import {
+  initializeTestApp,
+  createTestSetupConfig,
+  cleanupTestSetupConfig,
+} from './test-helpers';
 
 describe('TransactionController (e2e)', () => {
   let app: INestApplication;
@@ -77,29 +78,10 @@ describe('TransactionController (e2e)', () => {
   };
 
   beforeAll(async () => {
-    // Create a test database configuration with synchronization enabled
-    const testDatabaseConfig: TypeOrmModuleOptions = {
-      type: 'postgres',
-      host: 'localhost',
-      port: 5432,
-      username: 'george',
-      password: 'zaq321xsw',
-      database: 'stocky_test', // Use a separate test database
-      synchronize: true, // Enable synchronization for tests
-      dropSchema: true, // drop schema after each run
-      entities: [__dirname + '/../src/**/entity/*{.ts,.js}'],
-    } as TypeOrmModuleOptions;
+    // Create the setup config file directly
+    createTestSetupConfig('stocky_test');
 
-    const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [
-        // Use a separate test database for e2e tests
-        TypeOrmModule.forRoot(testDatabaseConfig),
-        AppModule,
-      ],
-    }).compile();
-
-    app = moduleFixture.createNestApplication();
-    await app.init();
+    app = await initializeTestApp('stocky_test');
 
     // Create and login admin user to get access token
     await request(app.getHttpServer())
@@ -222,6 +204,8 @@ describe('TransactionController (e2e)', () => {
 
   afterAll(async () => {
     await app.close();
+    // Clean up the setup config file
+    cleanupTestSetupConfig();
   });
 
   describe('/transactions (POST)', () => {

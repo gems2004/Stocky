@@ -11,17 +11,56 @@ import { DynamicDatabaseService } from '../dynamic-database/dynamic-database.ser
 
 @Injectable()
 export class InventoryService implements IInventoryService {
-  private inventoryLogRepository: Repository<InventoryLog>;
-  private productRepository: Repository<Product>;
-
   constructor(
     private readonly dynamicDatabaseService: DynamicDatabaseService,
     private readonly logger: LoggerService,
   ) {
-    // Get the repositories from the dynamic data source
-    // This will throw an error if the database hasn't been configured yet
-    this.inventoryLogRepository = this.dynamicDatabaseService.getRepository(InventoryLog);
-    this.productRepository = this.dynamicDatabaseService.getRepository(Product);
+    // No initialization in constructor
+  }
+
+  private async getInventoryLogRepository(): Promise<Repository<InventoryLog>> {
+    try {
+      // Ensure the database is ready
+      await this.ensureDatabaseReady();
+      this.dynamicDatabaseService.ensureDataSourceInitialized();
+      const dataSource = this.dynamicDatabaseService.getDataSource();
+      return dataSource.getRepository(InventoryLog);
+    } catch (error) {
+      this.logger.error(`Failed to get inventory log repository: ${error.message}`);
+      throw new CustomException(
+        'Database connection error',
+        HttpStatus.SERVICE_UNAVAILABLE,
+        `Database may not be properly configured: ${error.message}`,
+      );
+    }
+  }
+
+  private async getProductRepository(): Promise<Repository<Product>> {
+    try {
+      // Ensure the database is ready
+      await this.ensureDatabaseReady();
+      this.dynamicDatabaseService.ensureDataSourceInitialized();
+      const dataSource = this.dynamicDatabaseService.getDataSource();
+      return dataSource.getRepository(Product);
+    } catch (error) {
+      this.logger.error(`Failed to get product repository: ${error.message}`);
+      throw new CustomException(
+        'Database connection error',
+        HttpStatus.SERVICE_UNAVAILABLE,
+        `Database may not be properly configured: ${error.message}`,
+      );
+    }
+  }
+
+  private async ensureDatabaseReady(): Promise<void> {
+    try {
+      this.dynamicDatabaseService.ensureDataSourceInitialized();
+    } catch (error) {
+      // If the datasource is not initialized, try to initialize it
+      this.logger.log('Attempting to reinitialize database connection');
+      await this.dynamicDatabaseService.initializeIfConfigured();
+      this.dynamicDatabaseService.ensureDataSourceInitialized();
+    }
   }
 
   async adjustInventory(
@@ -29,12 +68,14 @@ export class InventoryService implements IInventoryService {
     userId?: number,
   ): Promise<InventoryLogResponseDto> {
     try {
+      const inventoryLogRepository = await this.getInventoryLogRepository();
+      const productRepository = await this.getProductRepository();
       this.logger.log(
         `Attempting to adjust inventory for product ID: ${adjustInventoryDto.productId}`,
       );
 
       // Find the product
-      const product = await this.productRepository.findOne({
+      const product = await productRepository.findOne({
         where: { id: adjustInventoryDto.productId },
       });
 
@@ -56,17 +97,17 @@ export class InventoryService implements IInventoryService {
       }
 
       // Save the updated product
-      await this.productRepository.save(product);
+      await productRepository.save(product);
 
       // Create inventory log entry
-      const inventoryLog = this.inventoryLogRepository.create({
+      const inventoryLog = inventoryLogRepository.create({
         product_id: adjustInventoryDto.productId,
         change_amount: adjustInventoryDto.changeAmount,
         reason: adjustInventoryDto.reason,
         user_id: userId,
       });
 
-      const savedLog = await this.inventoryLogRepository.save(inventoryLog);
+      const savedLog = await inventoryLogRepository.save(inventoryLog);
       this.logger.log(
         `Successfully adjusted inventory for product ID: ${adjustInventoryDto.productId}`,
       );
@@ -99,10 +140,11 @@ export class InventoryService implements IInventoryService {
 
   async getInventoryLogs(): Promise<InventoryLogResponseDto[]> {
     try {
+      const inventoryLogRepository = await this.getInventoryLogRepository();
       this.logger.log('Fetching all inventory logs');
 
       // Find all inventory logs ordered by creation date
-      const logs = await this.inventoryLogRepository.find({
+      const logs = await inventoryLogRepository.find({
         order: { created_at: 'DESC' },
       });
 
@@ -136,12 +178,13 @@ export class InventoryService implements IInventoryService {
 
   async getLowStockProducts(threshold: number = 10): Promise<Product[]> {
     try {
+      const productRepository = await this.getProductRepository();
       this.logger.log(
         `Fetching low stock products with threshold: ${threshold}`,
       );
 
       // Find products with stock quantity below threshold
-      const products = await this.productRepository
+      const products = await productRepository
         .createQueryBuilder('product')
         .where('product.stock_quantity < :threshold', { threshold })
         .orderBy('product.stock_quantity', 'ASC')

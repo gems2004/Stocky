@@ -16,12 +16,12 @@ describe('SetupController (e2e)', () => {
       type: 'postgres',
       host: 'localhost',
       port: 5432,
-      username: 'george',
+      name: 'george',
       password: 'zaq321xsw',
       database: 'stocky_test_setup', // Use a separate test database
-      synchronize: true, // Enable synchronization for tests
+      synchronize: false, // Enable synchronization for tests
       dropSchema: true, // drop schema after each run
-      entities: [__dirname + '/../src/**/entity/*{.ts,.js}'],
+      entities: [__dirname + '/../src/**/*entity{.ts,.js}'],
     } as TypeOrmModuleOptions;
 
     const moduleFixture: TestingModule = await Test.createTestingModule({

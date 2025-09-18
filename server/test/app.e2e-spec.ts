@@ -1,18 +1,25 @@
-import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
-import { AppModule } from './../src/app.module';
+import {
+  initializeTestApp,
+  createTestSetupConfig,
+  cleanupTestSetupConfig,
+} from './test-helpers';
 
 describe('AppController (e2e)', () => {
   let app: INestApplication;
 
-  beforeEach(async () => {
-    const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [AppModule],
-    }).compile();
+  beforeAll(async () => {
+    // Create the setup config file directly
+    createTestSetupConfig('stocky_test');
 
-    app = moduleFixture.createNestApplication();
-    await app.init();
+    app = await initializeTestApp('stocky_test');
+  });
+
+  afterAll(async () => {
+    await app.close();
+    // Clean up the setup config file
+    cleanupTestSetupConfig();
   });
 
   it('/ (GET) - Health check', () => {
