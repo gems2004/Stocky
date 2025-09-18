@@ -13,15 +13,39 @@ import { DynamicDatabaseService } from '../dynamic-database/dynamic-database.ser
 
 @Injectable()
 export class UserService implements IUserService {
-  private userRepository: Repository<User>;
-
   constructor(
     private readonly dynamicDatabaseService: DynamicDatabaseService,
     private readonly logger: LoggerService,
   ) {
-    // Get the user repository from the dynamic data source
-    const dataSource = this.dynamicDatabaseService.getDataSource();
-    this.userRepository = dataSource.getRepository(User);
+    // No initialization in constructor
+  }
+
+  private async getUserRepository(): Promise<Repository<User>> {
+    try {
+      // Ensure the database is ready
+      await this.ensureDatabaseReady();
+      this.dynamicDatabaseService.ensureDataSourceInitialized();
+      const dataSource = this.dynamicDatabaseService.getDataSource();
+      return dataSource.getRepository(User);
+    } catch (error) {
+      this.logger.error(`Failed to get user repository: ${error.message}`);
+      throw new CustomException(
+        'Database connection error',
+        HttpStatus.SERVICE_UNAVAILABLE,
+        `Database may not be properly configured: ${error.message}`,
+      );
+    }
+  }
+
+  private async ensureDatabaseReady(): Promise<void> {
+    try {
+      this.dynamicDatabaseService.ensureDataSourceInitialized();
+    } catch (error) {
+      // If the datasource is not initialized, try to initialize it
+      this.logger.log('Attempting to reinitialize database connection');
+      await this.dynamicDatabaseService.initializeIfConfigured();
+      this.dynamicDatabaseService.ensureDataSourceInitialized();
+    }
   }
 
   async findAll(
@@ -34,18 +58,13 @@ export class UserService implements IUserService {
     limit: number;
   }> {
     try {
-      this.dynamicDatabaseService.ensureDataSourceInitialized();
-      
-      if (!this.userRepository) {
-        throw new Error('User repository not initialized');
-      }
-      
+      const userRepository = await this.getUserRepository();
       this.logger.log(`Fetching users - page: ${page}, limit: ${limit}`);
 
       let users: User[] = [];
       let total: number = 0;
 
-      [users, total] = await this.userRepository.findAndCount({
+      [users, total] = await userRepository.findAndCount({
         skip: (page - 1) * limit,
         take: limit,
         order: {
@@ -93,9 +112,10 @@ export class UserService implements IUserService {
 
   async findOne(id: number): Promise<UserResponseDto> {
     try {
+      const userRepository = await this.getUserRepository();
       this.logger.log(`Fetching user with ID: ${id}`);
 
-      const user = await this.userRepository.findOne({
+      const user = await userRepository.findOne({
         where: { id },
       });
 
@@ -142,11 +162,12 @@ export class UserService implements IUserService {
 
   async create(userData: CreateUserDto): Promise<UserResponseDto> {
     try {
+      const userRepository = await this.getUserRepository();
       this.logger.log('Creating a new user');
 
       // Check if user with same username or email already exists
       if (userData.username || userData.email) {
-        const existingUser = await this.userRepository.findOne({
+        const existingUser = await userRepository.findOne({
           where: [
             { username: userData.username },
             { email: userData.email },
@@ -167,7 +188,7 @@ export class UserService implements IUserService {
       const hashedPassword = await bcrypt.hash(userData.password, 10);
 
       // Create new user entity
-      const newUser = this.userRepository.create({
+      const newUser = userRepository.create({
         username: userData.username,
         email: userData.email,
         password_hash: hashedPassword,
@@ -177,7 +198,7 @@ export class UserService implements IUserService {
       });
 
       // Save the user
-      const savedUser = await this.userRepository.save(newUser);
+      const savedUser = await userRepository.save(newUser);
       this.logger.log(`Successfully created user with ID: ${savedUser.id}`);
 
       // Map entity to DTO
@@ -211,10 +232,11 @@ export class UserService implements IUserService {
 
   async update(id: number, userData: UpdateUserDto): Promise<UserResponseDto> {
     try {
+      const userRepository = await this.getUserRepository();
       this.logger.log(`Updating user with ID: ${id}`);
 
       // Find the existing user
-      const existingUser = await this.userRepository.findOne({
+      const existingUser = await userRepository.findOne({
         where: { id },
       });
 
@@ -240,10 +262,9 @@ export class UserService implements IUserService {
         }
 
         if (whereConditions.length > 0) {
-          const existingUserWithUsernameOrEmail =
-            await this.userRepository.findOne({
-              where: whereConditions,
-            });
+          const existingUserWithUsernameOrEmail = await userRepository.findOne({
+            where: whereConditions,
+          });
 
           if (
             existingUserWithUsernameOrEmail &&
@@ -276,7 +297,7 @@ export class UserService implements IUserService {
       });
 
       // Save the updated user
-      const updatedUser = await this.userRepository.save(existingUser);
+      const updatedUser = await userRepository.save(existingUser);
       this.logger.log(`Successfully updated user with ID: ${updatedUser.id}`);
 
       // Map entity to DTO
@@ -310,10 +331,11 @@ export class UserService implements IUserService {
 
   async delete(id: number): Promise<void> {
     try {
+      const userRepository = await this.getUserRepository();
       this.logger.log(`Deleting user with ID: ${id}`);
 
       // Check if user exists
-      const existingUser = await this.userRepository.findOne({
+      const existingUser = await userRepository.findOne({
         where: { id },
       });
 
@@ -328,7 +350,7 @@ export class UserService implements IUserService {
       }
 
       // Delete the user
-      await this.userRepository.delete(id);
+      await userRepository.delete(id);
       this.logger.log(`Successfully deleted user with ID: ${id}`);
     } catch (error) {
       // Re-throw if it's already a CustomException, otherwise wrap in CustomException
@@ -347,10 +369,11 @@ export class UserService implements IUserService {
 
   async search(query: SearchUserDto): Promise<UserResponseDto[]> {
     try {
+      const userRepository = await this.getUserRepository();
       this.logger.log(`Searching users with query: ${query.query}`);
 
       // Search for users matching the query in username, email, first_name, or last_name
-      const users = await this.userRepository.find({
+      const users = await userRepository.find({
         where: [
           { username: Like(`%${query.query}%`) },
           { email: Like(`%${query.query}%`) },

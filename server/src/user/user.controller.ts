@@ -26,15 +26,16 @@ import { Public } from '../auth/decorators/public.decorator';
 import { Role } from '../auth/decorators/roles.decorator';
 import { UserRole } from './entity/user.entity';
 import { AppReadyGuard } from '../dynamic-database/guards/app-ready.guard';
+import { AdminSetupGuard } from '../auth/guards/admin-setup.guard';
 
 @Controller('users')
-@UseGuards(AuthGuard, AppReadyGuard)
+@UseGuards(AppReadyGuard)
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @HttpCode(HttpStatus.OK)
   @Get('search')
-  @UseGuards(RoleGuard)
+  @UseGuards(AuthGuard, RoleGuard)
   @Role(UserRole.ADMIN, UserRole.CASHIER)
   async search(
     @Query() searchUserDto: SearchUserDto,
@@ -48,7 +49,7 @@ export class UserController {
 
   @HttpCode(HttpStatus.OK)
   @Get()
-  @UseGuards(RoleGuard)
+  @UseGuards(AuthGuard, RoleGuard)
   @Role(UserRole.ADMIN, UserRole.CASHIER)
   async findAll(
     @Query('page') page?: string,
@@ -71,7 +72,7 @@ export class UserController {
 
   @HttpCode(HttpStatus.OK)
   @Get(':id')
-  @UseGuards(RoleGuard)
+  @UseGuards(AuthGuard, RoleGuard)
   @Role(UserRole.ADMIN, UserRole.CASHIER)
   async findOne(
     @Param('id', ParseIntPipe) id: number,
@@ -82,7 +83,7 @@ export class UserController {
 
   @HttpCode(HttpStatus.CREATED)
   @Post()
-  @Public()
+  @UseGuards(AdminSetupGuard)
   async create(
     @Body() createUserDto: CreateUserDto,
   ): Promise<SuccessResponse<UserResponseDto>> {
@@ -92,7 +93,7 @@ export class UserController {
 
   @HttpCode(HttpStatus.OK)
   @Put(':id')
-  @UseGuards(RoleGuard)
+  @UseGuards(AuthGuard, RoleGuard)
   @Role(UserRole.ADMIN)
   async update(
     @Param('id', ParseIntPipe) id: number,
@@ -104,7 +105,7 @@ export class UserController {
 
   @HttpCode(HttpStatus.OK)
   @Delete(':id')
-  @UseGuards(RoleGuard)
+  @UseGuards(AuthGuard, RoleGuard)
   @Role(UserRole.ADMIN)
   async delete(
     @Param('id', ParseIntPipe) id: number,

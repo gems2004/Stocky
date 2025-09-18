@@ -7,6 +7,8 @@ export class AppReadyOrSetupGuard implements CanActivate {
 
   canActivate(context: ExecutionContext): boolean {
     // Allow access if app is ready OR if setup is required
-    return this.appStateService.isReady() || this.appStateService.isSetupRequired();
+    return (
+      this.appStateService.isReady() || this.appStateService.isSetupRequired()
+    );
   }
 }

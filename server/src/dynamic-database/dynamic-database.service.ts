@@ -14,6 +14,7 @@ import { SetupConfig } from '../setup/interfaces/setup-config.interface';
 @Injectable()
 export class DynamicDatabaseService implements OnModuleInit {
   private dataSource: DataSource | null = null;
+  private isInitializing = false;
 
   constructor(
     private readonly appStateService: AppStateService,
@@ -25,6 +26,14 @@ export class DynamicDatabaseService implements OnModuleInit {
   }
 
   async initializeIfConfigured(): Promise<void> {
+    // Prevent multiple simultaneous initializations
+    if (this.isInitializing) {
+      this.logger.log('DataSource initialization already in progress, skipping');
+      return;
+    }
+
+    this.isInitializing = true;
+    
     try {
       const setupConfig = this.readSetupConfig();
 
@@ -44,16 +53,25 @@ export class DynamicDatabaseService implements OnModuleInit {
         error instanceof Error ? error.message : 'Unknown error';
       this.logger.error(`Failed to initialize database: ${errorMessage}`);
       this.appStateService.setState(AppState.ERROR, errorMessage);
+    } finally {
+      this.isInitializing = false;
     }
   }
 
   async configureAndInitialize(config: any): Promise<void> {
+    // Prevent multiple simultaneous initializations
+    if (this.isInitializing) {
+      throw new Error('DataSource initialization already in progress');
+    }
+
+    this.isInitializing = true;
+    
     try {
       this.logger.log('Configuring and initializing database');
       await this.createDataSource(config);
 
       // Run migrations
-      if (this.dataSource) {
+      if (this.dataSource && this.dataSource.isInitialized) {
         await this.dataSource.runMigrations();
         this.logger.log('Database migrations completed');
       }
@@ -67,16 +85,29 @@ export class DynamicDatabaseService implements OnModuleInit {
       this.appStateService.setState(AppState.READY);
       this.logger.log('Database configured and initialized successfully');
     } catch (error) {
+      // Ensure we don't keep a reference to a failed DataSource
+      if (this.dataSource) {
+        try {
+          await this.dataSource.destroy();
+        } catch (destroyError) {
+          this.logger.error(`Failed to destroy DataSource: ${destroyError.message}`);
+        }
+        this.dataSource = null;
+      }
+      
       const errorMessage =
         error instanceof Error ? error.message : 'Unknown error';
       this.logger.error(`Failed to configure database: ${errorMessage}`);
       this.appStateService.setState(AppState.ERROR, errorMessage);
       throw error;
+    } finally {
+      this.isInitializing = false;
     }
   }
 
   getDataSource(): DataSource {
-    if (!this.dataSource) {
+    // Check if DataSource is properly initialized
+    if (!this.dataSource || !this.dataSource.isInitialized) {
       throw new Error(
         'DataSource not initialized. Database may not be configured yet.',
       );
@@ -89,7 +120,7 @@ export class DynamicDatabaseService implements OnModuleInit {
    * This should be called at the beginning of service methods that require database access.
    */
   ensureDataSourceInitialized(): void {
-    if (!this.dataSource) {
+    if (!this.dataSource || !this.dataSource.isInitialized) {
       throw new Error(
         'DataSource not initialized. Please complete the setup process first.',
       );
@@ -107,6 +138,23 @@ export class DynamicDatabaseService implements OnModuleInit {
   ): Repository<T> {
     this.ensureDataSourceInitialized();
     return this.dataSource!.getRepository(entityClass);
+  }
+
+  /**
+   * Checks if the current DataSource connection is still active
+   */
+  async isConnectionAlive(): Promise<boolean> {
+    if (!this.dataSource || !this.dataSource.isInitialized) {
+      return false;
+    }
+
+    try {
+      await this.dataSource.query('SELECT 1');
+      return true;
+    } catch (error) {
+      this.logger.error(`Database connection lost: ${error.message}`);
+      return false;
+    }
   }
 
   private async createDataSource(config: any): Promise<void> {
@@ -130,7 +178,14 @@ export class DynamicDatabaseService implements OnModuleInit {
     };
 
     this.dataSource = new DataSource(dataSourceOptions);
-    await this.dataSource.initialize();
+    
+    try {
+      await this.dataSource.initialize();
+    } catch (error) {
+      // Ensure we don't keep a reference to a failed DataSource
+      this.dataSource = null;
+      throw error;
+    }
   }
 
   private readSetupConfig(): SetupConfig {
