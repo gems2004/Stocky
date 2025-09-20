@@ -3,8 +3,8 @@ import * as request from 'supertest';
 import {
   initializeTestApp,
   generateUniqueDatabaseName,
+  createTestDatabase,
   dropTestDatabase,
-  setupTestDatabase,
   createTestSetupConfig,
   cleanupTestSetupConfig,
 } from './test-helpers';
@@ -85,9 +85,13 @@ describe('TransactionController (e2e)', () => {
     // Generate a unique database name for this test
     databaseName = generateUniqueDatabaseName();
     
+    // Create the test database
+    await createTestDatabase(databaseName);
+    
     // Create the setup config file directly
     createTestSetupConfig(databaseName);
 
+    // Initialize the app with the unique database
     app = await initializeTestApp(databaseName);
 
     // Create and login admin user to get access token
