@@ -11,6 +11,7 @@ import {
 import * as request from 'supertest';
 import * as fs from 'fs';
 import * as path from 'path';
+import { Client } from 'pg';
 
 /**
  * Test version of AppReadyGuard that always allows access
@@ -64,11 +65,87 @@ export const createAppReadyGuardMock = () => ({
 });
 
 /**
+ * Helper function to create a unique database name for each test
+ */
+export function generateUniqueDatabaseName(): string {
+  const timestamp = Date.now();
+  const randomSuffix = Math.random().toString(36).substring(2, 8);
+  return `stocky_test_${timestamp}_${randomSuffix}`;
+}
+
+/**
+ * Helper function to create a test database
+ */
+export async function createTestDatabase(databaseName: string): Promise<void> {
+  const client = new Client({
+    host: 'localhost',
+    port: 5432,
+    user: 'george',
+    password: 'zaq321xsw',
+    database: 'postgres', // Connect to default postgres database to create new database
+  });
+
+  try {
+    await client.connect();
+    // Terminate any existing connections to the database
+    await client.query(
+      `
+      SELECT pg_terminate_backend(pg_stat_activity.pid)
+      FROM pg_stat_activity
+      WHERE pg_stat_activity.datname = $1
+      AND pid <> pg_backend_pid()
+    `,
+      [databaseName],
+    );
+    // Drop database if exists
+    await client.query(`DROP DATABASE IF EXISTS "${databaseName}"`);
+    // Create new database
+    await client.query(`CREATE DATABASE "${databaseName}"`);
+  } finally {
+    await client.end();
+  }
+}
+
+/**
+ * Helper function to drop a test database
+ */
+export async function dropTestDatabase(databaseName: string): Promise<void> {
+  const client = new Client({
+    host: 'localhost',
+    port: 5432,
+    user: 'george',
+    password: 'zaq321xsw',
+    database: 'postgres', // Connect to default postgres database to drop test database
+  });
+
+  try {
+    await client.connect();
+    // Terminate any existing connections to the database
+    await client.query(
+      `
+      SELECT pg_terminate_backend(pg_stat_activity.pid)
+      FROM pg_stat_activity
+      WHERE pg_stat_activity.datname = $1
+      AND pid <> pg_backend_pid()
+    `,
+      [databaseName],
+    );
+    // Drop database
+    await client.query(`DROP DATABASE IF EXISTS "${databaseName}"`);
+  } finally {
+    await client.end();
+  }
+}
+
+/**
  * Helper function to initialize the test database with setup service
  */
 export async function initializeTestApp(
-  testDatabaseName: string = 'stocky_test',
+  testDatabaseName: string,
 ): Promise<INestApplication> {
+  // Create a unique database for this test
+  await createTestDatabase(testDatabaseName);
+
   // Create a test database configuration with synchronization enabled
   const testDatabaseConfig: TypeOrmModuleOptions = {
     type: 'postgres',
@@ -103,11 +180,11 @@ export async function initializeTestApp(
 }
 
 /**
- * Helper function to setup the database using the setup service
+ * Helper function to initialize the test database with setup service
  */
 export async function setupTestDatabase(
   app: INestApplication,
-  testDatabaseName: string = 'stocky_test',
+  testDatabaseName: string,
 ) {
   const databaseConfigData = {
     type: 'postgres',

@@ -2,12 +2,16 @@ import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
 import {
   initializeTestApp,
+  generateUniqueDatabaseName,
+  createTestDatabase,
+  dropTestDatabase,
   createTestSetupConfig,
   cleanupTestSetupConfig,
 } from './test-helpers';
 
 describe('AuthController (e2e)', () => {
   let app: INestApplication;
+  let databaseName: string;
 
   // Store tokens for later use in tests
   let accessToken: string;
@@ -22,10 +26,17 @@ describe('AuthController (e2e)', () => {
   };
 
   beforeAll(async () => {
+    // Generate a unique database name for this test
+    databaseName = generateUniqueDatabaseName();
+    
+    // Create the test database
+    await createTestDatabase(databaseName);
+    
     // Create the setup config file directly
-    createTestSetupConfig('stocky_test');
+    createTestSetupConfig(databaseName);
 
-    app = await initializeTestApp('stocky_test');
+    // Initialize the app with the unique database
+    app = await initializeTestApp(databaseName);
 
     // Create user first
     await request(app.getHttpServer())
@@ -44,12 +55,17 @@ describe('AuthController (e2e)', () => {
 
     accessToken = loginResponse.body.data.tokens.accessToken;
     refreshToken = loginResponse.body.data.tokens.refreshToken;
-  }, 30000); // Increase timeout to 30 seconds
+  });
 
   afterAll(async () => {
     await app.close();
     // Clean up the setup config file
     cleanupTestSetupConfig();
+    
+    // Drop the test database
+    if (databaseName) {
+      await dropTestDatabase(databaseName);
+    }
   });
 
   it('/users (POST)', () => {
@@ -153,4 +169,16 @@ describe('AuthController (e2e)', () => {
         expect(res.body.data.tokens.refreshToken).toBe('');
       });
   });
+
+  afterAll(async () => {
+    await app.close();
+    // Clean up the setup config file
+    cleanupTestSetupConfig();
+    
+    // Drop the test database
+    if (databaseName) {
+      await dropTestDatabase(databaseName);
+    }
+  });
+
 });

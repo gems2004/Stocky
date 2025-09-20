@@ -2,24 +2,32 @@ import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
 import {
   initializeTestApp,
-  createTestSetupConfig,
-  cleanupTestSetupConfig,
+  generateUniqueDatabaseName,
+  dropTestDatabase,
 } from './test-helpers';
 
 describe('AppController (e2e)', () => {
   let app: INestApplication;
+  let databaseName: string;
 
   beforeAll(async () => {
-    // Create the setup config file directly
-    createTestSetupConfig('stocky_test');
-
-    app = await initializeTestApp('stocky_test');
+    // Generate a unique database name for this test
+    databaseName = generateUniqueDatabaseName();
+    
+    // Initialize the app with the unique database
+    app = await initializeTestApp(databaseName);
   });
 
   afterAll(async () => {
-    await app.close();
-    // Clean up the setup config file
-    cleanupTestSetupConfig();
+    // Close the app first
+    if (app) {
+      await app.close();
+    }
+    
+    // Drop the test database
+    if (databaseName) {
+      await dropTestDatabase(databaseName);
+    }
   });
 
   it('/ (GET) - Health check', () => {
