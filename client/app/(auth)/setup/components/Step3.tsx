@@ -42,7 +42,7 @@ export default function Step3({ form, previousStep, nextStep }: Props) {
   async function onSubmit(data: DatabaseConfigForm) {
     setDatabaseConfig({ ...data, port: Number(data.port) });
 
-    nextStep(); // Uncomment to skip valid db connection requirement
+    // nextStep(); // Uncomment to skip valid db connection requirement
     try {
       let res = await setupDatabaseConfig(data);
       if (res.success) nextStep();
