@@ -2,12 +2,16 @@ import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
 import {
   initializeTestApp,
+  generateUniqueDatabaseName,
+  createTestDatabase,
+  dropTestDatabase,
   createTestSetupConfig,
   cleanupTestSetupConfig,
 } from './test-helpers';
 
 describe('TransactionController (e2e)', () => {
   let app: INestApplication;
+  let databaseName: string;
   let adminAccessToken: string;
   let cashierAccessToken: string;
   let testProductId: number;
@@ -78,10 +82,17 @@ describe('TransactionController (e2e)', () => {
   };
 
   beforeAll(async () => {
+    // Generate a unique database name for this test
+    databaseName = generateUniqueDatabaseName();
+    
+    // Create the test database
+    await createTestDatabase(databaseName);
+    
     // Create the setup config file directly
-    createTestSetupConfig('stocky_test');
+    createTestSetupConfig(databaseName);
 
-    app = await initializeTestApp('stocky_test');
+    // Initialize the app with the unique database
+    app = await initializeTestApp(databaseName);
 
     // Create and login admin user to get access token
     await request(app.getHttpServer())
@@ -161,9 +172,13 @@ describe('TransactionController (e2e)', () => {
         email: 'jane.smith@example.com',
         phone: '098-765-4321',
         address: '456 Oak Ave, Town, Country',
-        loyalty_points: 200,
+        loyalty_points: 50,
       })
       .expect(201);
+
+    // Update test data with customer IDs
+    testTransaction.customerId = customer1Response.body.data.id;
+    updatedTransaction.customerId = customer2Response.body.data.id;
 
     // Create a test product for transactions
     const productResponse = await request(app.getHttpServer())
@@ -192,20 +207,22 @@ describe('TransactionController (e2e)', () => {
       })
       .expect(200);
 
-    // Update userId in test data
-    testTransaction.userId = 2; // testCashierUser id will be 2
-    testTransaction.customerId = 1; // First customer
+    // Update test data with product ID and user ID
     testTransaction.items[0].productId = testProductId;
-
-    updatedTransaction.userId = 2;
-    updatedTransaction.customerId = 2; // Second customer
+    testTransaction.userId = 2; // Cashier user ID
     updatedTransaction.items[0].productId = testProductId;
+    updatedTransaction.userId = 2; // Cashier user ID
   });
 
   afterAll(async () => {
     await app.close();
     // Clean up the setup config file
     cleanupTestSetupConfig();
+    
+    // Drop the test database
+    if (databaseName) {
+      await dropTestDatabase(databaseName);
+    }
   });
 
   describe('/transactions (POST)', () => {

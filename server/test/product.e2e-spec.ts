@@ -2,12 +2,16 @@ import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
 import {
   initializeTestApp,
+  generateUniqueDatabaseName,
+  createTestDatabase,
+  dropTestDatabase,
   createTestSetupConfig,
   cleanupTestSetupConfig,
 } from './test-helpers';
 
 describe('ProductController (e2e)', () => {
   let app: INestApplication;
+  let databaseName: string;
   let accessToken: string;
 
   // Test user data for authentication
@@ -46,10 +50,17 @@ describe('ProductController (e2e)', () => {
   };
 
   beforeAll(async () => {
+    // Generate a unique database name for this test
+    databaseName = generateUniqueDatabaseName();
+    
+    // Create the test database
+    await createTestDatabase(databaseName);
+    
     // Create the setup config file directly
-    createTestSetupConfig('stocky_test');
+    createTestSetupConfig(databaseName);
 
-    app = await initializeTestApp('stocky_test');
+    // Initialize the app with the unique database
+    app = await initializeTestApp(databaseName);
 
     // Create and login a test user to get access token
     await request(app.getHttpServer())
@@ -107,6 +118,11 @@ describe('ProductController (e2e)', () => {
     await app.close();
     // Clean up the setup config file
     cleanupTestSetupConfig();
+    
+    // Drop the test database
+    if (databaseName) {
+      await dropTestDatabase(databaseName);
+    }
   });
 
   describe('/products (POST)', () => {

@@ -2,12 +2,16 @@ import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
 import {
   initializeTestApp,
+  generateUniqueDatabaseName,
+  createTestDatabase,
+  dropTestDatabase,
   createTestSetupConfig,
   cleanupTestSetupConfig,
 } from './test-helpers';
 
 describe('ReportsController (e2e)', () => {
   let app: INestApplication;
+  let databaseName: string;
   let adminAccessToken: string;
   let cashierAccessToken: string;
   let testProductId: number;
@@ -34,10 +38,17 @@ describe('ReportsController (e2e)', () => {
   };
 
   beforeAll(async () => {
+    // Generate a unique database name for this test
+    databaseName = generateUniqueDatabaseName();
+    
+    // Create the test database
+    await createTestDatabase(databaseName);
+    
     // Create the setup config file directly
-    createTestSetupConfig('stocky_test');
+    createTestSetupConfig(databaseName);
 
-    app = await initializeTestApp('stocky_test');
+    // Initialize the app with the unique database
+    app = await initializeTestApp(databaseName);
 
     // Create and login admin user to get access token
     await request(app.getHttpServer())
@@ -141,16 +152,16 @@ describe('ReportsController (e2e)', () => {
       .set('Authorization', `Bearer ${cashierAccessToken}`)
       .send({
         customerId: 1,
-        userId: 2, // testCashierUser id will be 2
-        totalAmount: 204.98, // 2 * 99.99 + 10.0 - 5.0 (quantity * unitPrice + tax - discount)
+        userId: 2, // Cashier user ID
+        totalAmount: 109.99, // 99.99 + 10.0 tax
         taxAmount: 10.0,
-        discountAmount: 5.0,
+        discountAmount: 0,
         paymentMethod: 'cash',
         status: 'completed',
         items: [
           {
             productId: testProductId,
-            quantity: 2,
+            quantity: 1,
             unitPrice: 99.99,
           },
         ],
@@ -164,6 +175,11 @@ describe('ReportsController (e2e)', () => {
     await app.close();
     // Clean up the setup config file
     cleanupTestSetupConfig();
+    
+    // Drop the test database
+    if (databaseName) {
+      await dropTestDatabase(databaseName);
+    }
   });
 
   describe('/reports/sales-summary (GET)', () => {

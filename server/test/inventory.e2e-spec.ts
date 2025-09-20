@@ -2,12 +2,16 @@ import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
 import {
   initializeTestApp,
+  generateUniqueDatabaseName,
+  createTestDatabase,
+  dropTestDatabase,
   createTestSetupConfig,
   cleanupTestSetupConfig,
 } from './test-helpers';
 
 describe('InventoryController (e2e)', () => {
   let app: INestApplication;
+  let databaseName: string;
   let adminAccessToken: string;
   let cashierAccessToken: string;
   let testProductId: number;
@@ -56,10 +60,17 @@ describe('InventoryController (e2e)', () => {
   };
 
   beforeAll(async () => {
+    // Generate a unique database name for this test
+    databaseName = generateUniqueDatabaseName();
+    
+    // Create the test database
+    await createTestDatabase(databaseName);
+    
     // Create the setup config file directly
-    createTestSetupConfig('stocky_test');
+    createTestSetupConfig(databaseName);
 
-    app = await initializeTestApp('stocky_test');
+    // Initialize the app with the unique database
+    app = await initializeTestApp(databaseName);
 
     // Create and login admin user to get access token
     await request(app.getHttpServer())
@@ -140,12 +151,12 @@ describe('InventoryController (e2e)', () => {
       .set('Authorization', `Bearer ${adminAccessToken}`)
       .send({
         productId: testProductId,
-        changeAmount: 50,
+        changeAmount: 100, // Initial stock of 100
         reason: 'Initial stock',
       })
       .expect(200);
 
-    // Update productId in test data
+    // Update the test data with the actual product ID
     testInventoryAdjustment.productId = testProductId;
     negativeInventoryAdjustment.productId = testProductId;
   });
@@ -154,6 +165,11 @@ describe('InventoryController (e2e)', () => {
     await app.close();
     // Clean up the setup config file
     cleanupTestSetupConfig();
+    
+    // Drop the test database
+    if (databaseName) {
+      await dropTestDatabase(databaseName);
+    }
   });
 
   describe('/inventory/adjust (POST)', () => {
