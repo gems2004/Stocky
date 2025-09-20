@@ -40,7 +40,7 @@ export default function Step4({ form, previousStep, nextStep }: Props) {
       firstName: data.firstName,
       lastName: data.lastName,
     });
-    nextStep(); // Uncomment to skip admin creation
+    // nextStep(); // Uncomment to skip admin creation
     try {
       let res = await setupAdminInfo(data);
       if (res.success) nextStep();
