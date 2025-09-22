@@ -1,4 +1,6 @@
 import { Injectable } from '@nestjs/common';
+import * as fs from 'fs';
+import * as path from 'path';
 
 export enum AppState {
   INITIALIZING = 'INITIALIZING',
@@ -9,8 +11,41 @@ export enum AppState {
 
 @Injectable()
 export class AppStateService {
-  private state: AppState = AppState.SETUP_REQUIRED;
+  private state: AppState;
   private errorMessage: string | null = null;
+
+  constructor() {
+    this.initializeAppState();
+  }
+
+  private initializeAppState(): void {
+    // Check if setup is already complete
+    const setupConfigPath = path.join(__dirname, '../setup/setup-config.json');
+
+    try {
+      if (fs.existsSync(setupConfigPath)) {
+        const data = fs.readFileSync(setupConfigPath, 'utf8');
+        const setupConfig = JSON.parse(data);
+        if (setupConfig.isSetupComplete) {
+          this.state = AppState.READY;
+        } else {
+          this.state = AppState.SETUP_REQUIRED;
+        }
+      } else {
+        this.state = AppState.SETUP_REQUIRED;
+      }
+    } catch (error) {
+      // If there's any error reading or parsing the config, default to SETUP_REQUIRED
+      this.state = AppState.SETUP_REQUIRED;
+    }
+  }
+
+  /**
+   * Refresh the app state by checking the setup config file
+   */
+  refreshAppState(): void {
+    this.initializeAppState();
+  }
 
   getState(): AppState {
     return this.state;

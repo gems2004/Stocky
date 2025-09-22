@@ -134,16 +134,64 @@ export class AuthService implements IAuthService {
 
       this.logger.log(`Successful login for user ID: ${user.id}`);
 
+      // Validate user data before creating payload
+      if (!user.id || !user.username || user.role === undefined) {
+        const errorMsg = `Invalid user data for ID: ${user.id}`;
+        throw new CustomException(
+          'Invalid user data',
+          HttpStatus.INTERNAL_SERVER_ERROR,
+          errorMsg,
+        );
+      }
+
       // Generate tokens
       const payload = {
         sub: user.id,
         username: user.username,
         role: user.role,
       };
-      const accessToken = this.jwtService.sign(payload);
-      const refreshToken = this.jwtService.sign(payload, {
-        expiresIn: '1d',
-      });
+
+      // Log the payload for debugging
+      this.logger.log(
+        `Generating tokens with payload: ${JSON.stringify(payload)}`,
+      );
+
+      // Check if JWT service is properly configured
+      if (!this.jwtService) {
+        throw new CustomException(
+          'JWT service not properly configured',
+          HttpStatus.INTERNAL_SERVER_ERROR,
+          'JWT service is undefined',
+        );
+      }
+
+      let accessToken: string;
+      let refreshToken: string;
+
+      try {
+        accessToken = this.jwtService.sign(payload);
+      } catch (signError) {
+        this.logger.error(`Failed to sign access token: ${signError.message}`);
+        throw new CustomException(
+          'Token generation failed',
+          HttpStatus.INTERNAL_SERVER_ERROR,
+          `Failed to generate access token: ${signError.message}`,
+        );
+      }
+
+      try {
+        refreshToken = this.jwtService.sign(payload, {
+          expiresIn: '1d',
+        });
+      } catch (signError) {
+        this.logger.error(`Failed to sign refresh token: ${signError.message}`);
+        throw new CustomException(
+          'Token generation failed',
+          HttpStatus.INTERNAL_SERVER_ERROR,
+          `Failed to generate refresh token: ${signError.message}`,
+        );
+      }
+
       this.logger.log(`Successfully generated tokens for user ID: ${user.id}`);
 
       // Construct response (excluding password_hash)
@@ -229,10 +277,37 @@ export class AuthService implements IAuthService {
         username: user.username,
         role: user.role,
       };
-      const newAccessToken = this.jwtService.sign(newPayload);
-      const newRefreshToken = this.jwtService.sign(newPayload, {
-        expiresIn: '1d',
-      });
+
+      let newAccessToken: string;
+      let newRefreshToken: string;
+
+      try {
+        newAccessToken = this.jwtService.sign(newPayload);
+      } catch (signError) {
+        this.logger.error(
+          `Failed to sign new access token: ${signError.message}`,
+        );
+        throw new CustomException(
+          'Token generation failed',
+          HttpStatus.INTERNAL_SERVER_ERROR,
+          `Failed to generate new access token: ${signError.message}`,
+        );
+      }
+
+      try {
+        newRefreshToken = this.jwtService.sign(newPayload, {
+          expiresIn: '1d',
+        });
+      } catch (signError) {
+        this.logger.error(
+          `Failed to sign new refresh token: ${signError.message}`,
+        );
+        throw new CustomException(
+          'Token generation failed',
+          HttpStatus.INTERNAL_SERVER_ERROR,
+          `Failed to generate new refresh token: ${signError.message}`,
+        );
+      }
       this.logger.log(
         `Successfully generated new tokens for user ID: ${user.id}`,
       );

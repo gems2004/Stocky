@@ -42,7 +42,9 @@ export class DynamicDatabaseService implements OnModuleInit {
           'Database configuration found, initializing DataSource',
         );
         await this.createDataSource(setupConfig.databaseConfig);
-        this.appStateService.setState(AppState.READY);
+        // Don't automatically set the app state to READY
+        // The setup process should control when the app is ready
+        // this.appStateService.setState(AppState.READY);
         this.logger.log('DataSource initialized successfully');
       } else {
         this.logger.log('No database configuration found, setup required');
@@ -82,7 +84,9 @@ export class DynamicDatabaseService implements OnModuleInit {
       setupConfig.databaseConfig = config;
       this.writeSetupConfig(setupConfig);
 
-      this.appStateService.setState(AppState.READY);
+      // Don't automatically set the app state to READY
+      // The setup process should control when the app is ready
+      // this.appStateService.setState(AppState.READY);
       this.logger.log('Database configured and initialized successfully');
     } catch (error) {
       // Ensure we don't keep a reference to a failed DataSource
@@ -173,7 +177,7 @@ export class DynamicDatabaseService implements OnModuleInit {
       entities: [__dirname + '/../**/*.entity{.ts,.js}'],
       migrations: [__dirname + '/../dynamic-database/migrations/**/*{.ts,.js}'],
       synchronize: false,
-      logging: process.env.NODE_ENV === 'development',
+      logging: false, // We'll handle logging through our logger service
       ssl: config.ssl ? { rejectUnauthorized: false } : false,
     };
 

@@ -23,11 +23,16 @@ import { InventoryModule } from './inventory/inventory.module';
 import { ReportsModule } from './reports/reports.module';
 import { DynamicDatabaseModule } from './dynamic-database/dynamic-database.module';
 import { DynamicDatabaseService } from './dynamic-database/dynamic-database.service';
+import { AppStateService } from './dynamic-database/app-state.service';
+import configuration from './config/configuration';
 
 @Module({
   imports: [
     DynamicDatabaseModule,
-    ConfigModule.forRoot({ isGlobal: true }),
+    ConfigModule.forRoot({
+      isGlobal: true,
+      load: [configuration],
+    }),
     AuthModule,
     CommonModule,
     SetupModule,
@@ -44,6 +49,7 @@ import { DynamicDatabaseService } from './dynamic-database/dynamic-database.serv
   providers: [
     AppService,
     DynamicDatabaseService,
+    AppStateService,
     {
       provide: APP_FILTER,
       useClass: HttpExceptionFilter,
@@ -51,9 +57,15 @@ import { DynamicDatabaseService } from './dynamic-database/dynamic-database.serv
   ],
 })
 export class AppModule implements NestModule, OnModuleInit {
-  constructor(private readonly databaseService: DynamicDatabaseService) {}
+  constructor(
+    private readonly databaseService: DynamicDatabaseService,
+    private readonly appStateService: AppStateService,
+  ) {}
 
   async onModuleInit() {
+    // Refresh app state to ensure it reflects the current setup status
+    this.appStateService.refreshAppState();
+
     await this.databaseService.initializeIfConfigured();
   }
 

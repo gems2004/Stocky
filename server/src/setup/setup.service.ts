@@ -10,6 +10,7 @@ import * as path from 'path';
 import { Client } from 'pg';
 import { SetupConfig } from './interfaces/setup-config.interface';
 import { DynamicDatabaseService } from '../dynamic-database/dynamic-database.service';
+import { AppStateService, AppState } from '../dynamic-database/app-state.service';
 
 @Injectable()
 export class SetupService implements ISetupService {
@@ -19,7 +20,25 @@ export class SetupService implements ISetupService {
   constructor(
     private readonly logger: LoggerService,
     private readonly dynamicDatabaseService: DynamicDatabaseService,
-  ) {}
+    private readonly appStateService: AppStateService,
+  ) {
+    // Initialize app state based on existing setup config
+    this.initializeAppState();
+  }
+
+  private initializeAppState(): void {
+    try {
+      if (fs.existsSync(this.setupConfigPath)) {
+        const data = fs.readFileSync(this.setupConfigPath, 'utf8');
+        const setupConfig = JSON.parse(data);
+        if (setupConfig.isSetupComplete) {
+          this.appStateService.setState(AppState.READY);
+        }
+      }
+    } catch (error) {
+      // Ignore errors during initialization
+    }
+  }
 
   async getStatus(): Promise<SetupStatusDto> {
     try {
@@ -92,6 +111,9 @@ export class SetupService implements ISetupService {
     ) {
       setupStatus.isSetupComplete = true;
       this.writeSetupConfig(setupStatus);
+
+      // Set the app state to READY after successful setup
+      this.appStateService.setState(AppState.READY);
 
       // Export configuration to .env file for production
 

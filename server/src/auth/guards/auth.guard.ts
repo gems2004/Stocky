@@ -6,18 +6,18 @@ import {
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { JwtService } from '@nestjs/jwt';
-import { ConfigService } from '@nestjs/config';
 import { Request } from 'express';
 import { JwtPayload } from '../types/auth-tokens.type';
 import { AuthenticatedRequest } from '../types/request.type';
 import { CustomException } from '../../common/exceptions/custom.exception';
+import { LoggerService } from '../../common/logger.service';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
   constructor(
     private readonly jwtService: JwtService,
-    private readonly configService: ConfigService,
     private readonly reflector: Reflector,
+    private readonly logger: LoggerService,
   ) {}
 
   canActivate(context: ExecutionContext): boolean {
@@ -41,14 +41,15 @@ export class AuthGuard implements CanActivate {
     }
 
     try {
-      const payload = this.jwtService.verify<JwtPayload>(token, {
-        secret: this.configService.get<string>('JWT_SECRET'),
-      });
+      // JwtService should already have the secret configured through JwtModule
+      const payload = this.jwtService.verify<JwtPayload>(token);
       request.user = payload;
     } catch (error) {
+      this.logger.error(`Token verification failed: ${error.message}`);
       throw new CustomException(
         'Invalid or expired token',
         HttpStatus.UNAUTHORIZED,
+        `Token verification failed: ${error.message}`,
       );
     }
 
