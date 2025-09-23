@@ -31,7 +31,7 @@ export default function AppSidebar() {
     },
     {
       title: "Inventory",
-      url: "#",
+      url: "/inventory",
       icon: Archive,
     },
     {
