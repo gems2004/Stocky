@@ -2,6 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import { AppModule } from './app.module';
 import { LoggerService } from './common/logger.service';
+import { ConfigService } from '@nestjs/config';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
@@ -11,14 +12,16 @@ async function bootstrap() {
   const logger = await app.resolve(LoggerService);
   app.useLogger(logger);
 
+  const configService = app.get(ConfigService);
+
   // Enable CORS for frontend
   app.enableCors({
-    origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+    origin: configService.get('frontendUrl'),
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
     credentials: true,
   });
 
-  const port = Number(process.env.PORT) || 3000;
+  const port = configService.get('port');
   await app.listen(port);
 
   logger.log(`Server running on port ${port}`);
