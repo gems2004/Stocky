@@ -4,14 +4,14 @@ import { SidebarProvider } from "@/components/ui/sidebar";
 import AppSidebar from "@/layout/AppSidebar";
 
 export default function PublicLayout({
-    children,
+  children,
 }: {
-    children: React.ReactNode;
+  children: React.ReactNode;
 }) {
-    return (
-        <SidebarProvider>
-            <AppSidebar />
-            <div>{children}</div>
-        </SidebarProvider>
-    );
+  return (
+    <SidebarProvider>
+      <AppSidebar />
+      <main className="px-8 py-4 grow">{children}</main>
+    </SidebarProvider>
+  );
 }
