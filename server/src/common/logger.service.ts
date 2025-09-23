@@ -12,6 +12,7 @@ import {
   Logger as WinstonLogger,
 } from 'winston';
 import { IRequestWithId } from './interfaces/request.interface';
+import { ConfigService } from '@nestjs/config';
 
 const { combine, timestamp, printf, colorize, errors } = format;
 
@@ -19,7 +20,10 @@ const { combine, timestamp, printf, colorize, errors } = format;
 export class LoggerService implements NestLoggerService {
   private readonly logger: WinstonLogger;
 
-  constructor(@Inject(REQUEST) private readonly request: IRequestWithId) {
+  constructor(
+    @Inject(REQUEST) private readonly request: IRequestWithId,
+    private readonly configService: ConfigService,
+  ) {
     const logFormat = printf(({ level, message, timestamp, stack }) => {
       // Ensure safe string representations
       const safeTimestamp = timestamp || new Date().toISOString();
@@ -33,7 +37,7 @@ export class LoggerService implements NestLoggerService {
       return `${safeTimestamp} ${safeLevel}: ${requestIdPart} ${safeStack || safeMessage}`;
     });
 
-    const isProduction = process.env.NODE_ENV === 'production';
+    const isProduction = configService.get('NODE_ENV') === 'production';
     const consoleFormat = isProduction
       ? logFormat
       : combine(

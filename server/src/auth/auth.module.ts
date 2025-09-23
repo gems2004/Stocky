@@ -5,14 +5,22 @@ import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { LoggerService } from '../common/logger.service';
 import { DynamicDatabaseModule } from '../dynamic-database/dynamic-database.module';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 
 @Module({
   imports: [
     DynamicDatabaseModule,
-    JwtModule.register({
-      global: true,
-      secret: process.env.JWT_SECRET,
-      signOptions: { expiresIn: '15m' },
+    ConfigModule,
+    JwtModule.registerAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: async (configService: ConfigService) => ({
+        secret: configService.get('jwt.secret'),
+        signOptions: { 
+          expiresIn: configService.get('jwt.expiresIn') 
+        },
+      }),
+      global: true, // This should make JwtService available globally
     }),
   ],
   controllers: [AuthController],
@@ -28,6 +36,6 @@ import { DynamicDatabaseModule } from '../dynamic-database/dynamic-database.modu
       }),
     },
   ],
-  exports: [AuthService],
+  exports: [AuthService, JwtModule], // Export JwtModule to make JwtService available
 })
 export class AuthModule {}
