@@ -1,7 +1,7 @@
 import H3 from "@/components/typography/H3";
 
 import React from "react";
-import InventoryTable from "./table";
+import InventoryTable from "./inventoryTable";
 
 export default function Inventory() {
   return (
