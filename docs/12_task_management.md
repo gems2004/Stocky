@@ -32,12 +32,12 @@ This document outlines the tasks and checklists for the Stocky project.
 ### Phase 3: Core Frontend
 - [x] Set up Next.js project structure ✅ 2025-08-31
 - [x] Configure Tailwind CSS and ShadCN UI ✅ 2025-08-31
-- [ ] Implement authentication pages
-- [ ] Create layout components
-- [ ] Set up Zustand stores
-- [ ] Implement navigation
-- [ ] Create reusable UI components
-- [ ] Set up API service layer
+- [x] Implement authentication pages
+- [x] Create layout components
+- [x] Set up Zustand stores
+- [x] Implement navigation
+- [x] Create reusable UI components
+- [x] Set up API service layer
 
 ### Phase 4: Product Management
 - [x] Implement product CRUD operations (Backend) ✅ 2025-08-31
