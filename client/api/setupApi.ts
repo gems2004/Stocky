@@ -35,7 +35,7 @@ export const setupDatabaseConfig = async (
 export const setupAdminInfo = async (
   adminInfo: AdminUserForm
 ): Promise<ApiResponse<SetupStatusDto>> => {
-  const res = await api.post<ApiResponse<SetupStatusDto>>("/setup/admin", {
+  const res = await api.post<ApiResponse<SetupStatusDto>>("/users", {
     ...adminInfo,
   });
   return res.data;
