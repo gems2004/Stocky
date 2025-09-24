@@ -77,7 +77,11 @@ export class SetupService implements ISetupService {
     this.writeSetupConfig(setupStatus);
 
     this.logger.log('Database configured successfully');
-    return { isSetupComplete: setupStatus.isSetupComplete };
+    return {
+      isSetupComplete: setupStatus.isSetupComplete || false,
+      isDatabaseConfigured: setupStatus.isDatabaseConfigured || false,
+      isShopConfigured: setupStatus.isShopConfigured || false,
+    };
   }
 
   configureShop(info: ShopInfoDto): SetupStatusDto {
@@ -100,7 +104,11 @@ export class SetupService implements ISetupService {
     this.writeSetupConfig(setupStatus);
 
     this.logger.log('Shop configured successfully');
-    return { isSetupComplete: setupStatus.isSetupComplete };
+    return {
+      isSetupComplete: setupStatus.isSetupComplete || false,
+      isDatabaseConfigured: setupStatus.isDatabaseConfigured || false,
+      isShopConfigured: setupStatus.isShopConfigured || false,
+    };
   }
 
   completeSetup(): SetupStatusDto {
@@ -130,7 +138,11 @@ export class SetupService implements ISetupService {
       );
     }
 
-    return { isSetupComplete: setupStatus.isSetupComplete };
+    return {
+      isSetupComplete: setupStatus.isSetupComplete || false,
+      isDatabaseConfigured: setupStatus.isDatabaseConfigured || false,
+      isShopConfigured: setupStatus.isShopConfigured || false,
+    };
   }
 
   private readSetupConfig(): SetupConfig {

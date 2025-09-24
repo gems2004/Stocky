@@ -3,6 +3,7 @@ import { ValidationPipe } from '@nestjs/common';
 import { AppModule } from './app.module';
 import { LoggerService } from './common/logger.service';
 import { ConfigService } from '@nestjs/config';
+import * as cookieParser from 'cookie-parser';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
@@ -14,11 +15,16 @@ async function bootstrap() {
 
   const configService = app.get(ConfigService);
 
-  // Enable CORS for frontend
+  // Parse cookies
+  app.use(cookieParser());
+
+  // Enable CORS for frontend with credentials support for cookies
   app.enableCors({
     origin: configService.get('frontendUrl'),
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
-    credentials: true,
+    credentials: true, // This is important for cookies to be sent with requests
+    allowedHeaders: 'Origin, X-Requested-With, Content-Type, Accept, Authorization',
+    exposedHeaders: ['Set-Cookie'], // Allow frontend to access Set-Cookie headers
   });
 
   const port = configService.get('port');
