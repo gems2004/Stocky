@@ -10,7 +10,10 @@ import * as path from 'path';
 import { Client } from 'pg';
 import { SetupConfig } from './interfaces/setup-config.interface';
 import { DynamicDatabaseService } from '../dynamic-database/dynamic-database.service';
-import { AppStateService, AppState } from '../dynamic-database/app-state.service';
+import {
+  AppStateService,
+  AppState,
+} from '../dynamic-database/app-state.service';
 
 @Injectable()
 export class SetupService implements ISetupService {
@@ -44,7 +47,7 @@ export class SetupService implements ISetupService {
     try {
       this.logger.log('Fetching setup status');
       const setupConfig = this.readSetupConfig();
-      
+
       return {
         isSetupComplete: setupConfig.isSetupComplete || false,
         isDatabaseConfigured: setupConfig.isDatabaseConfigured || false,
@@ -116,10 +119,7 @@ export class SetupService implements ISetupService {
 
     const setupStatus = this.readSetupConfig();
 
-    if (
-      setupStatus.isDatabaseConfigured &&
-      setupStatus.isShopConfigured
-    ) {
+    if (setupStatus.isDatabaseConfigured && setupStatus.isShopConfigured) {
       setupStatus.isSetupComplete = true;
       this.writeSetupConfig(setupStatus);
 

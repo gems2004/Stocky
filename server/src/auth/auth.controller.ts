@@ -29,28 +29,25 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @Post('login')
   @Public()
-  async login(
-    @Body() loginDto: LoginDto,
-    @Res() res: Response,
-  ): Promise<void> {
+  async login(@Body() loginDto: LoginDto, @Res() res: Response): Promise<void> {
     const authResult = await this.authService.login(loginDto);
-    
+
     // Set access token in HTTP-only cookie
     res.cookie('accessToken', authResult.tokens.accessToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production', // Set to true in production
-      sameSite: 'strict',
+      sameSite: 'lax',
       maxAge: 15 * 60 * 1000, // 15 minutes in milliseconds
     });
-    
+
     // Set refresh token in HTTP-only cookie
     res.cookie('refreshToken', authResult.tokens.refreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production', // Set to true in production
-      sameSite: 'strict',
+      sameSite: 'lax',
       maxAge: 24 * 60 * 1000, // 24 hours in milliseconds
     });
-    
+
     // Send response without tokens in body
     const responseWithoutTokens = {
       ...authResult,
@@ -59,8 +56,10 @@ export class AuthController {
         refreshToken: '',
       },
     };
-    
-    res.json(ApiResponseHelper.success(responseWithoutTokens, 'Login successful'));
+
+    res.json(
+      ApiResponseHelper.success(responseWithoutTokens, 'Login successful'),
+    );
   }
 
   @HttpCode(HttpStatus.OK)
@@ -76,31 +75,34 @@ export class AuthController {
       // Get the refresh token from cookies
       refreshToken = res.req.cookies?.refreshToken;
     }
-    
+
     if (!refreshToken) {
-      throw new CustomException('Refresh token is missing', HttpStatus.UNAUTHORIZED);
+      throw new CustomException(
+        'Refresh token is missing',
+        HttpStatus.UNAUTHORIZED,
+      );
     }
-    
+
     // Create a temporary DTO with the refresh token
     const tempRefreshTokenDto = { refreshToken };
     const authResult = await this.authService.refreshToken(tempRefreshTokenDto);
-    
+
     // Set new access token in HTTP-only cookie
     res.cookie('accessToken', authResult.tokens.accessToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production', // Set to true in production
-      sameSite: 'strict',
+      sameSite: 'lax',
       maxAge: 15 * 60 * 1000, // 15 minutes in milliseconds
     });
-    
+
     // Set new refresh token in HTTP-only cookie
     res.cookie('refreshToken', authResult.tokens.refreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production', // Set to true in production
-      sameSite: 'strict',
+      sameSite: 'lax',
       maxAge: 24 * 60 * 60 * 1000, // 24 hours in milliseconds
     });
-    
+
     // Send response without tokens in body
     const responseWithoutTokens = {
       ...authResult,
@@ -109,8 +111,13 @@ export class AuthController {
         refreshToken: '',
       },
     };
-    
-    res.json(ApiResponseHelper.success(responseWithoutTokens, 'Token refreshed successfully'));
+
+    res.json(
+      ApiResponseHelper.success(
+        responseWithoutTokens,
+        'Token refreshed successfully',
+      ),
+    );
   }
 
   @HttpCode(HttpStatus.OK)
@@ -131,15 +138,15 @@ export class AuthController {
     res.clearCookie('accessToken', {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
+      sameSite: 'lax',
     });
-    
+
     res.clearCookie('refreshToken', {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
+      sameSite: 'lax',
     });
-    
+
     res.json(ApiResponseHelper.success(null, 'Logout successful'));
   }
 }
