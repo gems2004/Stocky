@@ -49,13 +49,7 @@ export class AuthController {
     });
 
     // Send response without tokens in body
-    const responseWithoutTokens = {
-      ...authResult,
-      tokens: {
-        accessToken: '', // Don't send tokens in response body
-        refreshToken: '',
-      },
-    };
+    const { tokens, ...responseWithoutTokens } = authResult;
 
     res.json(
       ApiResponseHelper.success(responseWithoutTokens, 'Login successful'),
@@ -104,13 +98,7 @@ export class AuthController {
     });
 
     // Send response without tokens in body
-    const responseWithoutTokens = {
-      ...authResult,
-      tokens: {
-        accessToken: '', // Don't send tokens in response body
-        refreshToken: '',
-      },
-    };
+    const { tokens, ...responseWithoutTokens } = authResult;
 
     res.json(
       ApiResponseHelper.success(
