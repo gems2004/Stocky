@@ -41,6 +41,11 @@ export const setupAdminInfo = async (
   return res.data;
 };
 
+const completeSetup = async (): Promise<ApiResponse<SetupStatusDto>> => {
+  const res = await api.post("/setup/complete");
+  return res.data;
+};
+
 // React Query hooks with proper error handling
 export const useGetSetupStatus = () => {
   return useQuery({
@@ -76,6 +81,17 @@ export const useSetupAdminInfo = () => {
 
   return useMutation({
     mutationFn: setupAdminInfo,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["setupStatus"] });
+    },
+  });
+};
+
+export const useCompleteSetup = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: completeSetup,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["setupStatus"] });
     },
