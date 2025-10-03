@@ -109,6 +109,8 @@ export default function NewProduct() {
                       placeholder="Enter price"
                       step="0.01"
                       {...field}
+                      onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                      value={field.value || ""}
                     />
                   </FormControl>
                   <FormMessage />
@@ -128,6 +130,8 @@ export default function NewProduct() {
                       placeholder="Enter cost"
                       step="0.01"
                       {...field}
+                      onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                      value={field.value || ""}
                     />
                   </FormControl>
                   <FormMessage />
@@ -142,8 +146,8 @@ export default function NewProduct() {
                 <FormItem>
                   <FormLabel>Category:</FormLabel>
                   <Select
-                    onValueChange={field.onChange}
-                    value={field.value.toString()}
+                    onValueChange={(value) => field.onChange(parseInt(value))}
+                    value={field.value?.toString()}
                   >
                     <FormControl>
                       <SelectTrigger>
@@ -173,8 +177,8 @@ export default function NewProduct() {
                 <FormItem>
                   <FormLabel>Supplier:</FormLabel>
                   <Select
-                    onValueChange={field.onChange}
-                    value={field.value.toString()}
+                    onValueChange={(value) => field.onChange(parseInt(value))}
+                    value={field.value?.toString()}
                   >
                     <FormControl>
                       <SelectTrigger>
@@ -208,6 +212,8 @@ export default function NewProduct() {
                       type="number"
                       placeholder="Enter minimum stock level"
                       {...field}
+                      onChange={(e) => field.onChange(parseInt(e.target.value) || 0)}
+                      value={field.value || ""}
                     />
                   </FormControl>
                   <FormMessage />
@@ -292,7 +298,7 @@ export default function NewProduct() {
             >
               Cancel
             </Button>
-            <Button size="lg" type="submit" disabled={isPending}>
+            <Button type="submit" disabled={isPending}>
               {isPending ? "Creating..." : "Create Product"}
             </Button>
           </div>
