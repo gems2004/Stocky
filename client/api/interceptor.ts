@@ -9,6 +9,7 @@ api.interceptors.response.use(
     return response;
   },
   (error) => {
+    if (error.response?.status === 401) window.location.href = "/login";
     if (error.response?.data && axios.isAxiosError(error)) {
       return Promise.reject(new Error(error.response.data.error.message));
     } else {
