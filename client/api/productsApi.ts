@@ -13,6 +13,11 @@ const getProducts = async (): Promise<ApiResponse<PagedProductResponseDto>> => {
   return res.data;
 };
 
+const getProductById = async (id: number): Promise<ApiResponse<ProductResponseDto>> => {
+  let res = await api.get(`/products/${id}`);
+  return res.data;
+};
+
 const createProduct = async (
   data: CreateProductDto
 ): Promise<ApiResponse<ProductResponseDto>> => {
@@ -33,6 +38,14 @@ const deleteProduct = async (id: number): Promise<ApiResponse<null>> => {
   return res.data;
 };
 
+export const useGetProductById = (id: number) => {
+  return useQuery({
+    queryFn: () => getProductById(id),
+    queryKey: ["product", id],
+    enabled: !!id,
+  });
+};
+
 export const useGetProducts = () => {
   return useQuery({
     queryFn: getProducts,
@@ -48,10 +61,10 @@ export const useCreateProduct = () => {
   });
 };
 
-export const useUpdateProduct = (id: number, product: UpdateProductDto) => {
+export const useUpdateProduct = (id: number) => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: () => updateProduct(id, product),
+    mutationFn: (product: UpdateProductDto) => updateProduct(id, product),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["products"] }),
   });
 };
