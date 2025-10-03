@@ -25,10 +25,10 @@ export class SetupController {
   @Get('status')
   @Public()
   @UseGuards(AppReadyOrSetupGuard)
-  async getStatus(): Promise<SuccessResponse<SetupStatusDto>> {
+  async getStatus(): Promise<SuccessResponse<{isSetupComplete: boolean}>> {
     const status = await this.setupService.getStatus();
     return ApiResponseHelper.success(
-      status,
+      { isSetupComplete: status.isSetupComplete },
       'Setup status retrieved successfully',
     );
   }
@@ -39,10 +39,10 @@ export class SetupController {
   @UseGuards(SetupRequiredGuard)
   async configureDatabase(
     @Body() config: DatabaseConfigDto,
-  ): Promise<SuccessResponse<SetupStatusDto>> {
+  ): Promise<SuccessResponse<{isDatabaseConfigured: boolean}>> {
     const status = await this.setupService.configureDatabase(config);
     return ApiResponseHelper.success(
-      status,
+      { isDatabaseConfigured: status.isDatabaseConfigured },
       'Database configured successfully',
     );
   }
@@ -51,10 +51,10 @@ export class SetupController {
   @Post('shop')
   @Public()
   @UseGuards(SetupRequiredGuard)
-  configureShop(@Body() info: ShopInfoDto): SuccessResponse<SetupStatusDto> {
+  configureShop(@Body() info: ShopInfoDto): SuccessResponse<{isShopConfigured: boolean}> {
     const status = this.setupService.configureShop(info);
     return ApiResponseHelper.success(
-      status,
+      { isShopConfigured: status.isShopConfigured },
       'Shop information configured successfully',
     );
   }
@@ -63,10 +63,10 @@ export class SetupController {
   @Post('complete')
   @Public()
   @UseGuards(SetupRequiredGuard)
-  completeSetup(): SuccessResponse<SetupStatusDto> {
+  completeSetup(): SuccessResponse<{isSetupComplete: boolean}> {
     const status = this.setupService.completeSetup();
     return ApiResponseHelper.success(
-      status,
+      { isSetupComplete: status.isSetupComplete },
       'Setup process completed successfully',
     );
   }
