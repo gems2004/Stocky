@@ -2,17 +2,26 @@ import React from "react";
 import H4 from "@/components/typography/H4";
 import { Button } from "@/components/ui/button";
 import { useSetupStore } from "@/store/setupState";
-import { useGetSetupStatus } from "@/api/setupApi";
+import { useCompleteSetup } from "@/api/setupApi";
+import { useRouter } from "next/router";
 
 export default function Step5() {
   const { shopInfo, databaseConfig, user } = useSetupStore();
-  const { data: setup } = useGetSetupStatus();
+
+  const { mutateAsync: completeSetup } = useCompleteSetup();
+
+  const router = useRouter();
+
+  async function finalize() {
+    let res = await completeSetup();
+    if (res.success) {
+      router.push("/");
+    }
+  }
 
   if (!shopInfo || !databaseConfig || !user) {
     return <p>Please complete setup</p>;
   }
-
-  if (!setup) return <p>Loading...</p>;
 
   return (
     <>
@@ -158,20 +167,9 @@ export default function Step5() {
             )}
           </div>
         </div>
-        {setup.success && setup.data.isSetupComplete ? (
-          <Button size="xl" className="w-fit self-center">
-            Done
-          </Button>
-        ) : (
-          <>
-            <p className="text-destructive self-center">
-              Please complete setup before advancing
-            </p>
-            <Button size="xl" className="w-fit self-center" variant="outline">
-              Go Back
-            </Button>
-          </>
-        )}
+        <Button size="xl" className="w-fit self-center" onClick={finalize}>
+          Done
+        </Button>
       </div>
     </>
   );
