@@ -1,11 +1,12 @@
 import { Module, ValidationPipe } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
-import { APP_PIPE } from '@nestjs/core';
+import { APP_PIPE, APP_GUARD } from '@nestjs/core';
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { LoggerService } from '../common/logger.service';
 import { DynamicDatabaseModule } from '../dynamic-database/dynamic-database.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { AuthGuard } from './guards/auth.guard';
 
 @Module({
   imports: [
@@ -26,7 +27,9 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
   controllers: [AuthController],
   providers: [
     AuthService,
+    AuthGuard,
     LoggerService,
+    ConfigService,
     {
       provide: APP_PIPE,
       useValue: new ValidationPipe({
@@ -36,6 +39,6 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
       }),
     },
   ],
-  exports: [AuthService, JwtModule], // Export JwtModule to make JwtService available
+  exports: [AuthService, AuthGuard, JwtModule], // Export JwtModule to make JwtService available
 })
 export class AuthModule {}
