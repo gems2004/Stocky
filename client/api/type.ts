@@ -30,6 +30,13 @@ export interface ErrorResponse {
 
 export type ApiResponse<T> = SuccessResponse<T> | ErrorResponse;
 
+export interface PagedResponse<T> {
+  data: T;
+  limit: number;
+  page: number;
+  total: number;
+}
+
 // ==================================
 // Stocky Application Types
 // Organized by Module
@@ -119,18 +126,31 @@ export interface CreateProductDto {
   name: string;
   description?: string;
   price: number;
+  cost: number;
   categoryId: number;
   supplierId: number;
-  stock: number;
+  barcode: string;
+  sku: string;
+  minStockLevel: number;
 }
 
 export interface UpdateProductDto {
   name?: string;
   description?: string;
   price?: number;
+  cost?: number;
   categoryId?: number;
   supplierId?: number;
-  stock?: number;
+  barcode?: string;
+  sku?: string;
+  minStockLevel?: number;
+}
+
+export interface PagedProductResponseDto {
+  data: ProductResponseDto[];
+  limit: number;
+  page: number;
+  total: number;
 }
 
 export interface ProductResponseDto {
@@ -138,9 +158,15 @@ export interface ProductResponseDto {
   name: string;
   description?: string;
   price: number;
+  cost: number;
   categoryId: number;
+  category: CategoryResponseDto;
   supplierId: number;
-  stock: number;
+  supplier: SupplierResponseDto;
+  stockQuantity: number;
+  sku: string;
+  minStockLevel: number;
+  barcode: string;
   createdAt: Date;
   updatedAt: Date;
 }
