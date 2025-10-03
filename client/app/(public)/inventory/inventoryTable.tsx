@@ -11,6 +11,7 @@ import {
 import { Pen } from "lucide-react";
 import { useGetProducts } from "@/api/productsApi";
 import { ProductResponseDto } from "@/api/type";
+import Link from "next/link";
 
 export default function InventoryTable() {
   const { data: response, isLoading, isSuccess } = useGetProducts();
@@ -51,7 +52,9 @@ export default function InventoryTable() {
               <TableCell>{product.price}</TableCell>
               <TableCell>{product.cost}</TableCell>
               <TableCell>
-                <Pen />
+                <Link href={"/products/" + product.id.toString()} title="Edit">
+                  <Pen />
+                </Link>
               </TableCell>
             </TableRow>
           );
