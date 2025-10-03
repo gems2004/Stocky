@@ -11,7 +11,6 @@ import {
 import { Response } from 'express';
 import { CustomException } from '../common/exceptions/custom.exception';
 import { LoginDto } from './dto/login.dto';
-import { RefreshTokenDto } from './dto/refresh-token.dto';
 import { AuthResponseDto } from './dto/auth-response.dto';
 import { AuthService } from './auth.service';
 import { AuthGuard } from './guards/auth.guard';
@@ -56,57 +55,7 @@ export class AuthController {
     );
   }
 
-  @HttpCode(HttpStatus.OK)
-  @Post('refresh')
-  @Public()
-  async refreshToken(
-    @Body() refreshTokenDto: RefreshTokenDto,
-    @Res() res: Response,
-  ): Promise<void> {
-    // If refresh token is not provided in the request body, try to get it from cookies
-    let refreshToken = refreshTokenDto.refreshToken;
-    if (!refreshToken) {
-      // Get the refresh token from cookies
-      refreshToken = res.req.cookies?.refreshToken;
-    }
-
-    if (!refreshToken) {
-      throw new CustomException(
-        'Refresh token is missing',
-        HttpStatus.UNAUTHORIZED,
-      );
-    }
-
-    // Create a temporary DTO with the refresh token
-    const tempRefreshTokenDto = { refreshToken };
-    const authResult = await this.authService.refreshToken(tempRefreshTokenDto);
-
-    // Set new access token in HTTP-only cookie
-    res.cookie('accessToken', authResult.tokens.accessToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production', // Set to true in production
-      sameSite: 'lax',
-      maxAge: 15 * 60 * 1000, // 15 minutes in milliseconds
-    });
-
-    // Set new refresh token in HTTP-only cookie
-    res.cookie('refreshToken', authResult.tokens.refreshToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production', // Set to true in production
-      sameSite: 'lax',
-      maxAge: 24 * 60 * 60 * 1000, // 24 hours in milliseconds
-    });
-
-    // Send response without tokens in body
-    const { tokens, ...responseWithoutTokens } = authResult;
-
-    res.json(
-      ApiResponseHelper.success(
-        responseWithoutTokens,
-        'Token refreshed successfully',
-      ),
-    );
-  }
+  
 
   @HttpCode(HttpStatus.OK)
   @Get('profile')
