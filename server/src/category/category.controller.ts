@@ -39,6 +39,15 @@ export class CategoryController {
   }
 
   @HttpCode(HttpStatus.OK)
+  @Get(':id')
+  async findOne(
+    @Param('id', ParseIntPipe) id: number,
+  ): Promise<SuccessResponse<CategoryResponseDto>> {
+    const result = await this.categoryService.findOne(id);
+    return ApiResponseHelper.success(result, 'Category retrieved successfully');
+  }
+
+  @HttpCode(HttpStatus.OK)
   @Get()
   async findAll(): Promise<SuccessResponse<CategoryResponseDto[]>> {
     const result = await this.categoryService.findAll();
