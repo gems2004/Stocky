@@ -3,7 +3,7 @@ import H4 from "@/components/typography/H4";
 import { Button } from "@/components/ui/button";
 import { useSetupStore } from "@/store/setupState";
 import { useCompleteSetup } from "@/api/setupApi";
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
 
 export default function Step5() {
   const { shopInfo, databaseConfig, user } = useSetupStore();
