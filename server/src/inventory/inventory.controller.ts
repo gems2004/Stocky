@@ -52,12 +52,8 @@ export class InventoryController {
 
   @HttpCode(HttpStatus.OK)
   @Get('low-stock')
-  async getLowStockProducts(
-    @Query('threshold') threshold?: string,
-  ): Promise<SuccessResponse<Product[]>> {
-    const thresholdValue = threshold ? parseInt(threshold, 10) : 10;
-    const result =
-      await this.inventoryService.getLowStockProducts(thresholdValue);
+  async getLowStockProducts(): Promise<SuccessResponse<Product[]>> {
+    const result = await this.inventoryService.getLowStockProducts();
     return ApiResponseHelper.success(
       result,
       'Low stock products retrieved successfully',

@@ -8,5 +8,5 @@ export interface IInventoryService {
     userId?: number,
   ): Promise<InventoryLogResponseDto>;
   getInventoryLogs(): Promise<InventoryLogResponseDto[]>;
-  getLowStockProducts(threshold?: number): Promise<Product[]>;
+  getLowStockProducts(): Promise<Product[]>;
 }
