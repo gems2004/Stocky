@@ -247,7 +247,7 @@ export class ProductService implements IProductService {
         barcode: productData.barcode,
         sku: productData.sku,
         min_stock_level: productData.minStockLevel || 0,
-        stock_quantity: 0, // Default to 0 for new products
+        stock_quantity: productData.stockQuantity || 0, // Default to 0 for new products or use provided value
       });
 
       // Save the product

@@ -48,4 +48,9 @@ export class CreateProductDto {
   @IsOptional()
   @Min(0)
   minStockLevel?: number;
+
+  @IsInt()
+  @IsOptional()
+  @Min(0)
+  stockQuantity?: number;
 }
