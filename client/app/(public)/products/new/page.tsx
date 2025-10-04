@@ -25,11 +25,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  useGetCategories,
-  useGetSuppliers,
-} from "@/api/categoriesAndSuppliersApi";
+import { useGetSuppliers } from "@/api/suppliersApi";
 import H3 from "@/components/typography/H3";
+import { useGetCategories } from "@/api/categoriesApi";
 
 export default function NewProduct() {
   const { data: categoriesData, isLoading: categoriesLoading } =
@@ -109,7 +107,9 @@ export default function NewProduct() {
                       placeholder="Enter price"
                       step="0.01"
                       {...field}
-                      onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                      onChange={(e) =>
+                        field.onChange(parseFloat(e.target.value) || 0)
+                      }
                       value={field.value || ""}
                     />
                   </FormControl>
@@ -130,7 +130,9 @@ export default function NewProduct() {
                       placeholder="Enter cost"
                       step="0.01"
                       {...field}
-                      onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                      onChange={(e) =>
+                        field.onChange(parseFloat(e.target.value) || 0)
+                      }
                       value={field.value || ""}
                     />
                   </FormControl>
@@ -212,7 +214,9 @@ export default function NewProduct() {
                       type="number"
                       placeholder="Enter minimum stock level"
                       {...field}
-                      onChange={(e) => field.onChange(parseInt(e.target.value) || 0)}
+                      onChange={(e) =>
+                        field.onChange(parseInt(e.target.value) || 0)
+                      }
                       value={field.value || ""}
                     />
                   </FormControl>

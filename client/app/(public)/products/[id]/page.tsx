@@ -29,11 +29,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  useGetCategories,
-  useGetSuppliers,
-} from "@/api/categoriesAndSuppliersApi";
+import { useGetSuppliers } from "@/api/suppliersApi";
 import H3 from "@/components/typography/H3";
+import { useGetCategories } from "@/api/categoriesApi";
 
 export default function UpdateProduct() {
   const { id } = useParams();
