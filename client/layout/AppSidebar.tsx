@@ -10,7 +10,14 @@ import {
   SidebarTrigger,
   useSidebar,
 } from "@/components/ui/sidebar";
-import { Archive, ClipboardList, DollarSign, House, Menu } from "lucide-react";
+import {
+  Archive,
+  ClipboardList,
+  DollarSign,
+  House,
+  Blocks,
+  Truck,
+} from "lucide-react";
 import { usePathname } from "next/navigation";
 import React from "react";
 
@@ -38,6 +45,16 @@ export default function AppSidebar() {
       title: "Reports",
       url: "#",
       icon: ClipboardList,
+    },
+    {
+      title: "Categories",
+      url: "#",
+      icon: Blocks,
+    },
+    {
+      title: "Suppliers",
+      url: "#",
+      icon: Truck,
     },
   ];
   return (
