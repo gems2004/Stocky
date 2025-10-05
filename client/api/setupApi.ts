@@ -37,6 +37,7 @@ export const setupAdminInfo = async (
 ): Promise<ApiResponse<SetupStatusDto>> => {
   const res = await api.post<ApiResponse<SetupStatusDto>>("/users", {
     ...adminInfo,
+    role: "ADMIN",
   });
   return res.data;
 };
