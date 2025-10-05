@@ -260,4 +260,51 @@ export class CategoryService implements ICategoryService {
       );
     }
   }
+
+  async findOne(id: number): Promise<CategoryResponseDto> {
+    try {
+      const categoryRepository = await this.getCategoryRepository();
+      this.logger.log(`Fetching category with ID: ${id}`);
+
+      // Find category by ID
+      const category = await categoryRepository.findOne({
+        where: { id },
+      });
+
+      // If category not found, throw exception
+      if (!category) {
+        const errorMsg = `Category not found with ID: ${id}`;
+        throw new CustomException(
+          'Category not found',
+          HttpStatus.NOT_FOUND,
+          errorMsg,
+        );
+      }
+
+      this.logger.log(`Successfully fetched category with ID: ${id}`);
+
+      // Construct response
+      const categoryResponse: CategoryResponseDto = {
+        id: category.id,
+        name: category.name,
+        description: category.description,
+        created_at: category.created_at,
+        updated_at: category.updated_at,
+      };
+
+      return categoryResponse;
+    } catch (error) {
+      // Re-throw if it's already a CustomException, otherwise wrap in CustomException
+      if (error instanceof CustomException) {
+        throw error;
+      }
+      const errorMessage =
+        error instanceof Error ? error.message : 'Unknown error';
+      throw new CustomException(
+        'An unexpected error occurred while fetching category by ID',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+        `Unexpected error in findOne function: ${errorMessage}`,
+      );
+    }
+  }
 }

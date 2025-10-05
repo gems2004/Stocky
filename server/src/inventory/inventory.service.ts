@@ -176,17 +176,16 @@ export class InventoryService implements IInventoryService {
     }
   }
 
-  async getLowStockProducts(threshold: number = 10): Promise<Product[]> {
+  async getLowStockProducts(): Promise<Product[]> {
     try {
       const productRepository = await this.getProductRepository();
-      this.logger.log(
-        `Fetching low stock products with threshold: ${threshold}`,
-      );
+      this.logger.log('Fetching low stock products based on min_stock_level');
 
-      // Find products with stock quantity below threshold
+      // Find products with stock quantity below their minimum stock level
       const products = await productRepository
         .createQueryBuilder('product')
-        .where('product.stock_quantity < :threshold', { threshold })
+        .where('product.stock_quantity < product.min_stock_level')
+        .andWhere('product.min_stock_level > 0') // Only consider products that have a minimum stock level set
         .orderBy('product.stock_quantity', 'ASC')
         .getMany();
 
