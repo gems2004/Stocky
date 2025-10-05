@@ -112,39 +112,37 @@ export default function UpdateCategory() {
           onSubmit={form.handleSubmit(onSubmit)}
           className="flex flex-col gap-6"
         >
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <FormField
-              control={form.control}
-              name="name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Category Name:</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Enter category name" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+          <FormField
+            control={form.control}
+            name="name"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Category Name:</FormLabel>
+                <FormControl>
+                  <Input placeholder="Enter category name" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
-            <FormField
-              control={form.control}
-              name="description"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Description (Optional):</FormLabel>
-                  <FormControl>
-                    <Textarea
-                      placeholder="Enter category description"
-                      {...field}
-                      value={field.value || ""}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
+          <FormField
+            control={form.control}
+            name="description"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Description (Optional):</FormLabel>
+                <FormControl>
+                  <Textarea
+                    placeholder="Enter category description"
+                    {...field}
+                    value={field.value || ""}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
           {isError && (
             <Alert variant="destructive">
@@ -152,7 +150,8 @@ export default function UpdateCategory() {
               <AlertTitle>Category update failed!</AlertTitle>
               <AlertDescription>
                 <p>
-                  {error?.message || "Category update failed. Please try again."}
+                  {error?.message ||
+                    "Category update failed. Please try again."}
                 </p>
               </AlertDescription>
             </Alert>
