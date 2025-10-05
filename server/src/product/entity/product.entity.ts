@@ -27,14 +27,14 @@ export class Product {
   @Column({ type: 'decimal', precision: 10, scale: 2, nullable: true })
   cost: number;
 
-  @ManyToOne(() => Category, { nullable: true })
+  @ManyToOne(() => Category, { nullable: true, onDelete: 'SET NULL' })
   @JoinColumn({ name: 'category_id' })
   category: Category;
 
   @Column({ type: 'integer', nullable: true })
   category_id: number;
 
-  @ManyToOne(() => Supplier, { nullable: true })
+  @ManyToOne(() => Supplier, { nullable: true, onDelete: 'SET NULL' })
   @JoinColumn({ name: 'supplier_id' })
   supplier: Supplier;
 
