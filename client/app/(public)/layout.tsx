@@ -21,8 +21,10 @@ export default function PublicLayout({
 
   return (
     <SidebarProvider>
-      <AppSidebar />
-      <main className="px-8 py-4 grow">{children}</main>
+      <div className="flex min-h-screen w-full">
+        <AppSidebar />
+        <main className="flex-1 p-4 md:p-8">{children}</main>
+      </div>
     </SidebarProvider>
   );
 }
