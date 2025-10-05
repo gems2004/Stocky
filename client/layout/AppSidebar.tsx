@@ -82,25 +82,27 @@ export default function AppSidebar() {
                 <SidebarMenuItem
                   onClick={() => router.push(item.url)}
                   key={item.title}
-                  className={`hover:bg-primary/10 rounded-lg px-3 py-2  ${
+                  className={`hover:bg-primary/10 rounded-lg px-3 py-2 ${
                     pathname == item.url ? "bg-primary hover:bg-primary" : ""
                   }`}
                 >
                   <SidebarMenuButton
                     tooltip={{
                       children: item.title,
-                      className: "text-white bg-primary"
+                      className: "text-primary-foreground bg-primary",
                     }}
                     className="hover:bg-transparent active:bg-transparent data-[active=true]:bg-transparent data-[state=active]:bg-transparent hover:text-inherit active:text-inherit data-[active=true]:text-inherit data-[state=active]:text-inherit"
                   >
                     <div>
                       <item.icon
-                        className={pathname == item.url ? "text-white" : ""}
+                        className={
+                          pathname == item.url ? "text-primary-foreground" : ""
+                        }
                       />
                     </div>
                     <span
                       className={`text-sm font-medium ${
-                        pathname == item.url ? "text-white" : ""
+                        pathname == item.url ? "text-primary-foreground" : ""
                       }`}
                     >
                       {item.title}
@@ -118,7 +120,7 @@ export default function AppSidebar() {
                 <SidebarMenuButton
                   tooltip={{
                     children: "Settings",
-                    className: "text-white bg-primary"
+                    className: "text-primary-foreground bg-primary",
                   }}
                   className="hover:bg-transparent active:bg-transparent data-[active=true]:bg-transparent data-[state=active]:bg-transparent hover:text-inherit active:text-inherit data-[active=true]:text-inherit data-[state=active]:text-inherit"
                 >
@@ -132,7 +134,7 @@ export default function AppSidebar() {
                 <SidebarMenuButton
                   tooltip={{
                     children: "Logout",
-                    className: "text-white bg-primary"
+                    className: "text-primary-foreground bg-primary",
                   }}
                   className="hover:bg-transparent active:bg-transparent data-[active=true]:bg-transparent data-[state=active]:bg-transparent hover:text-inherit active:text-inherit data-[active=true]:text-inherit data-[state=active]:text-inherit"
                 >
