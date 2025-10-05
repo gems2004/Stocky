@@ -12,6 +12,11 @@ const getCategories = async (): Promise<ApiResponse<CategoryResponseDto[]>> => {
   return res.data;
 };
 
+const getCategoryById = async (id: number): Promise<ApiResponse<CategoryResponseDto>> => {
+  let res = await api.get(`/category/${id}`);
+  return res.data;
+};
+
 const createCategory = async (
   data: CreateCategoryDto
 ): Promise<ApiResponse<CategoryResponseDto>> => {
@@ -36,6 +41,14 @@ export const useGetCategories = () => {
   return useQuery({
     queryFn: getCategories,
     queryKey: ["categories"],
+  });
+};
+
+export const useGetCategoryById = (id: number) => {
+  return useQuery({
+    queryFn: () => getCategoryById(id),
+    queryKey: ["category", id],
+    enabled: !!id,
   });
 };
 
