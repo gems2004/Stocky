@@ -48,7 +48,7 @@ export default function AppSidebar() {
     },
     {
       title: "Categories",
-      url: "#",
+      url: "/categories",
       icon: Blocks,
     },
     {
