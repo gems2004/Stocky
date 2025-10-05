@@ -4,7 +4,7 @@ import H3 from "@/components/typography/H3";
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import DataTable from "./dataTable";
+import DataTable from "@/components/dataTable";
 import { columns } from "./columns";
 import { useGetProducts } from "@/api/productsApi";
 import { PaginationState } from "@tanstack/react-table";
