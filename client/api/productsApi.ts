@@ -8,12 +8,20 @@ import {
   PagedProductResponseDto,
 } from "./type";
 
-const getProducts = async (): Promise<ApiResponse<PagedProductResponseDto>> => {
-  let res = await api.get("/products");
+const getProducts = async ({
+  page,
+  limit,
+}: {
+  page: number;
+  limit: number;
+}): Promise<ApiResponse<PagedProductResponseDto>> => {
+  const res = await api.get(`/products?page=${page}&limit=${limit}`);
   return res.data;
 };
 
-const getProductById = async (id: number): Promise<ApiResponse<ProductResponseDto>> => {
+const getProductById = async (
+  id: number
+): Promise<ApiResponse<ProductResponseDto>> => {
   let res = await api.get(`/products/${id}`);
   return res.data;
 };
@@ -46,10 +54,10 @@ export const useGetProductById = (id: number) => {
   });
 };
 
-export const useGetProducts = () => {
+export const useGetProducts = (page: number, limit: number = 10) => {
   return useQuery({
-    queryFn: getProducts,
-    queryKey: ["products"],
+    queryFn: () => getProducts({ page, limit }),
+    queryKey: ["products", page, limit],
   });
 };
 
