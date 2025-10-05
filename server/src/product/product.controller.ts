@@ -17,6 +17,7 @@ import { ProductService } from './product.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { SearchProductDto } from './dto/search-product.dto';
+import { FindAllProductsDto } from './dto/find-all-products.dto';
 import { ProductResponseDto } from './dto/product-response.dto';
 import { ApiResponseHelper } from '../common/helpers/api-response.helper';
 import { SuccessResponse } from '../common/types/api-response.type';
@@ -32,20 +33,22 @@ export class ProductController {
   @Get('search')
   async search(
     @Query() searchProductDto: SearchProductDto,
-  ): Promise<SuccessResponse<ProductResponseDto[]>> {
-    const products = await this.productService.search(searchProductDto);
+  ): Promise<SuccessResponse<{
+    data: ProductResponseDto[];
+    total: number;
+    page: number;
+    limit: number;
+  }>> {
+    const result = await this.productService.search(searchProductDto);
     return ApiResponseHelper.success(
-      products,
+      result,
       'Products search completed successfully',
     );
   }
 
   @HttpCode(HttpStatus.OK)
   @Get()
-  async findAll(
-    @Query('page') page?: string,
-    @Query('limit') limit?: string,
-  ): Promise<
+  async findAll(@Query() findAllProductsDto: FindAllProductsDto): Promise<
     SuccessResponse<{
       data: ProductResponseDto[];
       total: number;
@@ -54,10 +57,27 @@ export class ProductController {
     }>
   > {
     // Parse page and limit with default values
-    const pageNum = page ? parseInt(page, 10) : 1;
-    const limitNum = limit ? parseInt(limit, 10) : 10;
+    const pageNum = findAllProductsDto.page
+      ? parseInt(findAllProductsDto.page, 10)
+      : 1;
+    const limitNum = findAllProductsDto.limit
+      ? parseInt(findAllProductsDto.limit, 10)
+      : 10;
 
-    const result = await this.productService.findAll(pageNum, limitNum);
+    // Parse category and supplier IDs if provided
+    const categoryId = findAllProductsDto.categoryId
+      ? parseInt(findAllProductsDto.categoryId, 10)
+      : undefined;
+    const supplierId = findAllProductsDto.supplierId
+      ? parseInt(findAllProductsDto.supplierId, 10)
+      : undefined;
+
+    const result = await this.productService.findAll(
+      pageNum,
+      limitNum,
+      categoryId,
+      supplierId,
+    );
     return ApiResponseHelper.success(result, 'Products retrieved successfully');
   }
 

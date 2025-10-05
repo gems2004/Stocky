@@ -1,9 +1,6 @@
-import { IsString, IsOptional, IsNumberString } from 'class-validator';
+import { IsOptional, IsNumberString } from 'class-validator';
 
-export class SearchProductDto {
-  @IsString()
-  query: string;
-
+export class FindAllProductsDto {
   @IsOptional()
   @IsNumberString()
   page?: string;
