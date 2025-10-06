@@ -23,7 +23,9 @@ export default function PublicLayout({
     <SidebarProvider>
       <div className="flex min-h-screen w-full">
         <AppSidebar />
-        <main className="flex-1 p-4 md:p-8">{children}</main>
+        <main className="flex-1 p-4 md:p-8 mx-auto w-full max-w-6xl">
+          {children}
+        </main>
       </div>
     </SidebarProvider>
   );
