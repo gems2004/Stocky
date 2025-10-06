@@ -70,4 +70,16 @@ export class SetupController {
       'Setup process completed successfully',
     );
   }
+
+  @HttpCode(HttpStatus.OK)
+  @Get('shop-info')
+  @Public()
+  @UseGuards(AppReadyOrSetupGuard)
+  getShopInfo(): SuccessResponse<ShopInfoDto | null> {
+    const shopInfo = this.setupService.getShopInfo();
+    return ApiResponseHelper.success(
+      shopInfo,
+      shopInfo ? 'Shop information retrieved successfully' : 'Shop is not configured yet',
+    );
+  }
 }
