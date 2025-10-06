@@ -66,34 +66,45 @@ export interface RefreshTokenDto {
 // ----------------------------------
 
 export interface CreateUserDto {
-  name: string;
+  username: string;
   email: string;
   password: string;
+  firstName: string;
+  lastName: string;
   role: string;
 }
 
 export interface UpdateUserDto {
-  name?: string;
+  username?: string;
   email?: string;
-  password?: string;
+  firstName?: string;
+  lastName?: string;
   role?: string;
 }
 
 export interface UserResponseDto {
   id: number;
-  name: string;
+  username: string;
   email: string;
+  firstName: string;
+  lastName: string;
   role: string;
-  createdAt: Date;
-  updatedAt: Date;
+  is_active: boolean;
+  created_at: Date;
+  updated_at: Date;
 }
 
 export interface SearchUserDto {
-  name?: string;
-  email?: string;
-  role?: string;
+  query?: string;
   page?: number;
   limit?: number;
+}
+
+export interface PagedUserResponseDto {
+  data: UserResponseDto[];
+  total: number;
+  page: number;
+  limit: number;
 }
 
 // ----------------------------------
