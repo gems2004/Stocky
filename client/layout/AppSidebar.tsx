@@ -116,7 +116,12 @@ export default function AppSidebar() {
         <SidebarGroup>
           <SidebarGroupContent>
             <SidebarMenu className="h-full gap-2">
-              <SidebarMenuItem className="hover:bg-primary/10 rounded-lg px-3 py-2">
+              <SidebarMenuItem
+                onClick={() => router.push("/settings")}
+                className={`hover:bg-primary/10 rounded-lg px-3 py-2 ${
+                  pathname == "/settings" ? "bg-primary hover:bg-primary" : ""
+                }`}
+              >
                 <SidebarMenuButton
                   tooltip={{
                     children: "Settings",
@@ -125,9 +130,19 @@ export default function AppSidebar() {
                   className="hover:bg-transparent active:bg-transparent data-[active=true]:bg-transparent data-[state=active]:bg-transparent hover:text-inherit active:text-inherit data-[active=true]:text-inherit data-[state=active]:text-inherit"
                 >
                   <div>
-                    <Settings />
+                    <Settings
+                      className={`text-sm font-medium ${
+                        pathname == "/settings" ? "text-primary-foreground" : ""
+                      }`}
+                    />
                   </div>
-                  <span className="text-sm font-medium">Settings</span>
+                  <span
+                    className={`text-sm font-medium ${
+                      pathname == "/settings" ? "text-primary-foreground" : ""
+                    }`}
+                  >
+                    Settings
+                  </span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem className="hover:bg-primary/10 rounded-lg px-3 py-2">

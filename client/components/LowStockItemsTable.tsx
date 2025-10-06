@@ -1,4 +1,8 @@
-import { ColumnDef, PaginationState, SortingState } from "@tanstack/react-table";
+import {
+  ColumnDef,
+  PaginationState,
+  SortingState,
+} from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
 import H4 from "@/components/typography/H4";
 import DataTable from "./dataTable";
@@ -171,7 +175,7 @@ const LowStockItemsTable = () => {
     const sortedData = [...mockData].sort((a, b) => a.stock - b.stock);
     setAllData(sortedData);
     setTotal(sortedData.length);
-    
+
     // Set the initial page of data
     const startIndex = pagination.pageIndex * pagination.pageSize;
     const endIndex = startIndex + pagination.pageSize;
@@ -184,19 +188,19 @@ const LowStockItemsTable = () => {
     let sortedData = [...allData];
     if (sorting.length > 0) {
       const sortKey = sorting[0].id as keyof LowStockItem;
-      const sortDirection = sorting[0].desc ? 'desc' : 'asc';
-      
+      const sortDirection = sorting[0].desc ? "desc" : "asc";
+
       sortedData.sort((a, b) => {
         if (a[sortKey] < b[sortKey]) {
-          return sortDirection === 'asc' ? -1 : 1;
+          return sortDirection === "asc" ? -1 : 1;
         }
         if (a[sortKey] > b[sortKey]) {
-          return sortDirection === 'asc' ? 1 : -1;
+          return sortDirection === "asc" ? 1 : -1;
         }
         return 0;
       });
     }
-    
+
     // Apply pagination
     const startIndex = pagination.pageIndex * pagination.pageSize;
     const endIndex = startIndex + pagination.pageSize;
