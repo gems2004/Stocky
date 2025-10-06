@@ -44,7 +44,7 @@ export default function Home() {
   return (
     <main className="grid grid-cols-3  gap-6">
       <div className="container rounded-2xl border border-primary/20 p-6 bg-white col-span-2">
-        <H4 className="mb-4">Last Week Sales</H4>
+        <h6 className="mb-4  text-3xl font-bold">Last Week Sales</h6>
         <ChartContainer config={chartConfig} className="w-full aspect-video">
           <LineChart data={chartData}>
             <CartesianGrid vertical={false} />
@@ -77,7 +77,7 @@ export default function Home() {
           </Card>
         ))}
       </div>
-    <div className="col-span-3 mt-6">
+      <div className="col-span-3 mt-6">
         <LowStockItemsTable />
       </div>
     </main>
