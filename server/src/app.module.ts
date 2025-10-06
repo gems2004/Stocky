@@ -24,6 +24,7 @@ import { ReportsModule } from './reports/reports.module';
 import { DynamicDatabaseModule } from './dynamic-database/dynamic-database.module';
 import { DynamicDatabaseService } from './dynamic-database/dynamic-database.service';
 import { AppStateService } from './dynamic-database/app-state.service';
+import { SettingsModule } from './settings/settings.module';
 import configuration from './config/configuration';
 
 @Module({
@@ -44,6 +45,7 @@ import configuration from './config/configuration';
     CustomerModule,
     InventoryModule,
     ReportsModule,
+    SettingsModule,
   ],
   controllers: [AppController],
   providers: [

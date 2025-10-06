@@ -55,15 +55,7 @@ export class AuthController {
     );
   }
 
-  @HttpCode(HttpStatus.OK)
-  @Get('profile')
-  @UseGuards(AuthGuard, AppReadyGuard)
-  async getProfile(
-    @CurrentUser() user: JwtPayload,
-  ): Promise<SuccessResponse<AuthResponseDto>> {
-    const result = await this.authService.getUserData(user.sub);
-    return ApiResponseHelper.success(result, 'Profile retrieved successfully');
-  }
+  
 
   @HttpCode(HttpStatus.OK)
   @Post('logout')

@@ -149,15 +149,16 @@ export class SetupService implements ISetupService {
     try {
       this.logger.log('Fetching shop information');
       const setupConfig = this.readSetupConfig();
-      
+
       if (!setupConfig.isShopConfigured || !setupConfig.shopInfo) {
         this.logger.warn('Shop is not configured or shop info is missing');
         return null;
       }
-      
+
       return setupConfig.shopInfo;
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      const errorMessage =
+        error instanceof Error ? error.message : 'Unknown error';
       this.logger.error(`Failed to fetch shop information: ${errorMessage}`);
       throw new CustomException(
         'Failed to fetch shop information',

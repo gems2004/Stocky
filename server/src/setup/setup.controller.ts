@@ -25,7 +25,7 @@ export class SetupController {
   @Get('status')
   @Public()
   @UseGuards(AppReadyOrSetupGuard)
-  async getStatus(): Promise<SuccessResponse<{isSetupComplete: boolean}>> {
+  async getStatus(): Promise<SuccessResponse<{ isSetupComplete: boolean }>> {
     const status = await this.setupService.getStatus();
     return ApiResponseHelper.success(
       { isSetupComplete: status.isSetupComplete },
@@ -39,7 +39,7 @@ export class SetupController {
   @UseGuards(SetupRequiredGuard)
   async configureDatabase(
     @Body() config: DatabaseConfigDto,
-  ): Promise<SuccessResponse<{isDatabaseConfigured: boolean}>> {
+  ): Promise<SuccessResponse<{ isDatabaseConfigured: boolean }>> {
     const status = await this.setupService.configureDatabase(config);
     return ApiResponseHelper.success(
       { isDatabaseConfigured: status.isDatabaseConfigured },
@@ -51,7 +51,9 @@ export class SetupController {
   @Post('shop')
   @Public()
   @UseGuards(SetupRequiredGuard)
-  configureShop(@Body() info: ShopInfoDto): SuccessResponse<{isShopConfigured: boolean}> {
+  configureShop(
+    @Body() info: ShopInfoDto,
+  ): SuccessResponse<{ isShopConfigured: boolean }> {
     const status = this.setupService.configureShop(info);
     return ApiResponseHelper.success(
       { isShopConfigured: status.isShopConfigured },
@@ -63,23 +65,11 @@ export class SetupController {
   @Post('complete')
   @Public()
   @UseGuards(SetupRequiredGuard)
-  completeSetup(): SuccessResponse<{isSetupComplete: boolean}> {
+  completeSetup(): SuccessResponse<{ isSetupComplete: boolean }> {
     const status = this.setupService.completeSetup();
     return ApiResponseHelper.success(
       { isSetupComplete: status.isSetupComplete },
       'Setup process completed successfully',
-    );
-  }
-
-  @HttpCode(HttpStatus.OK)
-  @Get('shop-info')
-  @Public()
-  @UseGuards(AppReadyOrSetupGuard)
-  getShopInfo(): SuccessResponse<ShopInfoDto | null> {
-    const shopInfo = this.setupService.getShopInfo();
-    return ApiResponseHelper.success(
-      shopInfo,
-      shopInfo ? 'Shop information retrieved successfully' : 'Shop is not configured yet',
     );
   }
 }
