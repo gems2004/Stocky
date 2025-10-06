@@ -7,6 +7,8 @@ export interface IProductService {
   findAll(
     page: number,
     limit: number,
+    categoryId?: number,
+    supplierId?: number,
   ): Promise<{
     data: ProductResponseDto[];
     page: number;
@@ -20,5 +22,10 @@ export interface IProductService {
     productData: UpdateProductDto,
   ): Promise<ProductResponseDto>;
   delete(id: number): Promise<void>;
-  search(query: SearchProductDto): Promise<ProductResponseDto[]>;
+  search(query: SearchProductDto): Promise<{
+    data: ProductResponseDto[];
+    total: number;
+    page: number;
+    limit: number;
+  }>;
 }

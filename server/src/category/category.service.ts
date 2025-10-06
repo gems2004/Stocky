@@ -8,6 +8,7 @@ import { CategoryResponseDto } from './dto/category-response.dto';
 import { CustomException } from '../common/exceptions/custom.exception';
 import { LoggerService } from '../common/logger.service';
 import { DynamicDatabaseService } from '../dynamic-database/dynamic-database.service';
+import { Product } from '../product/entity/product.entity';
 
 @Injectable()
 export class CategoryService implements ICategoryService {

@@ -51,6 +51,8 @@ export class ProductService implements IProductService {
   async findAll(
     page: number = 1,
     limit: number = 10,
+    categoryId?: number,
+    supplierId?: number,
   ): Promise<{
     data: ProductResponseDto[];
     total: number;
@@ -59,12 +61,25 @@ export class ProductService implements IProductService {
   }> {
     try {
       const productRepository = await this.getProductRepository();
-      this.logger.log(`Fetching products - page: ${page}, limit: ${limit}`);
+
+      // Build the where condition with optional filters
+      const whereCondition: any = {};
+      if (categoryId !== undefined) {
+        whereCondition.category_id = categoryId;
+      }
+      if (supplierId !== undefined) {
+        whereCondition.supplier_id = supplierId;
+      }
+
+      this.logger.log(
+        `Fetching products - page: ${page}, limit: ${limit}, categoryId: ${categoryId}, supplierId: ${supplierId}`,
+      );
 
       let products: Product[] = [];
       let total: number = 0;
 
       [products, total] = await productRepository.findAndCount({
+        where: whereCondition,
         skip: (page - 1) * limit,
         take: limit,
         order: {
@@ -460,24 +475,66 @@ export class ProductService implements IProductService {
     }
   }
 
-  async search(query: SearchProductDto): Promise<ProductResponseDto[]> {
+  async search(searchDto: SearchProductDto): Promise<{
+    data: ProductResponseDto[];
+    total: number;
+    page: number;
+    limit: number;
+  }> {
     try {
       const productRepository = await this.getProductRepository();
-      this.logger.log(`Searching products with query: ${query.query}`);
 
-      // Search for products matching the query in name, description, barcode, or SKU
-      const products = await productRepository.find({
-        where: [
-          { name: Like(`%${query.query}%`) },
-          { description: Like(`%${query.query}%`) },
-          { barcode: Like(`%${query.query}%`) },
-          { sku: Like(`%${query.query}%`) },
-        ],
+      // Parse pagination parameters
+      const page = searchDto.page ? parseInt(searchDto.page, 10) : 1;
+      const limit = searchDto.limit ? parseInt(searchDto.limit, 10) : 10;
+
+      // Parse filter parameters
+      const categoryId = searchDto.categoryId
+        ? parseInt(searchDto.categoryId, 10)
+        : undefined;
+      const supplierId = searchDto.supplierId
+        ? parseInt(searchDto.supplierId, 10)
+        : undefined;
+
+      this.logger.log(
+        `Searching products with query: ${searchDto.query}, page: ${page}, limit: ${limit}, categoryId: ${categoryId}, supplierId: ${supplierId}`,
+      );
+
+      // Build where conditions for search with filters
+      const whereConditions: any[] = [
+        { name: Like(`%${searchDto.query}%`) },
+        { description: Like(`%${searchDto.query}%`) },
+        { barcode: Like(`%${searchDto.query}%`) },
+        { sku: Like(`%${searchDto.query}%`) },
+      ];
+
+      // Apply category and supplier filters to each condition
+      const finalConditions = whereConditions.map((condition) => {
+        if (categoryId !== undefined) {
+          condition.category_id = categoryId;
+        }
+        if (supplierId !== undefined) {
+          condition.supplier_id = supplierId;
+        }
+        return condition;
+      });
+
+      // Apply search with filters, pagination and relations
+      let products: Product[] = [];
+      let total: number = 0;
+
+      [products, total] = await productRepository.findAndCount({
+        where: finalConditions,
+        skip: (page - 1) * limit,
+        take: limit,
+        order: {
+          id: 'ASC',
+        },
         relations: ['category', 'supplier'], // Load the category and supplier relations
       });
 
       this.logger.log(
-        `Found ${products.length} products matching query: ${query.query}`,
+        `Found ${products.length} products matching query: ${searchDto.query}`,
       );
 
       // Map entities to DTOs
@@ -518,7 +575,12 @@ export class ProductService implements IProductService {
         updatedAt: product.updated_at,
       }));
 
-      return productResponseDtos;
+      return {
+        data: productResponseDtos,
+        total,
+        page,
+        limit,
+      };
     } catch (error) {
       // Re-throw if it's already a CustomException, otherwise wrap in CustomException
       if (error instanceof CustomException) {

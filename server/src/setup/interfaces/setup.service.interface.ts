@@ -7,4 +7,5 @@ export interface ISetupService {
   configureDatabase(config: DatabaseConfigDto): Promise<SetupStatusDto>;
   configureShop(info: ShopInfoDto): SetupStatusDto;
   completeSetup(): SetupStatusDto;
+  getShopInfo(): ShopInfoDto | null;
 }

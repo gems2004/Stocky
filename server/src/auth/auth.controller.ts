@@ -55,8 +55,6 @@ export class AuthController {
     );
   }
 
-  
-
   @HttpCode(HttpStatus.OK)
   @Get('profile')
   @UseGuards(AuthGuard, AppReadyGuard)

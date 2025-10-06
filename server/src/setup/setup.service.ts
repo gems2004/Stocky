@@ -145,6 +145,28 @@ export class SetupService implements ISetupService {
     };
   }
 
+  getShopInfo(): ShopInfoDto | null {
+    try {
+      this.logger.log('Fetching shop information');
+      const setupConfig = this.readSetupConfig();
+      
+      if (!setupConfig.isShopConfigured || !setupConfig.shopInfo) {
+        this.logger.warn('Shop is not configured or shop info is missing');
+        return null;
+      }
+      
+      return setupConfig.shopInfo;
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      this.logger.error(`Failed to fetch shop information: ${errorMessage}`);
+      throw new CustomException(
+        'Failed to fetch shop information',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+        `Error in getShopInfo function: ${errorMessage}`,
+      );
+    }
+  }
+
   private readSetupConfig(): SetupConfig {
     try {
       const data = fs.readFileSync(this.setupConfigPath, 'utf8');
