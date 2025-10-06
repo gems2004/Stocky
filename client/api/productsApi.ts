@@ -46,6 +46,13 @@ const deleteProduct = async (id: number): Promise<ApiResponse<null>> => {
   return res.data;
 };
 
+const searchProduct = async (
+  query: string
+): Promise<ApiResponse<PagedProductResponseDto>> => {
+  let res = await api.get(`/products/search?query=${query}&page=1&limit=20`);
+  return res.data;
+};
+
 export const useGetProductById = (id: number) => {
   return useQuery({
     queryFn: () => getProductById(id),
@@ -82,5 +89,13 @@ export const useDeleteProduct = () => {
   return useMutation({
     mutationFn: deleteProduct,
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["products"] }),
+  });
+};
+
+export const useSearchProduct = (query: string) => {
+  return useQuery({
+    queryFn: () => searchProduct(query),
+    queryKey: ["products", "search", query],
+    enabled: query.length > 0, // Only run the query when there's an actual search term
   });
 };
