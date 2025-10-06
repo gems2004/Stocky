@@ -10,8 +10,19 @@ const login = async (
   return res.data;
 };
 
+const logout = async (): Promise<ApiResponse<null>> => {
+  let res = await api.post("/auth/logout");
+  return res.data;
+};
+
 export const useLogin = () => {
   return useMutation({
     mutationFn: login,
+  });
+};
+
+export const useLogout = () => {
+  return useMutation({
+    mutationFn: logout,
   });
 };
