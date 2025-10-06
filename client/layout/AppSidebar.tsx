@@ -59,7 +59,7 @@ export default function AppSidebar() {
     },
     {
       title: "Employees",
-      url: "#",
+      url: "/employees",
       icon: Users,
     },
     {
