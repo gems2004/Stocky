@@ -5,7 +5,13 @@ import DataTable from "@/components/dataTable";
 import { columns } from "./columns";
 import { TransactionResponseDto } from "@/api/type";
 import { PaginationState } from "@tanstack/react-table";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 // Fake data for orders
 const fakeOrders: TransactionResponseDto[] = [
@@ -24,13 +30,13 @@ const fakeOrders: TransactionResponseDto[] = [
       updatedAt: new Date("2023-01-15"),
     },
     userId: 1,
-    totalAmount: 249.99,
-    taxAmount: 19.99,
-    discountAmount: 10.0,
+    total: 249.99,
+    tax: 19.99,
+    discount: 10.0,
     paymentMethod: "Credit Card",
     status: "completed",
     createdAt: new Date("2023-05-15T10:30:00"),
-    transactionItems: [],
+    items: [],
   },
   {
     id: 2,
@@ -47,13 +53,13 @@ const fakeOrders: TransactionResponseDto[] = [
       updatedAt: new Date("2023-02-20"),
     },
     userId: 1,
-    totalAmount: 125.5,
-    taxAmount: 10.04,
-    discountAmount: 5.0,
+    total: 125.5,
+    tax: 10.04,
+    discount: 5.0,
     paymentMethod: "Cash",
     status: "pending",
     createdAt: new Date("2023-05-16T14:45:00"),
-    transactionItems: [],
+    items: [],
   },
   {
     id: 3,
@@ -70,26 +76,26 @@ const fakeOrders: TransactionResponseDto[] = [
       updatedAt: new Date("2023-03-10"),
     },
     userId: 1,
-    totalAmount: 89.99,
-    taxAmount: 7.2,
-    discountAmount: 0,
+    total: 89.99,
+    tax: 7.2,
+    discount: 0,
     paymentMethod: "Debit Card",
     status: "completed",
     createdAt: new Date("2023-05-17T09:15:00"),
-    transactionItems: [],
+    items: [],
   },
   {
     id: 4,
     customerId: null,
-    customer: undefined,
+    customer: null,
     userId: 1,
-    totalAmount: 45.75,
-    taxAmount: 3.66,
-    discountAmount: 2.0,
+    total: 45.75,
+    tax: 3.66,
+    discount: 2.0,
     paymentMethod: "Cash",
     status: "completed",
     createdAt: new Date("2023-05-18T16:20:00"),
-    transactionItems: [],
+    items: [],
   },
   {
     id: 5,
@@ -106,13 +112,13 @@ const fakeOrders: TransactionResponseDto[] = [
       updatedAt: new Date("2023-04-05"),
     },
     userId: 1,
-    totalAmount: 199.99,
-    taxAmount: 16.0,
-    discountAmount: 15.0,
+    total: 199.99,
+    tax: 16.0,
+    discount: 15.0,
     paymentMethod: "Credit Card",
     status: "pending",
     createdAt: new Date("2023-05-19T11:30:00"),
-    transactionItems: [],
+    items: [],
   },
 ];
 
@@ -153,8 +159,19 @@ export default function Orders() {
           <div className="flex gap-2 w-full sm:w-auto">
             <Select>
               <SelectTrigger className="w-fit bg-white px-3 py-2 text-black">
-                <svg className="w-4 h-4 mr-2 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+                <svg
+                  className="w-4 h-4 mr-2 text-muted-foreground"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"
+                  />
                 </svg>
                 <span>Filter</span>
               </SelectTrigger>
@@ -167,8 +184,19 @@ export default function Orders() {
             </Select>
             <Select>
               <SelectTrigger className="w-fit bg-white px-3 py-2 text-black">
-                <svg className="w-4 h-4 mr-2 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
+                <svg
+                  className="w-4 h-4 mr-2 text-muted-foreground"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"
+                  />
                 </svg>
                 <span>Sort</span>
               </SelectTrigger>

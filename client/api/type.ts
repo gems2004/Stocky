@@ -254,18 +254,20 @@ export interface UpdateTransactionDto {
 
 export interface TransactionResponseDto {
   id: number;
-  customerId?: number;
+  userId: number;
+  customerId?: number | null;
   items: Array<{
     productId: number;
     quantity: number;
     price: number;
   }>;
+  customer: Customer | null;
   paymentMethod: string;
   discount?: number;
   tax?: number;
   total: number;
+  status: "pending" | "completed";
   createdAt: Date;
-  updatedAt: Date;
 }
 
 export interface SearchTransactionDto {
@@ -340,4 +342,14 @@ export interface CombinedSettingsDto {
   databaseConfig: DatabaseConfigDto | null;
 }
 
-
+type Customer = {
+  id: number;
+  firstName: string;
+  lastName: string;
+  email: string | null;
+  phone: string | null;
+  address: string | null;
+  totalSpent: number;
+  createdAt: Date;
+  updatedAt: Date;
+};
