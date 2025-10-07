@@ -12,14 +12,15 @@ import { ColumnDef } from "@tanstack/react-table";
 import { format } from "date-fns";
 import { Edit, MoreHorizontal, Trash } from "lucide-react";
 import Link from "next/link";
+import { toast } from "sonner";
 
 export const columns: ColumnDef<UserResponseDto>[] = [
   {
     accessorKey: "firstName",
-    header: "First Name",
+    header: () => <span className="font-bold">Name</span>,
     cell: ({ row }) => {
       return (
-        <div>
+        <div className="font-bold">
           {row.original.firstName} {row.original.lastName}
         </div>
       );
@@ -27,19 +28,19 @@ export const columns: ColumnDef<UserResponseDto>[] = [
   },
   {
     accessorKey: "username",
-    header: "Username",
+    header: () => <span className="font-bold">Username</span>,
   },
   {
     accessorKey: "email",
-    header: "Email",
+    header: () => <span className="font-bold">Email</span>,
   },
   {
     accessorKey: "role",
-    header: "Role",
+    header: () => <span className="font-bold">Role</span>,
   },
   {
     accessorKey: "created_at",
-    header: "Date Created",
+    header: () => <span className="font-bold">Date Created</span>,
     cell: ({ row }) => {
       const date: Date = row.getValue("created_at");
       const formatted = format(date, "MMM dd, yyyy");
@@ -48,20 +49,19 @@ export const columns: ColumnDef<UserResponseDto>[] = [
   },
   {
     id: "actions",
+    header: () => <span className="font-bold">Actions</span>,
     cell: ({ row }) => {
       const employee = row.original;
       const { mutateAsync: deleteUser } = useDeleteUser();
 
       async function handleDelete(id: number) {
-        if (
-          confirm(
-            "Are you sure you want to delete this employee? This action cannot be undone."
-          )
-        ) {
+        if (confirm("Are you sure you want to delete this employee? This action cannot be undone.")) {
           try {
             await deleteUser(id);
+            toast.success("Employee deleted successfully");
           } catch (error) {
             console.error("Delete error:", error);
+            toast.error("Failed to delete employee");
           }
         }
       }

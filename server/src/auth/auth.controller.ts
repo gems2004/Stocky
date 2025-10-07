@@ -44,7 +44,7 @@ export class AuthController {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production', // Set to true in production
       sameSite: 'lax',
-      maxAge: 24 * 60 * 1000, // 24 hours in milliseconds
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days in milliseconds
     });
 
     // Send response without tokens in body
