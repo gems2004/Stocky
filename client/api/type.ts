@@ -77,6 +77,7 @@ export interface CreateUserDto {
 export interface UpdateUserDto {
   username?: string;
   email?: string;
+  password?: string;
   firstName?: string;
   lastName?: string;
   role?: string;
@@ -297,6 +298,17 @@ export interface DatabaseConfigDto {
   tablePrefix?: string;
 }
 
+export interface DatabaseUpdateDto {
+  type?: DatabaseType;
+  host?: string;
+  port?: number;
+  username?: string;
+  password?: string;
+  database?: string;
+  ssl?: boolean;
+  tablePrefix?: string;
+}
+
 export interface SetupStatusDto {
   isSetupComplete: boolean;
 }
@@ -310,3 +322,21 @@ export interface ShopInfoDto {
   currency: Currency;
   website?: string;
 }
+
+export interface ShopPartialUpdateDto {
+  name?: string;
+  address?: string;
+  phone?: string;
+  email?: string;
+  currency?: string;
+  businessType?: string;
+  website?: string;
+}
+
+export interface CombinedSettingsDto {
+  user: UserResponseDto;
+  shopInfo: ShopInfoDto | null;
+  databaseConfig: DatabaseConfigDto | null;
+}
+
+

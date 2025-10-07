@@ -208,6 +208,11 @@ export class SettingsService {
       this.logger.log('Database configuration updated successfully');
       return { isDatabaseConfigured: true };
     } catch (error) {
+      // If it's already a CustomException, re-throw it to preserve the original status code
+      if (error instanceof CustomException) {
+        throw error;
+      }
+      
       const errorMessage =
         error instanceof Error ? error.message : 'Unknown error';
       this.logger.error(

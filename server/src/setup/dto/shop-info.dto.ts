@@ -1,4 +1,4 @@
-import { IsString, IsEmail, IsOptional } from 'class-validator';
+import { IsString, IsEmail, IsOptional, IsNumber, Min, Max } from 'class-validator';
 
 export class ShopInfoDto {
   @IsString()
@@ -12,6 +12,12 @@ export class ShopInfoDto {
 
   @IsEmail()
   email: string;
+
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  @Max(100)
+  taxRate?: number;
 
   @IsString()
   currency: string;
