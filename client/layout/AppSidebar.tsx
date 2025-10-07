@@ -61,12 +61,12 @@ export default function AppSidebar() {
     },
     {
       title: "Products",
-      url: "#",
+      url: "/products",
       icon: PackageSearch,
     },
     {
       title: "Inventory",
-      url: "/inventory",
+      url: "#",
       icon: Archive,
     },
     {
