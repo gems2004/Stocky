@@ -318,6 +318,7 @@ export interface ShopInfoDto {
   address: string;
   phone: string;
   email: string;
+  taxRate?: number;
   businessType: BusinessType;
   currency: Currency;
   website?: string;

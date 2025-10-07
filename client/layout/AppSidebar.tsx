@@ -51,7 +51,7 @@ export default function AppSidebar() {
     },
     {
       title: "Orders",
-      url: "#",
+      url: "/orders",
       icon: Receipt,
     },
     {

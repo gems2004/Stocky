@@ -346,8 +346,7 @@ export default function Settings() {
                   </p>
                 )}
               </div>
-
-              </CardContent>
+            </CardContent>
             <CardFooter className="flex justify-end pt-2">
               <Button
                 type="submit"
@@ -444,7 +443,9 @@ export default function Settings() {
                       <SelectItem value="GBP">British Pound (GBP)</SelectItem>
                       <SelectItem value="JPY">Japanese Yen (JPY)</SelectItem>
                       <SelectItem value="CAD">Canadian Dollar (CAD)</SelectItem>
-                      <SelectItem value="AUD">Australian Dollar (AUD)</SelectItem>
+                      <SelectItem value="AUD">
+                        Australian Dollar (AUD)
+                      </SelectItem>
                       <SelectItem value="SAR">Saudi Riyal (SAR)</SelectItem>
                       <SelectItem value="SYP">Syrian Pound (SYP)</SelectItem>
                     </SelectContent>
@@ -472,7 +473,9 @@ export default function Settings() {
                     <SelectItem value="technology">Technology</SelectItem>
                     <SelectItem value="food">Food</SelectItem>
                     <SelectItem value="clothing">Clothing</SelectItem>
-                    <SelectItem value="general_retail">General Retail</SelectItem>
+                    <SelectItem value="general_retail">
+                      General Retail
+                    </SelectItem>
                   </SelectContent>
                 </Select>
                 {shopInfoErrors.businessType && (
@@ -512,10 +515,7 @@ export default function Settings() {
                   <Select
                     value={watchDatabaseConfig("databaseType")}
                     onValueChange={(value) =>
-                      setDatabaseConfigValue(
-                        "databaseType",
-                        value
-                      )
+                      setDatabaseConfigValue("databaseType", value)
                     }
                   >
                     <SelectTrigger>

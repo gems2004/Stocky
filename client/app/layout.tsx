@@ -25,7 +25,17 @@ export default function RootLayout({
       <body className={`${inter.variable} antialiased`}>
         <QueryProvider>
           <div>{children}</div>
-          <Toaster />
+          <Toaster 
+            toastOptions={{
+              classNames: {
+                toast: '!bg-background !text-foreground !border !border-border',
+                success: '!bg-primary !text-primary-foreground',
+                error: '!bg-destructive !text-white',
+                info: '!bg-accent !text-accent-foreground',
+                warning: '!bg-yellow-500 !text-yellow-500-foreground',
+              },
+            }}
+          />
         </QueryProvider>
       </body>
     </html>
