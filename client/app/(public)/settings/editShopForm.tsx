@@ -12,9 +12,19 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { useUpdateShopInfo } from "@/api/settingsApi";
+import { toast } from "sonner";
+import { BusinessType, Currency } from "@/app/(auth)/setup/schema";
+import {
+  Form,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormControl,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
@@ -22,10 +32,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useUpdateShopInfo } from "@/api/settingsApi";
-import { toast } from "sonner";
-import { BusinessType, Currency } from "@/app/(auth)/setup/schema";
-import { Form } from "@/components/ui/form";
 
 type Props = {
   shopData: ShopInfoDto | undefined;
@@ -38,14 +44,7 @@ export default function EditShopForm({ shopData, refetch }: Props) {
   const { mutate: updateShopInfoMutation, isPending: isUpdatingShop } =
     useUpdateShopInfo();
 
-  const {
-    register: registerShopInfo,
-    handleSubmit: handleSubmitShopInfo,
-    formState: { errors: shopInfoErrors },
-    reset: resetShopForm,
-    setValue: setShopInfoValue,
-    watch: watchShopInfo,
-  } = useForm<ShopForm>({
+  const form = useForm<ShopForm>({
     resolver: zodResolver(ShopSchema),
     defaultValues: {
       shopName: "",
@@ -58,6 +57,8 @@ export default function EditShopForm({ shopData, refetch }: Props) {
       website: "",
     },
   });
+
+  const { handleSubmit, reset, setValue, watch } = form;
 
   const handleShopInfoSubmit: SubmitHandler<ShopForm> = (data) => {
     const shopData = {
@@ -84,7 +85,7 @@ export default function EditShopForm({ shopData, refetch }: Props) {
 
   useEffect(() => {
     if (shopData) {
-      resetShopForm({
+      reset({
         shopName: shopData.name || "",
         shopAddress: shopData.address || "",
         phone: shopData.phone || "",
@@ -95,7 +96,7 @@ export default function EditShopForm({ shopData, refetch }: Props) {
         website: shopData.website || "",
       });
     }
-  }, [shopData, resetShopForm]);
+  }, [shopData, reset]);
 
   return (
     <Card className="shadow-none">
@@ -107,132 +108,148 @@ export default function EditShopForm({ shopData, refetch }: Props) {
           Manage your shop details and business information
         </CardDescription>
       </CardHeader>
-      <Form>
-        <form onSubmit={handleSubmitShopInfo(handleShopInfoSubmit)}>
+      <Form {...form}>
+        <form onSubmit={handleSubmit(handleShopInfoSubmit)}>
           <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="shopName">Shop Name</Label>
-              <Input id="shopName" {...registerShopInfo("shopName")} />
-              {shopInfoErrors.shopName && (
-                <p className="text-destructive text-sm mt-1">
-                  {shopInfoErrors.shopName.message}
-                </p>
+            <FormField
+              control={form.control}
+              name="shopName"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Shop Name</FormLabel>
+                  <FormControl>
+                    <Input {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
               )}
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="shopAddress">Shop Address</Label>
-              <Input id="shopAddress" {...registerShopInfo("shopAddress")} />
-              {shopInfoErrors.shopAddress && (
-                <p className="text-destructive text-sm mt-1">
-                  {shopInfoErrors.shopAddress.message}
-                </p>
+            />
+            <FormField
+              control={form.control}
+              name="shopAddress"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Shop Address</FormLabel>
+                  <FormControl>
+                    <Input {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
               )}
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="phone">Phone Number</Label>
-              <Input id="phone" {...registerShopInfo("phone")} />
-              {shopInfoErrors.phone && (
-                <p className="text-destructive text-sm mt-1">
-                  {shopInfoErrors.phone.message}
-                </p>
+            />
+            <FormField
+              control={form.control}
+              name="phone"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Phone Number</FormLabel>
+                  <FormControl>
+                    <Input {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
               )}
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="shopEmail">Shop Email Address</Label>
-              <Input
-                id="shopEmail"
-                type="email"
-                {...registerShopInfo("shopEmail")}
-              />
-              {shopInfoErrors.shopEmail && (
-                <p className="text-destructive text-sm mt-1">
-                  {shopInfoErrors.shopEmail.message}
-                </p>
+            />
+            <FormField
+              control={form.control}
+              name="shopEmail"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Shop Email Address</FormLabel>
+                  <FormControl>
+                    <Input {...field} type="email" />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
               )}
-            </div>
+            />
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="taxRate">Tax Rate (%)</Label>
-                <Input
-                  id="taxRate"
-                  type="number"
-                  {...registerShopInfo("taxRate", { valueAsNumber: true })}
-                />
-                {shopInfoErrors.taxRate && (
-                  <p className="text-destructive text-sm mt-1">
-                    {shopInfoErrors.taxRate.message}
-                  </p>
+              <FormField
+                control={form.control}
+                name="taxRate"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Tax Rate (%)</FormLabel>
+                    <FormControl>
+                      <Input
+                        {...field}
+                        type="number"
+                        onChange={(e) => field.onChange(e.target.valueAsNumber)}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
                 )}
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="currency">Currency</Label>
-                <Select
-                  key={`currency-select-${watchShopInfo("currency")}`}
-                  value={watchShopInfo("currency") || undefined}
-                  onValueChange={(value) => setShopInfoValue("currency", value)}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select currency" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value={Currency.USD}>
-                      US Dollar (USD)
-                    </SelectItem>
-                    <SelectItem value={Currency.EUR}>Euro (EUR)</SelectItem>
-                    <SelectItem value={Currency.GBP}>
-                      British Pound (GBP)
-                    </SelectItem>
-                    <SelectItem value={Currency.JPY}>
-                      Japanese Yen (JPY)
-                    </SelectItem>
-                    <SelectItem value={Currency.CAD}>
-                      Canadian Dollar (CAD)
-                    </SelectItem>
-                    <SelectItem value={Currency.AUD}>
-                      Australian Dollar (AUD)
-                    </SelectItem>
-                    <SelectItem value={Currency.SAR}>
-                      Saudi Riyal (SAR)
-                    </SelectItem>
-                    <SelectItem value={Currency.SYP}>
-                      Syrian Pound (SYP)
-                    </SelectItem>
-                  </SelectContent>
-                </Select>
-                {shopInfoErrors.currency && (
-                  <p className="text-destructive text-sm mt-1">
-                    {shopInfoErrors.currency.message}
-                  </p>
+              />
+              <FormField
+                control={form.control}
+                name="currency"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Currency</FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select currency" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value={Currency.USD}>
+                          US Dollar (USD)
+                        </SelectItem>
+                        <SelectItem value={Currency.EUR}>Euro (EUR)</SelectItem>
+                        <SelectItem value={Currency.GBP}>
+                          British Pound (GBP)
+                        </SelectItem>
+                        <SelectItem value={Currency.JPY}>
+                          Japanese Yen (JPY)
+                        </SelectItem>
+                        <SelectItem value={Currency.CAD}>
+                          Canadian Dollar (CAD)
+                        </SelectItem>
+                        <SelectItem value={Currency.AUD}>
+                          Australian Dollar (AUD)
+                        </SelectItem>
+                        <SelectItem value={Currency.SAR}>
+                          Saudi Riyal (SAR)
+                        </SelectItem>
+                        <SelectItem value={Currency.SYP}>
+                          Syrian Pound (SYP)
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
                 )}
-              </div>
+              />
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="businessType">Business Type</Label>
-              <Select
-                key={`businessType-select-${watchShopInfo("businessType")}`}
-                value={watchShopInfo("businessType") || undefined}
-                onValueChange={(value) =>
-                  setShopInfoValue("businessType", value)
-                }
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select business type" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="technology">Technology</SelectItem>
-                  <SelectItem value="food">Food</SelectItem>
-                  <SelectItem value="clothing">Clothing</SelectItem>
-                  <SelectItem value="general_retail">General Retail</SelectItem>
-                </SelectContent>
-              </Select>
-              {shopInfoErrors.businessType && (
-                <p className="text-destructive text-sm mt-1">
-                  {shopInfoErrors.businessType.message}
-                </p>
+            <FormField
+              control={form.control}
+              name="businessType"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Business Type</FormLabel>
+                  <Select onValueChange={field.onChange} value={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select business type" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="technology">Technology</SelectItem>
+                      <SelectItem value="food">Food</SelectItem>
+                      <SelectItem value="clothing">Clothing</SelectItem>
+                      <SelectItem value="general_retail">
+                        General Retail
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
               )}
-            </div>
+            />
           </CardContent>
-          <CardFooter className="flex justify-end">
+          <CardFooter className="flex justify-end pt-6">
             <Button
               type="submit"
               className="bg-primary text-primary-foreground hover:bg-primary/90"

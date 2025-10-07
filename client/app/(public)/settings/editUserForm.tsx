@@ -11,12 +11,19 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { ApiResponse, CombinedSettingsDto, UserResponseDto } from "@/api/type";
 import { QueryObserverResult, RefetchOptions } from "@tanstack/react-query";
+import {
+  Form,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormControl,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
 
 type Props = {
   userData: UserResponseDto | undefined;
@@ -29,14 +36,7 @@ export default function EditUserForm({ userData, refetch }: Props) {
   const { mutate: updateUserMutation, isPending: isUpdatingUser } =
     useUpdateUserProfile();
 
-  const {
-    register: registerUserProfile,
-    handleSubmit: handleSubmitUserProfile,
-    formState: { errors: userProfileErrors },
-    reset: resetUserForm,
-    setValue: setUserProfileValue,
-    watch: watchUserProfile,
-  } = useForm<UserForm>({
+  const form = useForm<UserForm>({
     resolver: zodResolver(UserSchema),
     defaultValues: {
       firstName: "",
@@ -46,6 +46,8 @@ export default function EditUserForm({ userData, refetch }: Props) {
       password: "",
     },
   });
+
+  const { handleSubmit, reset } = form;
 
   const handleUserProfileSubmit: SubmitHandler<UserForm> = (data) => {
     const userData = {
@@ -69,7 +71,7 @@ export default function EditUserForm({ userData, refetch }: Props) {
 
   useEffect(() => {
     if (userData) {
-      resetUserForm({
+      reset({
         firstName: userData.firstName || "",
         lastName: userData.lastName || "",
         username: userData.username || "",
@@ -77,7 +79,7 @@ export default function EditUserForm({ userData, refetch }: Props) {
         password: "",
       });
     }
-  }, [userData, resetUserForm]);
+  }, [userData, reset]);
 
   return (
     <Card className="shadow-none">
@@ -89,72 +91,88 @@ export default function EditUserForm({ userData, refetch }: Props) {
           Manage your personal information and account settings
         </CardDescription>
       </CardHeader>
-      <form onSubmit={handleSubmitUserProfile(handleUserProfileSubmit)}>
-        <CardContent className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="firstName">First Name</Label>
-              <Input id="firstName" {...registerUserProfile("firstName")} />
-              {userProfileErrors.firstName && (
-                <p className="text-destructive text-sm mt-1">
-                  {userProfileErrors.firstName.message}
-                </p>
-              )}
+      <Form {...form}>
+        <form onSubmit={handleSubmit(handleUserProfileSubmit)}>
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="firstName"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>First Name</FormLabel>
+                    <FormControl>
+                      <Input {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="lastName"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Last Name</FormLabel>
+                    <FormControl>
+                      <Input {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="lastName">Last Name</Label>
-              <Input id="lastName" {...registerUserProfile("lastName")} />
-              {userProfileErrors.lastName && (
-                <p className="text-destructive text-sm mt-1">
-                  {userProfileErrors.lastName.message}
-                </p>
+            <FormField
+              control={form.control}
+              name="username"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Username</FormLabel>
+                  <FormControl>
+                    <Input {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
               )}
-            </div>
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="username">Username</Label>
-            <Input id="username" {...registerUserProfile("username")} />
-            {userProfileErrors.username && (
-              <p className="text-destructive text-sm mt-1">
-                {userProfileErrors.username.message}
-              </p>
-            )}
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="email">Email Address</Label>
-            <Input id="email" type="email" {...registerUserProfile("email")} />
-            {userProfileErrors.email && (
-              <p className="text-destructive text-sm mt-1">
-                {userProfileErrors.email.message}
-              </p>
-            )}
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="password">Password</Label>
-            <Input
-              id="password"
-              type="password"
-              {...registerUserProfile("password")}
-              placeholder="••••••••"
             />
-            {userProfileErrors.password && (
-              <p className="text-destructive text-sm mt-1">
-                {userProfileErrors.password.message}
-              </p>
-            )}
-          </div>
-        </CardContent>
-        <CardFooter className="flex justify-end pt-2">
-          <Button
-            type="submit"
-            className="bg-primary text-primary-foreground hover:bg-primary/90"
-            disabled={isUpdatingUser}
-          >
-            {isUpdatingUser ? "Saving..." : "Save Changes"}
-          </Button>
-        </CardFooter>
-      </form>
+            <FormField
+              control={form.control}
+              name="email"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Email Address</FormLabel>
+                  <FormControl>
+                    <Input {...field} type="email" />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="password"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Password</FormLabel>
+                  <FormControl>
+                    <Input {...field} type="password" placeholder="••••••••" />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </CardContent>
+          <CardFooter className="flex justify-end pt-6">
+            <Button
+              type="submit"
+              className="bg-primary text-primary-foreground hover:bg-primary/90"
+              disabled={isUpdatingUser}
+            >
+              {isUpdatingUser ? "Saving..." : "Save Changes"}
+            </Button>
+          </CardFooter>
+        </form>
+      </Form>
     </Card>
   );
 }

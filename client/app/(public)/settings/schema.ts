@@ -25,16 +25,17 @@ export const ShopSchema = z.object({
   website: z.string().optional(), // Not in the form but in the DTO
 });
 
-export const databaseConfigSchema = z.object({
-  databaseType: z.enum(["postgres", "mysql", "sqlite", ""]),
+export const DatabaseConfigSchema = z.object({
+  databaseType: z.enum(DatabaseType),
   host: z.string().min(1, "Host is required"),
   port: z.string().min(1, "Port is required"),
   databaseName: z.string().min(1, "Database name is required"),
   tablePrefix: z.string().optional(),
   dbUsername: z.string().min(1, "Username is required"),
   dbPassword: z.string().optional(),
-  sslEnabled: z.enum(["enabled", "disabled"]),
+  sslEnabled: z.boolean(),
 });
 
 export type UserForm = z.infer<typeof UserSchema>;
 export type ShopForm = z.infer<typeof ShopSchema>;
+export type DatabaseConfigForm = z.infer<typeof DatabaseConfigSchema>;
