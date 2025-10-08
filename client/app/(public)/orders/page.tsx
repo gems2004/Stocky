@@ -213,7 +213,7 @@ export default function Orders() {
           />
         </div>
       </div>
-      <div className="w-full p-6 bg-white rounded-xl">
+      <div className="w-full p-6 bg-white rounded-xl shadow-sm">
         <div>
           <DataTable
             columns={columns}

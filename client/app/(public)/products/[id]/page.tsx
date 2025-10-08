@@ -61,6 +61,7 @@ export default function UpdateProduct() {
       barcode: "",
       sku: "",
       minStockLevel: 1,
+      stockQuantity: 0,
     },
   });
 
@@ -110,6 +111,7 @@ export default function UpdateProduct() {
         barcode: product.barcode,
         sku: product.sku,
         minStockLevel: product.minStockLevel,
+        stockQuantity: product.stockQuantity,
       });
     }
   }, [product, form]);
@@ -306,6 +308,27 @@ export default function UpdateProduct() {
                   <FormLabel>SKU:</FormLabel>
                   <FormControl>
                     <Input placeholder="Enter SKU" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="stockQuantity"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Stock Quantity:</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="number"
+                      placeholder="Enter stock quantity"
+                      {...field}
+                      onChange={(e) =>
+                        field.onChange(parseInt(e.target.value) || 0)
+                      }
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

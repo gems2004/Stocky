@@ -19,10 +19,9 @@ import {
   useDeleteCategory,
 } from "@/api/categoriesApi";
 import { useRouter, useParams } from "next/navigation";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { AlertCircleIcon } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
 import H3 from "@/components/typography/H3";
+import { toast } from "sonner";
 
 export default function UpdateCategory() {
   const { id } = useParams();
@@ -60,16 +59,48 @@ export default function UpdateCategory() {
   const router = useRouter();
 
   async function handleDelete() {
-    if (
-      confirm(
-        "Are you sure you want to delete this category? This action cannot be undone."
-      )
-    ) {
+    const result = await new Promise((resolve) => {
+      toast(
+        <div>
+          <p className="font-bold mb-2">Confirm Deletion</p>
+          <p>Are you sure you want to delete this category? This action cannot be undone.</p>
+          <div className="flex gap-2 mt-3">
+            <Button
+              size="sm"
+              variant="destructive"
+              onClick={() => {
+                resolve(true);
+                toast.dismiss();
+              }}
+            >
+              Yes, Delete
+            </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => {
+                resolve(false);
+                toast.dismiss();
+              }}
+            >
+              Cancel
+            </Button>
+          </div>
+        </div>,
+        {
+          duration: Infinity,
+        }
+      );
+    });
+
+    if (result) {
       try {
         await handleDeleteCategory(categoryId);
+        toast.success("Category deleted successfully");
         router.push("/categories");
       } catch (error) {
         console.error("Delete error:", error);
+        toast.error("Failed to delete category");
       }
     }
   }
@@ -87,12 +118,14 @@ export default function UpdateCategory() {
   async function onSubmit(data: UpdateCategoryForm) {
     try {
       await handleUpdateCategory(data);
+      toast.success("Category updated successfully");
       // After successful update, navigate back to categories page
       setTimeout(() => {
         router.push("/categories");
       }, 2000); // Wait 2 seconds to show success message
     } catch (error) {
       console.error("Update error:", error);
+      toast.error("Category update failed. Please try again.");
     }
   }
 
@@ -144,28 +177,6 @@ export default function UpdateCategory() {
             )}
           />
 
-          {isError && (
-            <Alert variant="destructive">
-              <AlertCircleIcon />
-              <AlertTitle>Category update failed!</AlertTitle>
-              <AlertDescription>
-                <p>
-                  {error?.message ||
-                    "Category update failed. Please try again."}
-                </p>
-              </AlertDescription>
-            </Alert>
-          )}
-          {isSuccess && (
-            <Alert variant="success">
-              <AlertCircleIcon />
-              <AlertTitle>Category update success!</AlertTitle>
-              <AlertDescription>
-                <p>Category updated successfully.</p>
-              </AlertDescription>
-            </Alert>
-          )}
-
           <div className="flex justify-between gap-4 pt-4">
             <Button
               variant="destructive"
@@ -188,28 +199,6 @@ export default function UpdateCategory() {
               </Button>
             </div>
           </div>
-
-          {isDeleteError && (
-            <Alert variant="destructive">
-              <AlertCircleIcon />
-              <AlertTitle>Category deletion failed!</AlertTitle>
-              <AlertDescription>
-                <p>
-                  {deleteError?.message ||
-                    "Category deletion failed. Please try again."}
-                </p>
-              </AlertDescription>
-            </Alert>
-          )}
-          {isDeleteSuccess && (
-            <Alert variant="success">
-              <AlertCircleIcon />
-              <AlertTitle>Category deletion success!</AlertTitle>
-              <AlertDescription>
-                <p>Category deleted successfully.</p>
-              </AlertDescription>
-            </Alert>
-          )}
         </form>
       </Form>
     </>

@@ -6,4 +6,5 @@ export class CategoryResponseDto {
   description?: string;
   created_at: Date;
   updated_at: Date;
+  productCount?: number;
 }

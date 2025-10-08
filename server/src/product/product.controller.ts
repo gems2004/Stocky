@@ -31,14 +31,14 @@ export class ProductController {
 
   @HttpCode(HttpStatus.OK)
   @Get('search')
-  async search(
-    @Query() searchProductDto: SearchProductDto,
-  ): Promise<SuccessResponse<{
-    data: ProductResponseDto[];
-    total: number;
-    page: number;
-    limit: number;
-  }>> {
+  async search(@Query() searchProductDto: SearchProductDto): Promise<
+    SuccessResponse<{
+      data: ProductResponseDto[];
+      total: number;
+      page: number;
+      limit: number;
+    }>
+  > {
     const result = await this.productService.search(searchProductDto);
     return ApiResponseHelper.success(
       result,

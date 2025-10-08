@@ -29,14 +29,23 @@ export const columns: ColumnDef<UserResponseDto>[] = [
   {
     accessorKey: "username",
     header: () => <span className="font-bold">Username</span>,
+    cell: ({ row }) => {
+      return <div className="text-gray-600">{row.getValue("username")}</div>;
+    },
   },
   {
     accessorKey: "email",
     header: () => <span className="font-bold">Email</span>,
+    cell: ({ row }) => {
+      return <div className="text-gray-600">{row.getValue("email")}</div>;
+    },
   },
   {
     accessorKey: "role",
     header: () => <span className="font-bold">Role</span>,
+    cell: ({ row }) => {
+      return <div className="text-gray-600">{row.getValue("role")}</div>;
+    },
   },
   {
     accessorKey: "created_at",
@@ -44,7 +53,7 @@ export const columns: ColumnDef<UserResponseDto>[] = [
     cell: ({ row }) => {
       const date: Date = row.getValue("created_at");
       const formatted = format(date, "MMM dd, yyyy");
-      return formatted;
+      return <div className="text-gray-600">{formatted}</div>;
     },
   },
   {

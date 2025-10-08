@@ -89,6 +89,7 @@ export class CategoryService implements ICategoryService {
         description: savedCategory.description,
         created_at: savedCategory.created_at,
         updated_at: savedCategory.updated_at,
+        productCount: 0, // New category has 0 products
       };
 
       return categoryResponse;
@@ -110,6 +111,9 @@ export class CategoryService implements ICategoryService {
   async findAll(): Promise<CategoryResponseDto[]> {
     try {
       const categoryRepository = await this.getCategoryRepository();
+      const productRepository = this.dynamicDatabaseService
+        .getDataSource()
+        .getRepository(Product);
       this.logger.log('Fetching all categories');
 
       // Find all categories
@@ -119,14 +123,22 @@ export class CategoryService implements ICategoryService {
 
       this.logger.log(`Successfully fetched ${categories.length} categories`);
 
-      // Map to response DTOs
-      const categoryResponses: CategoryResponseDto[] = categories.map(
-        (category) => ({
-          id: category.id,
-          name: category.name,
-          description: category.description,
-          created_at: category.created_at,
-          updated_at: category.updated_at,
+      // Map to response DTOs with product counts
+      const categoryResponses: CategoryResponseDto[] = await Promise.all(
+        categories.map(async (category) => {
+          // Count products for this category
+          const productCount = await productRepository.count({
+            where: { category_id: category.id },
+          });
+
+          return {
+            id: category.id,
+            name: category.name,
+            description: category.description,
+            created_at: category.created_at,
+            updated_at: category.updated_at,
+            productCount: productCount,
+          };
         }),
       );
 
@@ -152,6 +164,9 @@ export class CategoryService implements ICategoryService {
   ): Promise<CategoryResponseDto> {
     try {
       const categoryRepository = await this.getCategoryRepository();
+      const productRepository = this.dynamicDatabaseService
+        .getDataSource()
+        .getRepository(Product);
       this.logger.log(`Attempting to update category ID: ${id}`);
 
       // Find category by ID
@@ -199,6 +214,11 @@ export class CategoryService implements ICategoryService {
         `Successfully updated category with ID: ${updatedCategory.id}`,
       );
 
+      // Count products for this category
+      const productCount = await productRepository.count({
+        where: { category_id: updatedCategory.id },
+      });
+
       // Construct response
       const categoryResponse: CategoryResponseDto = {
         id: updatedCategory.id,
@@ -206,6 +226,7 @@ export class CategoryService implements ICategoryService {
         description: updatedCategory.description,
         created_at: updatedCategory.created_at,
         updated_at: updatedCategory.updated_at,
+        productCount: productCount,
       };
 
       return categoryResponse;
@@ -265,6 +286,9 @@ export class CategoryService implements ICategoryService {
   async findOne(id: number): Promise<CategoryResponseDto> {
     try {
       const categoryRepository = await this.getCategoryRepository();
+      const productRepository = this.dynamicDatabaseService
+        .getDataSource()
+        .getRepository(Product);
       this.logger.log(`Fetching category with ID: ${id}`);
 
       // Find category by ID
@@ -284,6 +308,11 @@ export class CategoryService implements ICategoryService {
 
       this.logger.log(`Successfully fetched category with ID: ${id}`);
 
+      // Count products for this category
+      const productCount = await productRepository.count({
+        where: { category_id: category.id },
+      });
+
       // Construct response
       const categoryResponse: CategoryResponseDto = {
         id: category.id,
@@ -291,6 +320,7 @@ export class CategoryService implements ICategoryService {
         description: category.description,
         created_at: category.created_at,
         updated_at: category.updated_at,
+        productCount: productCount,
       };
 
       return categoryResponse;

@@ -128,6 +128,7 @@ export interface CategoryResponseDto {
   description?: string;
   createdAt: Date;
   updatedAt: Date;
+  productCount: number;
 }
 
 // ----------------------------------
@@ -144,6 +145,7 @@ export interface CreateProductDto {
   barcode: string;
   sku: string;
   minStockLevel: number;
+  stockQuantity: number;
 }
 
 export interface UpdateProductDto {
@@ -156,6 +158,7 @@ export interface UpdateProductDto {
   barcode?: string;
   sku?: string;
   minStockLevel?: number;
+  stockQuantity?: number;
 }
 
 export interface PagedProductResponseDto {
@@ -199,7 +202,7 @@ export interface SearchProductDto {
 
 export interface CreateSupplierDto {
   name: string;
-  contactPerson: string;
+  contact_person: string;
   email: string;
   phone: string;
   address: string;
@@ -207,7 +210,7 @@ export interface CreateSupplierDto {
 
 export interface UpdateSupplierDto {
   name?: string;
-  contactPerson?: string;
+  contact_person?: string;
   email?: string;
   phone?: string;
   address?: string;
@@ -216,7 +219,7 @@ export interface UpdateSupplierDto {
 export interface SupplierResponseDto {
   id: number;
   name: string;
-  contactPerson: string;
+  contact_person: string;
   email: string;
   phone: string;
   address: string;

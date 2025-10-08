@@ -15,6 +15,9 @@ export const UpdateProductSchema = z.object({
   minStockLevel: z
     .number("Minimum stock level is required")
     .min(1, "Minimum stock level is required"),
+  stockQuantity: z
+    .number("Stock quantity is required")
+    .min(0, "Stock quantity must be at least 0"),
 });
 
 export type UpdateProductForm = z.infer<typeof UpdateProductSchema>;

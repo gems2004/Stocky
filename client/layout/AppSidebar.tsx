@@ -33,8 +33,11 @@ import {
   Receipt,
   Settings,
   LogOut,
+  Blocks,
+  Truck,
 } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
+import { title } from "process";
 import React from "react";
 
 export default function AppSidebar() {
@@ -66,8 +69,18 @@ export default function AppSidebar() {
     },
     {
       title: "Inventory",
-      url: "#",
+      url: "/inventory-logs",
       icon: Archive,
+    },
+    {
+      title: "Categories",
+      url: "/categories",
+      icon: Blocks,
+    },
+    {
+      title: "Suppliers",
+      url: "/suppliers",
+      icon: Truck,
     },
     {
       title: "Employees",

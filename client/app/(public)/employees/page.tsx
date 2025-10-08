@@ -1,5 +1,6 @@
 "use client";
 import H3 from "@/components/typography/H3";
+import { Plus } from "lucide-react";
 
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -75,12 +76,13 @@ export default function Employees() {
           />
           <Button asChild>
             <Link href="/employees/new">
+              <Plus className="mr-1 h-4 w-4" />
               Add Employee
             </Link>
           </Button>
         </div>
       </div>
-      <div className="w-full p-6 bg-white rounded-xl">
+      <div className="w-full p-6 bg-white rounded-xl shadow-sm">
         <DataTable
           columns={columns}
           data={users.data.data}

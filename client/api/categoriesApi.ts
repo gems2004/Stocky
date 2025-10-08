@@ -68,6 +68,16 @@ export const useUpdateCategory = (id: number) => {
   });
 };
 
+// Alternative update hook that receives both id and data
+export const useUpdateCategoryWithId = () => {
+  const query = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, updateCategoryDto }: { id: number; updateCategoryDto: UpdateCategoryDto }) => 
+      updateCategory(id, updateCategoryDto),
+    onSuccess: () => query.invalidateQueries({ queryKey: ["categories"] }),
+  });
+};
+
 export const useDeleteCategory = () => {
   const query = useQueryClient();
   return useMutation({

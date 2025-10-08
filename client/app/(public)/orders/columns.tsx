@@ -68,7 +68,7 @@ export const columns: ColumnDef<TransactionResponseDto>[] = [
     },
   },
   {
-    accessorKey: "totalAmount",
+    accessorKey: "total",
     header: ({ column }) => (
       <Button
         variant="ghost"
@@ -80,7 +80,7 @@ export const columns: ColumnDef<TransactionResponseDto>[] = [
       </Button>
     ),
     cell: ({ row }) => {
-      const amount = parseFloat(row.getValue("totalAmount"));
+      const amount = parseFloat(row.getValue("total"));
       const formatted = new Intl.NumberFormat("en-US", {
         style: "currency",
         currency: "USD",

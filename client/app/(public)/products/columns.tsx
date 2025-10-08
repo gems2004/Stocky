@@ -20,29 +20,90 @@ export const columns: ColumnDef<ProductResponseDto>[] = [
         <Button
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          className="!p-0"
+          className="!p-0 font-bold"
         >
           Name
           <ArrowUpDown className="ml-2 h-4 w-4" />
         </Button>
       );
     },
+    cell: ({ row }) => {
+      return <div className="font-bold">{row.getValue("name")}</div>;
+    },
   },
   {
     accessorKey: "sku",
-    header: "SKU",
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          className="!p-0 font-bold"
+        >
+          SKU
+          <ArrowUpDown className="ml-2 h-4 w-4" />
+        </Button>
+      );
+    },
+    cell: ({ row }) => {
+      return <div className="text-gray-600">{row.getValue("sku")}</div>;
+    },
   },
   {
     accessorKey: "barcode",
-    header: "Barcode",
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          className="!p-0 font-bold"
+        >
+          Barcode
+          <ArrowUpDown className="ml-2 h-4 w-4" />
+        </Button>
+      );
+    },
+    cell: ({ row }) => {
+      return <div className="text-gray-600">{row.getValue("barcode")}</div>;
+    },
   },
   {
     accessorKey: "category.name",
-    header: "Category",
+    id: "category",
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          className="!p-0 font-bold"
+        >
+          Category
+          <ArrowUpDown className="ml-2 h-4 w-4" />
+        </Button>
+      );
+    },
+    cell: ({ row }) => {
+      return <div className="text-gray-600">{row.original.category?.name}</div>;
+    },
   },
   {
     accessorKey: "supplier.name",
-    header: "Supplier",
+    id: "supplier",
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          className="!p-0 font-bold"
+        >
+          Supplier
+          <ArrowUpDown className="ml-2 h-4 w-4" />
+        </Button>
+      );
+    },
+    cell: ({ row }) => {
+      return <div className="text-gray-600">{row.original.supplier?.name}</div>;
+    },
   },
   {
     accessorKey: "stockQuantity",
@@ -51,12 +112,15 @@ export const columns: ColumnDef<ProductResponseDto>[] = [
         <Button
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          className="!p-0"
+          className="!p-0 font-bold"
         >
           Stock
           <ArrowUpDown className="ml-2 h-4 w-4" />
         </Button>
       );
+    },
+    cell: ({ row }) => {
+      return <div className="text-gray-600">{row.getValue("stockQuantity")}</div>;
     },
   },
   {
@@ -65,7 +129,7 @@ export const columns: ColumnDef<ProductResponseDto>[] = [
       <Button
         variant="ghost"
         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        className="!p-0"
+        className="!p-0 font-bold"
       >
         Price
         <ArrowUpDown className="ml-2 h-4 w-4" />
@@ -78,7 +142,7 @@ export const columns: ColumnDef<ProductResponseDto>[] = [
         currency: "USD",
       }).format(price);
 
-      return <div className="font-medium">{formatted}</div>;
+      return <div className="text-gray-600 font-medium">{formatted}</div>;
     },
   },
   {
@@ -87,7 +151,7 @@ export const columns: ColumnDef<ProductResponseDto>[] = [
       <Button
         variant="ghost"
         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        className="!p-0"
+        className="!p-0 font-bold"
       >
         Cost
         <ArrowUpDown className="ml-2 h-4 w-4" />
@@ -100,7 +164,7 @@ export const columns: ColumnDef<ProductResponseDto>[] = [
         currency: "USD",
       }).format(cost);
 
-      return <div className="font-medium">{formatted}</div>;
+      return <div className="text-gray-600 font-medium">{formatted}</div>;
     },
   },
   {
