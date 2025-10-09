@@ -4,6 +4,8 @@ import { SidebarProvider } from "@/components/ui/sidebar";
 import AppSidebar from "@/layout/AppSidebar";
 import { useGetSetupStatus } from "@/api/setupApi";
 import { useRouter } from "next/navigation";
+import { useGetCombinedSettings } from "@/api/settingsApi";
+import { useUserStore } from "@/store/userStore";
 
 export default function PublicLayout({
   children,
@@ -11,6 +13,8 @@ export default function PublicLayout({
   children: React.ReactNode;
 }) {
   const { data: status, isSuccess } = useGetSetupStatus();
+  const { data: userData } = useGetCombinedSettings();
+  const { setUser } = useUserStore();
   const router = useRouter();
 
   useEffect(() => {
@@ -18,6 +22,12 @@ export default function PublicLayout({
       router.push("/setup");
     }
   }, [isSuccess]);
+
+  useEffect(() => {
+    if (userData?.success) {
+      setUser(userData.data);
+    }
+  }, [userData]);
 
   return (
     <SidebarProvider>
