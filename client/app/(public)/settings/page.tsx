@@ -59,14 +59,10 @@ export default function Settings() {
         <h1 className="text-3xl font-bold">Settings</h1>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-1 gap-6">
-        <EditUserForm userData={settings?.data.user} refetch={refetch} />
-        <EditShopForm
-          shopData={settings?.data.shopInfo || undefined}
-          refetch={refetch}
-        />
+        <EditUserForm userData={settings?.data.user} />
+        <EditShopForm shopData={settings?.data.shopInfo || undefined} />
         <EditDatabaseForm
           databaseData={settings?.data.databaseConfig || undefined}
-          refetch={refetch}
         />
       </div>
     </div>

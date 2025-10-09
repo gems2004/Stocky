@@ -1,12 +1,7 @@
 import React, { useEffect } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  ApiResponse,
-  CombinedSettingsDto,
-  DatabaseConfigDto,
-} from "@/api/type";
-import { QueryObserverResult, RefetchOptions } from "@tanstack/react-query";
+import { DatabaseConfigDto } from "@/api/type";
 import {
   Card,
   CardContent,
@@ -39,12 +34,9 @@ import { DatabaseType } from "@/app/(auth)/setup/schema";
 
 type Props = {
   databaseData: DatabaseConfigDto | undefined;
-  refetch: (
-    options?: RefetchOptions
-  ) => Promise<QueryObserverResult<ApiResponse<CombinedSettingsDto>, Error>>;
 };
 
-export default function EditDatabaseForm({ databaseData, refetch }: Props) {
+export default function EditDatabaseForm({ databaseData }: Props) {
   const {
     mutate: updateDatabaseConfigMutation,
     isPending: isUpdatingDatabase,
@@ -64,7 +56,7 @@ export default function EditDatabaseForm({ databaseData, refetch }: Props) {
     },
   });
 
-  const { handleSubmit, reset, setValue, watch } = form;
+  const { handleSubmit, reset } = form;
 
   const handleDatabaseSubmit: SubmitHandler<DatabaseConfigForm> = (data) => {
     const dbData = {
@@ -83,7 +75,6 @@ export default function EditDatabaseForm({ databaseData, refetch }: Props) {
       {
         onSuccess: () => {
           toast.success("Database configuration updated successfully");
-          refetch(); // Refresh settings data after update
         },
         onError: (error) => {
           toast.error(

@@ -13,8 +13,7 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { ApiResponse, CombinedSettingsDto, UserResponseDto } from "@/api/type";
-import { QueryObserverResult, RefetchOptions } from "@tanstack/react-query";
+import { UserResponseDto } from "@/api/type";
 import {
   Form,
   FormField,
@@ -27,12 +26,9 @@ import { Input } from "@/components/ui/input";
 
 type Props = {
   userData: UserResponseDto | undefined;
-  refetch: (
-    options?: RefetchOptions
-  ) => Promise<QueryObserverResult<ApiResponse<CombinedSettingsDto>, Error>>;
 };
 
-export default function EditUserForm({ userData, refetch }: Props) {
+export default function EditUserForm({ userData }: Props) {
   const { mutate: updateUserMutation, isPending: isUpdatingUser } =
     useUpdateUserProfile();
 
@@ -61,7 +57,6 @@ export default function EditUserForm({ userData, refetch }: Props) {
     updateUserMutation(userData, {
       onSuccess: () => {
         toast.success("User profile updated successfully");
-        refetch(); // Refresh settings data after update
       },
       onError: (error) => {
         toast.error(`Failed to update user profile: ${error.message}`);

@@ -2,8 +2,7 @@ import React, { useEffect } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { ShopForm, ShopSchema } from "./schema";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ApiResponse, CombinedSettingsDto, ShopInfoDto } from "@/api/type";
-import { QueryObserverResult, RefetchOptions } from "@tanstack/react-query";
+import { ShopInfoDto } from "@/api/type";
 import {
   Card,
   CardContent,
@@ -35,12 +34,9 @@ import {
 
 type Props = {
   shopData: ShopInfoDto | undefined;
-  refetch: (
-    options?: RefetchOptions
-  ) => Promise<QueryObserverResult<ApiResponse<CombinedSettingsDto>, Error>>;
 };
 
-export default function EditShopForm({ shopData, refetch }: Props) {
+export default function EditShopForm({ shopData }: Props) {
   const { mutate: updateShopInfoMutation, isPending: isUpdatingShop } =
     useUpdateShopInfo();
 
@@ -58,7 +54,7 @@ export default function EditShopForm({ shopData, refetch }: Props) {
     },
   });
 
-  const { handleSubmit, reset, setValue, watch } = form;
+  const { handleSubmit, reset } = form;
 
   const handleShopInfoSubmit: SubmitHandler<ShopForm> = (data) => {
     const shopData = {
@@ -75,7 +71,6 @@ export default function EditShopForm({ shopData, refetch }: Props) {
     updateShopInfoMutation(shopData, {
       onSuccess: () => {
         toast.success("Shop information updated successfully");
-        refetch(); // Refresh settings data after update
       },
       onError: (error) => {
         toast.error(`Failed to update shop information: ${error.message}`);
