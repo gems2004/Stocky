@@ -50,6 +50,8 @@ export const useGetCombinedSettings = () => {
   return useQuery({
     queryKey: ["combinedSettings"],
     queryFn: getCombinedSettings,
+    refetchOnWindowFocus: false,
+    gcTime: 10 * 60 * 1000,
   });
 };
 
