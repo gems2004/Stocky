@@ -15,45 +15,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-
-// Mock data for inventory logs
-const mockInventoryLogs = [
-  {
-    id: 1,
-    product: { name: "Laptop" },
-    quantityChange: 10,
-    reason: "Restock",
-    dateTime: new Date("2023-05-15T10:30:00"),
-  },
-  {
-    id: 2,
-    product: { name: "Mouse" },
-    quantityChange: -5,
-    reason: "Sale",
-    dateTime: new Date("2023-05-16T14:45:00"),
-  },
-  {
-    id: 3,
-    product: { name: "Keyboard" },
-    quantityChange: 20,
-    reason: "Restock",
-    dateTime: new Date("2023-05-17T09:15:00"),
-  },
-  {
-    id: 4,
-    product: { name: "Monitor" },
-    quantityChange: -2,
-    reason: "Damaged",
-    dateTime: new Date("2023-05-18T16:20:00"),
-  },
-  {
-    id: 5,
-    product: { name: "Headphones" },
-    quantityChange: 15,
-    reason: "Restock",
-    dateTime: new Date("2023-05-19T11:30:00"),
-  },
-];
+import { useGetInventoryLogs } from "@/api/inventoryApi";
 
 export default function InventoryLogs() {
   const [{ pageIndex, pageSize }, setPagination] = useState<PaginationState>({
@@ -61,16 +23,10 @@ export default function InventoryLogs() {
     pageSize: 10,
   });
 
-  // For now using mock data, in a real implementation this would come from an API
-  const data = {
-    success: true,
-    data: {
-      data: mockInventoryLogs,
-      total: mockInventoryLogs.length,
-    },
-  };
+  const { data: inventoryLogs, isLoading, error } = useGetInventoryLogs(pageIndex + 1, pageSize);
 
-  if (!data.success) return <div>Error loading inventory logs</div>;
+  if (isLoading) return <div>Loading...</div>;
+  if (error || !inventoryLogs?.success) return <div>Error loading inventory logs</div>;
 
   const pagination = {
     pageIndex,
@@ -83,7 +39,7 @@ export default function InventoryLogs() {
     setPagination(updater);
   };
 
-  const pageCount = Math.ceil(data.data.total / pageSize);
+  const pageCount = Math.ceil(inventoryLogs.data.total / pageSize);
 
   return (
     <div>
@@ -171,8 +127,8 @@ export default function InventoryLogs() {
       <div className="w-full p-6 bg-white rounded-xl shadow-sm">
         <DataTable
           columns={columns}
-          data={data.data.data}
-          total={data.data.total}
+          data={inventoryLogs.data.data}
+          total={inventoryLogs.data.total}
           pagination={pagination}
           onPaginationChange={onPaginationChange}
           pageCount={pageCount}

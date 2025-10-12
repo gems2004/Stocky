@@ -3,20 +3,19 @@ import { ColumnDef } from "@tanstack/react-table";
 import { ArrowUpDown } from "lucide-react";
 import { format } from "date-fns";
 
-// Define the type for our inventory log data
+// Define the type for our inventory log data based on backend response
 export type InventoryLog = {
   id: number;
-  product: {
-    name: string;
-  };
-  quantityChange: number;
+  product_id: number;
+  change_amount: number;
   reason: string;
-  dateTime: Date;
+  user_id: number;
+  created_at: Date;
 };
 
 export const columns: ColumnDef<InventoryLog>[] = [
   {
-    accessorKey: "product.name",
+    accessorKey: "product_id",
     header: ({ column }) => {
       return (
         <Button
@@ -24,17 +23,17 @@ export const columns: ColumnDef<InventoryLog>[] = [
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
           className="!p-0 font-bold"
         >
-          Product Name
+          Product ID
           <ArrowUpDown className="ml-2 h-4 w-4" />
         </Button>
       );
     },
     cell: ({ row }) => {
-      return <div className="font-bold">{row.original.product?.name || 'N/A'}</div>;
+      return <div className="font-bold">{`Product ID: ${row.original.product_id}`}</div>;
     },
   },
   {
-    accessorKey: "quantityChange",
+    accessorKey: "change_amount",
     header: ({ column }) => {
       return (
         <Button
@@ -48,10 +47,10 @@ export const columns: ColumnDef<InventoryLog>[] = [
       );
     },
     cell: ({ row }) => {
-      const quantityChange = row.getValue("quantityChange") as number;
-      const displayValue = quantityChange > 0 ? `+${quantityChange}` : quantityChange.toString();
-      const bgColor = quantityChange > 0 ? "bg-green-100" : "bg-red-100";
-      const textColor = quantityChange > 0 ? "text-green-800" : "text-red-800";
+      const change_amount = row.getValue("change_amount") as number;
+      const displayValue = change_amount > 0 ? `+${change_amount}` : change_amount.toString();
+      const bgColor = change_amount > 0 ? "bg-green-100" : "bg-red-100";
+      const textColor = change_amount > 0 ? "text-green-800" : "text-red-800";
       
       return (
         <div className={`${bgColor} ${textColor} rounded-full px-3 py-1 text-xs font-medium inline-block text-center`}>
@@ -79,7 +78,7 @@ export const columns: ColumnDef<InventoryLog>[] = [
     },
   },
   {
-    accessorKey: "dateTime",
+    accessorKey: "created_at",
     header: ({ column }) => {
       return (
         <Button
@@ -93,7 +92,7 @@ export const columns: ColumnDef<InventoryLog>[] = [
       );
     },
     cell: ({ row }) => {
-      const date = row.original.dateTime;
+      const date = new Date(row.original.created_at);
       return <div className="text-gray-600">{format(date, "MMM dd, yyyy HH:mm")}</div>;
     },
   },

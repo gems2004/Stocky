@@ -1,6 +1,5 @@
 import { AdjustInventoryDto } from '../dto/adjust-inventory.dto';
 import { InventoryLogResponseDto } from '../dto/inventory-log-response.dto';
-import { Product } from '../../product/entity/product.entity';
 
 export interface IInventoryService {
   adjustInventory(
@@ -8,5 +7,8 @@ export interface IInventoryService {
     userId?: number,
   ): Promise<InventoryLogResponseDto>;
   getInventoryLogs(): Promise<InventoryLogResponseDto[]>;
-  getLowStockProducts(): Promise<Product[]>;
+  getInventoryLogsWithPagination(
+    page: number,
+    limit: number,
+  ): Promise<{ data: InventoryLogResponseDto[]; total: number; page: number; limit: number }>;
 }

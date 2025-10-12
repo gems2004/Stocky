@@ -3,7 +3,7 @@ import H3 from "@/components/typography/H3";
 import React, { useState } from "react";
 import DataTable from "@/components/dataTable";
 import { columns } from "./columns";
-import { TransactionResponseDto } from "@/api/type";
+import { useGetTransactions } from "@/api/transactionsApi";
 import { PaginationState } from "@tanstack/react-table";
 import {
   Select,
@@ -13,128 +13,16 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-// Fake data for orders
-const fakeOrders: TransactionResponseDto[] = [
-  {
-    id: 1,
-    customerId: 1,
-    customer: {
-      id: 1,
-      firstName: "John",
-      lastName: "Doe",
-      email: "john.doe@example.com",
-      phone: "+1234567890",
-      address: "123 Main St, New York, NY",
-      totalSpent: 150.75,
-      createdAt: new Date("2023-01-15"),
-      updatedAt: new Date("2023-01-15"),
-    },
-    userId: 1,
-    total: 249.99,
-    tax: 19.99,
-    discount: 10.0,
-    paymentMethod: "Credit Card",
-    status: "completed",
-    createdAt: new Date("2023-05-15T10:30:00"),
-    items: [],
-  },
-  {
-    id: 2,
-    customerId: 2,
-    customer: {
-      id: 2,
-      firstName: "Jane",
-      lastName: "Smith",
-      email: "jane.smith@example.com",
-      phone: "+1987654321",
-      address: "456 Oak Ave, Los Angeles, CA",
-      totalSpent: 89.5,
-      createdAt: new Date("2023-02-20"),
-      updatedAt: new Date("2023-02-20"),
-    },
-    userId: 1,
-    total: 125.5,
-    tax: 10.04,
-    discount: 5.0,
-    paymentMethod: "Cash",
-    status: "pending",
-    createdAt: new Date("2023-05-16T14:45:00"),
-    items: [],
-  },
-  {
-    id: 3,
-    customerId: 3,
-    customer: {
-      id: 3,
-      firstName: "Robert",
-      lastName: "Johnson",
-      email: "robert.j@example.com",
-      phone: "+1555123456",
-      address: "789 Pine St, Chicago, IL",
-      totalSpent: 320.25,
-      createdAt: new Date("2023-03-10"),
-      updatedAt: new Date("2023-03-10"),
-    },
-    userId: 1,
-    total: 89.99,
-    tax: 7.2,
-    discount: 0,
-    paymentMethod: "Debit Card",
-    status: "completed",
-    createdAt: new Date("2023-05-17T09:15:00"),
-    items: [],
-  },
-  {
-    id: 4,
-    customerId: null,
-    customer: null,
-    userId: 1,
-    total: 45.75,
-    tax: 3.66,
-    discount: 2.0,
-    paymentMethod: "Cash",
-    status: "completed",
-    createdAt: new Date("2023-05-18T16:20:00"),
-    items: [],
-  },
-  {
-    id: 5,
-    customerId: 4,
-    customer: {
-      id: 4,
-      firstName: "Emily",
-      lastName: "Williams",
-      email: "emily.w@example.com",
-      phone: "+14445556666",
-      address: "321 Elm Blvd, Miami, FL",
-      totalSpent: 210.0,
-      createdAt: new Date("2023-04-05"),
-      updatedAt: new Date("2023-04-05"),
-    },
-    userId: 1,
-    total: 199.99,
-    tax: 16.0,
-    discount: 15.0,
-    paymentMethod: "Credit Card",
-    status: "pending",
-    createdAt: new Date("2023-05-19T11:30:00"),
-    items: [],
-  },
-];
-
 export default function Orders() {
-  const [data] = useState({
-    success: true,
-    data: {
-      data: fakeOrders,
-      total: fakeOrders.length,
-    },
-  });
-
   const [{ pageIndex, pageSize }, setPagination] = useState<PaginationState>({
     pageIndex: 0,
     pageSize: 10,
   });
+
+  const { data: transactions, isLoading, error } = useGetTransactions(pageIndex + 1, pageSize);
+
+  if (isLoading) return <div>Loading...</div>;
+  if (error || !transactions?.success) return <div>Error loading orders</div>;
 
   const pagination = {
     pageIndex,
@@ -147,9 +35,7 @@ export default function Orders() {
     setPagination(updater);
   };
 
-  const pageCount = Math.ceil(data.data.total / pageSize);
-
-  if (!data.success) return <div>Error loading orders</div>;
+  const pageCount = Math.ceil(transactions.data.total / pageSize);
 
   return (
     <div>
@@ -217,8 +103,8 @@ export default function Orders() {
         <div>
           <DataTable
             columns={columns}
-            data={data.data.data}
-            total={data.data.total}
+            data={transactions.data.data}
+            total={transactions.data.total}
             pagination={pagination}
             onPaginationChange={onPaginationChange}
             pageCount={pageCount}

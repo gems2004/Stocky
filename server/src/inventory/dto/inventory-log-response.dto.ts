@@ -5,4 +5,5 @@ export class InventoryLogResponseDto {
   reason: string;
   user_id: number;
   created_at: Date;
+  product_name?: string; // Add product name to the response
 }

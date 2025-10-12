@@ -6,21 +6,16 @@ import {
 import { Button } from "@/components/ui/button";
 import H4 from "@/components/typography/H4";
 import DataTable from "./dataTable";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { ArrowUpDown } from "lucide-react";
-
-interface LowStockItem {
-  id?: number;
-  name: string;
-  sku: string;
-  category: string;
-  stock: number;
-}
+import { useGetLowStockProducts } from "@/api/reportsApi";
+import { ProductResponseDto } from "@/api/type";
 
 const LowStockItemsTable = () => {
-  const [allData, setAllData] = useState<LowStockItem[]>([]);
-  const [data, setData] = useState<LowStockItem[]>([]);
-  const [total, setTotal] = useState(0);
+  const { data: lowStockData, isLoading, isError, error } = useGetLowStockProducts();
+  const lowStockProducts = lowStockData?.success ? lowStockData.data : [];
+  const total = lowStockProducts.length;
+
   const [pagination, setPagination] = useState<PaginationState>({
     pageIndex: 0,
     pageSize: 10,
@@ -32,182 +27,12 @@ const LowStockItemsTable = () => {
     },
   ]);
 
-  // Mock data - in a real app, this would come from an API
-  useEffect(() => {
-    const mockData: LowStockItem[] = [
-      {
-        id: 1,
-        name: "Notebooks",
-        sku: "NB-001",
-        category: "Stationery",
-        stock: 3,
-      },
-      {
-        id: 2,
-        name: "Ballpoint Pens",
-        sku: "BP-002",
-        category: "Stationery",
-        stock: 5,
-      },
-      {
-        id: 3,
-        name: "Stapler",
-        sku: "ST-003",
-        category: "Office Supplies",
-        stock: 2,
-      },
-      {
-        id: 4,
-        name: "Highlighters",
-        sku: "HL-004",
-        category: "Stationery",
-        stock: 4,
-      },
-      {
-        id: 5,
-        name: "Paper Clips",
-        sku: "PC-005",
-        category: "Office Supplies",
-        stock: 1,
-      },
-      {
-        id: 6,
-        name: "Pencils",
-        sku: "PC-006",
-        category: "Stationery",
-        stock: 7,
-      },
-      {
-        id: 7,
-        name: "Eraser",
-        sku: "ER-007",
-        category: "Stationery",
-        stock: 3,
-      },
-      { id: 8, name: "Ruler", sku: "RU-008", category: "Stationery", stock: 4 },
-      {
-        id: 9,
-        name: "Sticky Notes",
-        sku: "SN-009",
-        category: "Stationery",
-        stock: 6,
-      },
-      {
-        id: 10,
-        name: "Scissors",
-        sku: "SC-010",
-        category: "Office Supplies",
-        stock: 0,
-      },
-      {
-        id: 11,
-        name: "Tape Dispenser",
-        sku: "TD-011",
-        category: "Office Supplies",
-        stock: 2,
-      },
-      {
-        id: 12,
-        name: "Paper Clips Large",
-        sku: "PCL-012",
-        category: "Office Supplies",
-        stock: 5,
-      },
-      {
-        id: 13,
-        name: "Index Cards",
-        sku: "IC-013",
-        category: "Stationery",
-        stock: 8,
-      },
-      {
-        id: 14,
-        name: "Correction Fluid",
-        sku: "CF-014",
-        category: "Stationery",
-        stock: 1,
-      },
-      {
-        id: 15,
-        name: "Paper Tray",
-        sku: "PT-015",
-        category: "Office Supplies",
-        stock: 3,
-      },
-      {
-        id: 16,
-        name: "Calculator",
-        sku: "CAL-016",
-        category: "Office Supplies",
-        stock: 2,
-      },
-      {
-        id: 17,
-        name: "Staples Refill",
-        sku: "SR-017",
-        category: "Office Supplies",
-        stock: 4,
-      },
-      {
-        id: 18,
-        name: "Binder Clips",
-        sku: "BC-018",
-        category: "Office Supplies",
-        stock: 7,
-      },
-      {
-        id: 19,
-        name: "Pens Gel",
-        sku: "PG-019",
-        category: "Stationery",
-        stock: 5,
-      },
-      {
-        id: 20,
-        name: "Markers Permanent",
-        sku: "MP-020",
-        category: "Stationery",
-        stock: 6,
-      },
-    ];
+  // Apply pagination to the fetched data
+  const startIndex = pagination.pageIndex * pagination.pageSize;
+  const endIndex = startIndex + pagination.pageSize;
+  const data = lowStockProducts.slice(startIndex, endIndex);
 
-    // Apply initial sorting to mock data
-    const sortedData = [...mockData].sort((a, b) => a.stock - b.stock);
-    setAllData(sortedData);
-    setTotal(sortedData.length);
-
-    // Set the initial page of data
-    const startIndex = pagination.pageIndex * pagination.pageSize;
-    const endIndex = startIndex + pagination.pageSize;
-    setData(sortedData.slice(startIndex, endIndex));
-  }, []);
-
-  // Update data when pagination or sorting changes
-  useEffect(() => {
-    // Apply sorting to all data
-    let sortedData = [...allData];
-    if (sorting.length > 0) {
-      const sortKey = sorting[0].id as keyof LowStockItem;
-      const sortDirection = sorting[0].desc ? "desc" : "asc";
-
-      sortedData.sort((a, b) => {
-        if (a[sortKey] < b[sortKey]) {
-          return sortDirection === "asc" ? -1 : 1;
-        }
-        if (a[sortKey] > b[sortKey]) {
-          return sortDirection === "asc" ? 1 : -1;
-        }
-        return 0;
-      });
-    }
-
-    // Apply pagination
-    const startIndex = pagination.pageIndex * pagination.pageSize;
-    const endIndex = startIndex + pagination.pageSize;
-    setData(sortedData.slice(startIndex, endIndex));
-  }, [pagination, sorting, allData]);
-
-  const columns: ColumnDef<LowStockItem>[] = [
+  const columns: ColumnDef<ProductResponseDto>[] = [
     {
       accessorKey: "name",
       header: ({ column }) => {
@@ -232,14 +57,14 @@ const LowStockItemsTable = () => {
       ),
     },
     {
-      accessorKey: "category",
+      accessorKey: "categoryId",
       header: "Category",
       cell: ({ row }) => (
-        <div className="text-muted-foreground">{row.original.category}</div>
+        <div className="text-muted-foreground">{row.original.category?.name || 'N/A'}</div>
       ),
     },
     {
-      accessorKey: "stock",
+      accessorKey: "stock_quantity",
       header: ({ column }) => {
         return (
           <Button
@@ -253,7 +78,7 @@ const LowStockItemsTable = () => {
         );
       },
       cell: ({ row }) => {
-        const stock = row.original.stock;
+        const stock = row.original.stock_quantity;
         let textColor = "";
 
         if (stock <= 2) {
@@ -290,6 +115,24 @@ const LowStockItemsTable = () => {
     },
   ];
 
+  if (isLoading) {
+    return (
+      <div className="rounded-2xl border border-primary/20 p-6 bg-white">
+        <H4 className="mb-4 text-3xl font-bold">Low Stock Items</H4>
+        <div className="text-center py-8">Loading low stock items...</div>
+      </div>
+    );
+  }
+
+  if (isError) {
+    return (
+      <div className="rounded-2xl border border-primary/20 p-6 bg-white">
+        <H4 className="mb-4 text-3xl font-bold">Low Stock Items</H4>
+        <div className="text-center py-8 text-red-500">Error loading low stock items</div>
+      </div>
+    );
+  }
+
   return (
     <div className="rounded-2xl border border-primary/20 p-6 bg-white">
       <H4 className="mb-4 text-3xl font-bold">Low Stock Items</H4>
@@ -300,8 +143,6 @@ const LowStockItemsTable = () => {
         pagination={pagination}
         onPaginationChange={setPagination}
         pageCount={Math.ceil(total / pagination.pageSize)}
-        sorting={sorting}
-        onSortingChange={setSorting}
       />
     </div>
   );

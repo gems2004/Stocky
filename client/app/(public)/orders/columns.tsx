@@ -45,7 +45,7 @@ export const columns: ColumnDef<TransactionResponseDto>[] = [
     cell: ({ row }) => {
       const customer = row.original.customer;
       if (customer) {
-        return <div className="text-muted-foreground">{customer.firstName} {customer.lastName}</div>;
+        return <div className="text-muted-foreground">{customer.first_name} {customer.last_name}</div>;
       }
       return <div className="text-muted-foreground">Walk-in Customer</div>;
     },
@@ -68,7 +68,7 @@ export const columns: ColumnDef<TransactionResponseDto>[] = [
     },
   },
   {
-    accessorKey: "total",
+    accessorKey: "totalAmount",
     header: ({ column }) => (
       <Button
         variant="ghost"
@@ -80,7 +80,7 @@ export const columns: ColumnDef<TransactionResponseDto>[] = [
       </Button>
     ),
     cell: ({ row }) => {
-      const amount = parseFloat(row.getValue("total"));
+      const amount = parseFloat(row.getValue("totalAmount"));
       const formatted = new Intl.NumberFormat("en-US", {
         style: "currency",
         currency: "USD",
@@ -105,7 +105,9 @@ export const columns: ColumnDef<TransactionResponseDto>[] = [
       const status = row.original.status;
       const statusClass = status === "completed" 
         ? "bg-green-100 text-green-900" 
-        : "bg-yellow-100 text-yellow-900";
+        : status === "pending"
+          ? "bg-yellow-100 text-yellow-900"
+          : "bg-red-100 text-red-900";
       
       return (
         <div className={`inline-block px-3 py-1 rounded-full text-xs font-medium ${statusClass}`}>

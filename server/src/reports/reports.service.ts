@@ -34,7 +34,9 @@ export class ReportsService {
       const dataSource = this.dynamicDatabaseService.getDataSource();
       return dataSource.getRepository(Transaction);
     } catch (error) {
-      this.logger.error(`Failed to get transaction repository: ${error.message}`);
+      this.logger.error(
+        `Failed to get transaction repository: ${error.message}`,
+      );
       throw new CustomException(
         'Database connection error',
         HttpStatus.SERVICE_UNAVAILABLE,
@@ -43,7 +45,9 @@ export class ReportsService {
     }
   }
 
-  private async getTransactionItemRepository(): Promise<Repository<TransactionItem>> {
+  private async getTransactionItemRepository(): Promise<
+    Repository<TransactionItem>
+  > {
     try {
       // Ensure the database is ready
       await this.ensureDatabaseReady();
@@ -51,7 +55,9 @@ export class ReportsService {
       const dataSource = this.dynamicDatabaseService.getDataSource();
       return dataSource.getRepository(TransactionItem);
     } catch (error) {
-      this.logger.error(`Failed to get transaction item repository: ${error.message}`);
+      this.logger.error(
+        `Failed to get transaction item repository: ${error.message}`,
+      );
       throw new CustomException(
         'Database connection error',
         HttpStatus.SERVICE_UNAVAILABLE,
@@ -156,7 +162,8 @@ export class ReportsService {
     endDate?: Date,
   ): Promise<TopProductsResponseDto> {
     try {
-      const transactionItemRepository = await this.getTransactionItemRepository();
+      const transactionItemRepository =
+        await this.getTransactionItemRepository();
       this.logger.log('Generating top products report');
 
       // Set default date range if not provided (last 30 days)
@@ -226,7 +233,8 @@ export class ReportsService {
     endDate?: Date,
   ): Promise<ProfitMarginResponseDto> {
     try {
-      const transactionItemRepository = await this.getTransactionItemRepository();
+      const transactionItemRepository =
+        await this.getTransactionItemRepository();
       const productRepository = await this.getProductRepository();
       this.logger.log('Generating profit margin report');
 
@@ -322,6 +330,41 @@ export class ReportsService {
         'An unexpected error occurred while generating profit margin report',
         HttpStatus.INTERNAL_SERVER_ERROR,
         `Unexpected error in getProfitMargin function: ${errorMessage}`,
+      );
+    }
+  }
+
+  async getLowStockProducts(): Promise<Product[]> {
+    try {
+      const productRepository = await this.getProductRepository();
+      this.logger.log('Fetching low stock products based on min_stock_level');
+
+      // Find products with stock quantity below their minimum stock level
+      const products = await productRepository
+        .createQueryBuilder('product')
+        .innerJoinAndSelect('product.category', 'category')
+        .innerJoinAndSelect('product.supplier', 'supplier')
+        .where('product.stock_quantity < product.min_stock_level')
+        .andWhere('product.min_stock_level > 0') // Only consider products that have a minimum stock level set
+        .orderBy('product.stock_quantity', 'ASC')
+        .getMany();
+
+      this.logger.log(
+        `Successfully fetched ${products.length} low stock products`,
+      );
+
+      return products;
+    } catch (error) {
+      // Re-throw if it's already a CustomException, otherwise wrap in CustomException
+      if (error instanceof CustomException) {
+        throw error;
+      }
+      const errorMessage =
+        error instanceof Error ? error.message : 'Unknown error';
+      throw new CustomException(
+        'An unexpected error occurred while fetching low stock products',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+        `Unexpected error in getLowStockProducts function: ${errorMessage}`,
       );
     }
   }

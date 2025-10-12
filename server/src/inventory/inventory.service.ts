@@ -138,6 +138,60 @@ export class InventoryService implements IInventoryService {
     }
   }
 
+  async getInventoryLogsWithPagination(
+    page: number,
+    limit: number,
+  ): Promise<{ data: InventoryLogResponseDto[]; total: number; page: number; limit: number }> {
+    try {
+      const inventoryLogRepository = await this.getInventoryLogRepository();
+      this.logger.log(`Fetching inventory logs with pagination - Page: ${page}, Limit: ${limit}`);
+
+      // Calculate offset
+      const offset = (page - 1) * limit;
+
+      // Get total count
+      const total = await inventoryLogRepository.count();
+
+      // Find paginated inventory logs ordered by creation date
+      const logs = await inventoryLogRepository.find({
+        order: { created_at: 'DESC' },
+        skip: offset,
+        take: limit,
+      });
+
+      this.logger.log(`Successfully fetched ${logs.length} inventory logs out of ${total} total`);
+
+      // Map to response DTOs
+      const logResponses: InventoryLogResponseDto[] = logs.map((log) => ({
+        id: log.id,
+        product_id: log.product_id,
+        change_amount: log.change_amount,
+        reason: log.reason,
+        user_id: log.user_id,
+        created_at: log.created_at,
+      }));
+
+      return {
+        data: logResponses,
+        total,
+        page,
+        limit,
+      };
+    } catch (error) {
+      // Re-throw if it's already a CustomException, otherwise wrap in CustomException
+      if (error instanceof CustomException) {
+        throw error;
+      }
+      const errorMessage =
+        error instanceof Error ? error.message : 'Unknown error';
+      throw new CustomException(
+        'An unexpected error occurred while fetching inventory logs',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+        `Unexpected error in getInventoryLogsWithPagination function: ${errorMessage}`,
+      );
+    }
+  }
+
   async getInventoryLogs(): Promise<InventoryLogResponseDto[]> {
     try {
       const inventoryLogRepository = await this.getInventoryLogRepository();
@@ -176,36 +230,5 @@ export class InventoryService implements IInventoryService {
     }
   }
 
-  async getLowStockProducts(): Promise<Product[]> {
-    try {
-      const productRepository = await this.getProductRepository();
-      this.logger.log('Fetching low stock products based on min_stock_level');
 
-      // Find products with stock quantity below their minimum stock level
-      const products = await productRepository
-        .createQueryBuilder('product')
-        .where('product.stock_quantity < product.min_stock_level')
-        .andWhere('product.min_stock_level > 0') // Only consider products that have a minimum stock level set
-        .orderBy('product.stock_quantity', 'ASC')
-        .getMany();
-
-      this.logger.log(
-        `Successfully fetched ${products.length} low stock products`,
-      );
-
-      return products;
-    } catch (error) {
-      // Re-throw if it's already a CustomException, otherwise wrap in CustomException
-      if (error instanceof CustomException) {
-        throw error;
-      }
-      const errorMessage =
-        error instanceof Error ? error.message : 'Unknown error';
-      throw new CustomException(
-        'An unexpected error occurred while fetching low stock products',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-        `Unexpected error in getLowStockProducts function: ${errorMessage}`,
-      );
-    }
-  }
 }

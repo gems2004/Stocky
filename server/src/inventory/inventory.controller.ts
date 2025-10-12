@@ -11,6 +11,7 @@ import {
 } from '@nestjs/common';
 import { InventoryService } from './inventory.service';
 import { AdjustInventoryDto } from './dto/adjust-inventory.dto';
+import { FindAllInventoryLogsDto } from './dto/find-all-inventory-logs.dto';
 import { AuthGuard } from '../auth/guards/auth.guard';
 import { RoleGuard } from '../auth/guards/role.guard';
 import { Role } from '../auth/decorators/roles.decorator';
@@ -18,7 +19,6 @@ import { UserRole } from '../user/entity/user.entity';
 import { ApiResponseHelper } from '../common/helpers/api-response.helper';
 import { SuccessResponse } from '../common/types/api-response.type';
 import { InventoryLogResponseDto } from './dto/inventory-log-response.dto';
-import { Product } from '../product/entity/product.entity';
 import { AppReadyGuard } from '../dynamic-database/guards/app-ready.guard';
 
 @Controller('inventory')
@@ -40,23 +40,31 @@ export class InventoryController {
   @HttpCode(HttpStatus.OK)
   @Get('logs')
   @Role(UserRole.ADMIN)
-  async getInventoryLogs(): Promise<
-    SuccessResponse<InventoryLogResponseDto[]>
+  async getInventoryLogs(
+    @Query() findAllInventoryLogsDto: FindAllInventoryLogsDto,
+  ): Promise<
+    SuccessResponse<{
+      data: InventoryLogResponseDto[];
+      total: number;
+      page: number;
+      limit: number;
+    }>
   > {
-    const result = await this.inventoryService.getInventoryLogs();
+    // Parse page and limit with default values
+    const pageNum = findAllInventoryLogsDto.page
+      ? parseInt(findAllInventoryLogsDto.page, 10)
+      : 1;
+    const limitNum = findAllInventoryLogsDto.limit
+      ? parseInt(findAllInventoryLogsDto.limit, 10)
+      : 10;
+
+    const result = await this.inventoryService.getInventoryLogsWithPagination(
+      pageNum,
+      limitNum,
+    );
     return ApiResponseHelper.success(
       result,
       'Inventory logs retrieved successfully',
-    );
-  }
-
-  @HttpCode(HttpStatus.OK)
-  @Get('low-stock')
-  async getLowStockProducts(): Promise<SuccessResponse<Product[]>> {
-    const result = await this.inventoryService.getLowStockProducts();
-    return ApiResponseHelper.success(
-      result,
-      'Low stock products retrieved successfully',
     );
   }
 }

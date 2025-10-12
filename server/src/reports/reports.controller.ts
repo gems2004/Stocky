@@ -15,6 +15,7 @@ import { SuccessResponse } from '../common/types/api-response.type';
 import { SalesSummaryDto } from './dto/sales-summary.dto';
 import { TopProductsResponseDto } from './dto/top-products.dto';
 import { ProfitMarginResponseDto } from './dto/profit-margin.dto';
+import { Product } from '../product/entity/product.entity';
 import { AppReadyGuard } from '../dynamic-database/guards/app-ready.guard';
 
 @Controller('reports')
@@ -68,6 +69,16 @@ export class ReportsController {
     return ApiResponseHelper.success(
       result,
       'Profit margin report retrieved successfully',
+    );
+  }
+
+  @Get('low-stock')
+  @Role(UserRole.ADMIN)
+  async getLowStockProducts(): Promise<SuccessResponse<Product[]>> {
+    const result = await this.reportsService.getLowStockProducts();
+    return ApiResponseHelper.success(
+      result,
+      'Low stock products retrieved successfully',
     );
   }
 }

@@ -257,20 +257,48 @@ export interface UpdateTransactionDto {
 
 export interface TransactionResponseDto {
   id: number;
+  customerId?: number;
+  customer?: CustomerResponseDto;
   userId: number;
-  customerId?: number | null;
-  items: Array<{
-    productId: number;
-    quantity: number;
-    price: number;
-  }>;
-  customer: Customer | null;
-  paymentMethod: string;
-  discount?: number;
-  tax?: number;
-  total: number;
-  status: "pending" | "completed";
+  user?: UserResponseDto;
+  totalAmount: number;
+  taxAmount: number;
+  discountAmount: number;
+  paymentMethod?: string;
+  status: string;
   createdAt: Date;
+  transactionItems: TransactionItemResponseDto[];
+}
+
+export interface TransactionItemResponseDto {
+  id: number;
+  productId: number;
+  quantity: number;
+  unitPrice: number;
+  totalPrice: number;
+}
+
+export interface CustomerResponseDto {
+  id: number;
+  first_name: string;
+  last_name: string;
+  email: string;
+  phone: string;
+  address: string;
+  loyalty_points: number;
+  created_at: Date;
+}
+
+export interface UserResponseDto {
+  id: number;
+  username: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+  role: string;
+  is_active: boolean;
+  created_at: Date;
+  updated_at: Date;
 }
 
 export interface SearchTransactionDto {
@@ -280,6 +308,27 @@ export interface SearchTransactionDto {
   paymentMethod?: string;
   page?: number;
   limit?: number;
+}
+
+// ----------------------------------
+// Inventory Module DTOs
+// ----------------------------------
+
+export interface InventoryLogResponseDto {
+  id: number;
+  product_id: number;
+  change_amount: number;
+  reason: string;
+  user_id: number;
+  created_at: Date;
+  product_name?: string;
+}
+
+export interface PagedInventoryLogResponseDto {
+  data: InventoryLogResponseDto[];
+  total: number;
+  page: number;
+  limit: number;
 }
 
 // ----------------------------------
