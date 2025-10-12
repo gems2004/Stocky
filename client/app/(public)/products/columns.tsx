@@ -1,4 +1,3 @@
-import { useDeleteProduct } from "@/api/productsApi";
 import { ProductResponseDto } from "@/api/type";
 import { Button } from "@/components/ui/button";
 import {
@@ -10,9 +9,13 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { ColumnDef } from "@tanstack/react-table";
 import { ArrowUpDown, Edit, MoreHorizontal, Trash } from "lucide-react";
-import Link from "next/link";
 
-export const columns: ColumnDef<ProductResponseDto>[] = [
+interface ProductTableActions {
+  onEdit: (product: ProductResponseDto) => void;
+  onDelete: (product: ProductResponseDto) => void;
+}
+
+export const createColumns = (actions: ProductTableActions): ColumnDef<ProductResponseDto>[] => [
   {
     accessorKey: "name",
     header: ({ column }) => {
@@ -169,22 +172,10 @@ export const columns: ColumnDef<ProductResponseDto>[] = [
   },
   {
     id: "actions",
+    enableHiding: false,
     cell: ({ row }) => {
       const product = row.original;
-      const { mutateAsync: deleteProduct } = useDeleteProduct();
-      async function handleDelete(id: number) {
-        if (
-          confirm(
-            "Are you sure you want to delete this product? This action cannot be undone."
-          )
-        ) {
-          try {
-            await deleteProduct(id);
-          } catch (error) {
-            console.error("Delete error:", error);
-          }
-        }
-      }
+
       return (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -195,19 +186,18 @@ export const columns: ColumnDef<ProductResponseDto>[] = [
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
-            <DropdownMenuItem>
-              <Link href={"/products/" + product.id}>
-                <div className="flex items-center gap-2">
-                  <Edit />
-                  <span>Edit Product</span>
-                </div>
-              </Link>
+            <DropdownMenuItem 
+              onClick={() => actions.onEdit(product)}
+            >
+              <Edit className="mr-2 h-4 w-4" />
+              <span>Edit Product</span>
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => handleDelete(product.id)}>
-              <div className="flex items-center gap-2 text-destructive">
-                <Trash className="text-destructive" />
-                <span>Delete Product</span>
-              </div>
+            <DropdownMenuItem 
+              onClick={() => actions.onDelete(product)}
+              className="text-destructive"
+            >
+              <Trash className="mr-2 h-4 w-4" />
+              <span>Delete Product</span>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

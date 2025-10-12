@@ -10,7 +10,7 @@ export const UpdateProductSchema = z.object({
   cost: z.number("Cost is required").min(1, "Cost is required"),
   categoryId: z.number("Category is required").min(1, "Category is required"),
   supplierId: z.number("Supplier is required").min(1, "Supplier is required"),
-  barcode: z.string().max(50, "Barcode must be at most 50 characters"),
+  barcode: z.string().max(50, "Barcode must be at most 50 characters").optional(),
   sku: z.string().max(50, "SKU must be at most 50 characters"),
   minStockLevel: z
     .number("Minimum stock level is required")

@@ -84,6 +84,15 @@ export const useUpdateProduct = (id: number) => {
   });
 };
 
+export const useUpdateProductWithId = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, updateProductDto }: { id: number; updateProductDto: UpdateProductDto }) => 
+      updateProduct(id, updateProductDto),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["products"] }),
+  });
+};
+
 export const useDeleteProduct = () => {
   const queryClient = useQueryClient();
   return useMutation({

@@ -4,10 +4,8 @@ import { Plus } from "lucide-react";
 
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
-import Link from "next/link";
 import DataTable from "@/components/dataTable";
-import { columns } from "./columns";
-import { useGetProducts } from "@/api/productsApi";
+import { useGetProducts, useDeleteProduct, useUpdateProductWithId } from "@/api/productsApi";
 import { PaginationState } from "@tanstack/react-table";
 import {
   Select,
@@ -16,6 +14,18 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import ProductCreateForm from "./new/CreateProductForm";
+import ProductEditForm from "./edit/EditProductForm";
+import { ProductResponseDto } from "@/api/type";
+import { toast } from "sonner";
+import { createColumns } from "./columns";
 
 export default function Inventory() {
   const [{ pageIndex, pageSize }, setPagination] = useState<PaginationState>({
@@ -23,7 +33,14 @@ export default function Inventory() {
     pageSize: 10,
   });
 
-  const { data: products, isLoading } = useGetProducts(pageIndex + 1, pageSize);
+  const { data: products, isLoading, refetch } = useGetProducts(pageIndex + 1, pageSize);
+  const { mutateAsync: handleDeleteProduct } = useDeleteProduct();
+  const updateMutation = useUpdateProductWithId();
+
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState<ProductResponseDto | null>(null);
 
   if (isLoading) return <div>Loading...</div>;
   if (!products?.success) return <div>Error loading products</div>;
@@ -40,6 +57,61 @@ export default function Inventory() {
   };
 
   const pageCount = Math.ceil(products.data.total / pageSize);
+
+  const handleCreateSuccess = () => {
+    setIsCreateDialogOpen(false);
+    refetch(); // Refresh the products list
+  };
+
+  const handleEditSubmit = async (updatedData: any) => {
+    if (selectedProduct) {
+      try {
+        await updateMutation.mutateAsync({
+          id: selectedProduct.id,
+          updateProductDto: updatedData,
+        });
+        refetch(); // Refresh the products list
+        toast.success("Product updated successfully");
+        setIsEditDialogOpen(false);
+      } catch (error) {
+        console.error("Update error:", error);
+        toast.error("Failed to update product");
+      }
+    }
+  };
+
+  const handleDeleteDialogConfirm = async () => {
+    if (selectedProduct) {
+      try {
+        await handleDeleteProduct(selectedProduct.id);
+        refetch(); // Refresh the products list
+        toast.success("Product deleted successfully");
+        setDeleteDialogOpen(false);
+      } catch (error) {
+        console.error("Delete error:", error);
+        toast.error("Failed to delete product");
+      }
+    }
+  };
+
+  const openDeleteDialog = (product: ProductResponseDto) => {
+    setSelectedProduct(product);
+    setDeleteDialogOpen(true);
+  };
+
+  const openEditDialog = (product: ProductResponseDto) => {
+    setSelectedProduct(product);
+    setIsEditDialogOpen(true);
+  };
+
+  // Define actions to be passed to columns
+  const actions = {
+    onEdit: openEditDialog,
+    onDelete: openDeleteDialog,
+  };
+
+  // Use the columns with actions
+  const columns = createColumns(actions);
 
   return (
     <div>
@@ -101,11 +173,12 @@ export default function Inventory() {
             placeholder="Search products..."
             className="bg-white border rounded-md px-3 py-2 text-sm w-full sm:w-64"
           />
-          <Button asChild>
-            <Link href="/products/new" className="self-end">
-              <Plus className="mr-1 h-4 w-4" />
-              Add Product
-            </Link>
+          <Button 
+            onClick={() => setIsCreateDialogOpen(true)}
+            className="self-end"
+          >
+            <Plus className="mr-1 h-4 w-4" />
+            Add Product
           </Button>
         </div>
       </div>
@@ -119,6 +192,71 @@ export default function Inventory() {
           pageCount={pageCount}
         />
       </div>
+
+      {/* Create Product Dialog */}
+      <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+        <DialogContent className="sm:max-w-[625px] max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Create New Product</DialogTitle>
+            <DialogDescription>
+              Add a new product to your inventory.
+            </DialogDescription>
+          </DialogHeader>
+          <ProductCreateForm
+            onSuccess={handleCreateSuccess}
+            onCancel={() => setIsCreateDialogOpen(false)}
+          />
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Product Dialog */}
+      {selectedProduct && (
+        <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+          <DialogContent className="sm:max-w-[625px] max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>Edit Product</DialogTitle>
+              <DialogDescription>
+                Update the product information.
+              </DialogDescription>
+            </DialogHeader>
+            <ProductEditForm
+              product={selectedProduct}
+              onSuccess={handleEditSubmit}
+              onCancel={() => setIsEditDialogOpen(false)}
+            />
+          </DialogContent>
+        </Dialog>
+      )}
+
+      {/* Delete Confirmation Dialog */}
+      {selectedProduct && (
+        <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Confirm Deletion</DialogTitle>
+              <DialogDescription>
+                Are you sure you want to delete this product? This action cannot be undone.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="flex justify-end gap-2">
+              <Button 
+                variant="outline" 
+                onClick={() => setDeleteDialogOpen(false)}
+              >
+                Cancel
+              </Button>
+              <Button 
+                variant="destructive" 
+                onClick={() => {
+                  handleDeleteDialogConfirm();
+                }}
+              >
+                Delete
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
     </div>
   );
 }

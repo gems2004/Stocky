@@ -86,6 +86,7 @@ export class ProductService implements IProductService {
           id: 'ASC',
         },
         relations: ['category', 'supplier'], // Load the category and supplier relations
+        withDeleted: false, // Exclude soft-deleted products
       });
 
       this.logger.log(
@@ -159,6 +160,7 @@ export class ProductService implements IProductService {
       const product = await productRepository.findOne({
         where: { id },
         relations: ['category', 'supplier'], // Load the category and supplier relations
+        withDeleted: false, // Exclude soft-deleted products
       });
 
       // If product not found, throw exception
@@ -440,11 +442,12 @@ export class ProductService implements IProductService {
   async delete(id: number): Promise<void> {
     try {
       const productRepository = await this.getProductRepository();
-      this.logger.log(`Deleting product with ID: ${id}`);
+      this.logger.log(`Soft deleting product with ID: ${id}`);
 
-      // Check if product exists
+      // Check if product exists (including soft-deleted ones)
       const existingProduct = await productRepository.findOne({
         where: { id },
+        withDeleted: true, // Include soft-deleted records
       });
 
       // If product not found, throw exception
@@ -457,9 +460,19 @@ export class ProductService implements IProductService {
         );
       }
 
-      // Delete the product
-      await productRepository.delete(id);
-      this.logger.log(`Successfully deleted product with ID: ${id}`);
+      // Check if product is already soft-deleted
+      if (existingProduct.deleted_at) {
+        const errorMsg = `Product with ID: ${id} is already deleted`;
+        throw new CustomException(
+          'Product already deleted',
+          HttpStatus.CONFLICT,
+          errorMsg,
+        );
+      }
+
+      // Soft delete the product
+      await productRepository.softDelete(id);
+      this.logger.log(`Successfully soft deleted product with ID: ${id}`);
     } catch (error) {
       // Re-throw if it's already a CustomException, otherwise wrap in CustomException
       if (error instanceof CustomException) {
@@ -531,6 +544,7 @@ export class ProductService implements IProductService {
           id: 'ASC',
         },
         relations: ['category', 'supplier'], // Load the category and supplier relations
+        withDeleted: false, // Exclude soft-deleted products
       });
 
       this.logger.log(
