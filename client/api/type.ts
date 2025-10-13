@@ -405,3 +405,34 @@ type Customer = {
   createdAt: Date;
   updatedAt: Date;
 };
+
+// ----------------------------------
+// Reports Module DTOs
+// ----------------------------------
+
+export interface WeeklySale {
+  day: string;
+  sale: number;
+}
+
+export interface WeeklySalesResponse {
+  data: WeeklySale[];
+  date_range: {
+    start: Date;
+    end: Date;
+  };
+}
+
+export interface DashboardStats {
+  total_revenue: number;
+  total_orders: number;
+  avg_order_value: number;
+}
+
+export interface DashboardStatsResponse {
+  stats: DashboardStats;
+  date_range: {
+    start: Date;
+    end: Date;
+  };
+}

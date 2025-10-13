@@ -15,6 +15,8 @@ import { SuccessResponse } from '../common/types/api-response.type';
 import { SalesSummaryDto } from './dto/sales-summary.dto';
 import { TopProductsResponseDto } from './dto/top-products.dto';
 import { ProfitMarginResponseDto } from './dto/profit-margin.dto';
+import { DashboardStatsResponseDto } from './dto/dashboard-stats.dto';
+import { WeeklySalesResponseDto } from './dto/weekly-sales.dto';
 import { Product } from '../product/entity/product.entity';
 import { AppReadyGuard } from '../dynamic-database/guards/app-ready.guard';
 
@@ -79,6 +81,38 @@ export class ReportsController {
     return ApiResponseHelper.success(
       result,
       'Low stock products retrieved successfully',
+    );
+  }
+
+  @Get('dashboard-stats')
+  @Role(UserRole.ADMIN)
+  async getDashboardStats(
+    @Query('startDate') startDate?: string,
+    @Query('endDate') endDate?: string,
+  ): Promise<SuccessResponse<DashboardStatsResponseDto>> {
+    const start = startDate ? new Date(startDate) : undefined;
+    const end = endDate ? new Date(endDate) : undefined;
+
+    const result = await this.reportsService.getDashboardStats(start, end);
+    return ApiResponseHelper.success(
+      result,
+      'Dashboard stats retrieved successfully',
+    );
+  }
+
+  @Get('weekly-sales')
+  @Role(UserRole.ADMIN)
+  async getWeeklySales(
+    @Query('startDate') startDate?: string,
+    @Query('endDate') endDate?: string,
+  ): Promise<SuccessResponse<WeeklySalesResponseDto>> {
+    const start = startDate ? new Date(startDate) : undefined;
+    const end = endDate ? new Date(endDate) : undefined;
+
+    const result = await this.reportsService.getWeeklySales(start, end);
+    return ApiResponseHelper.success(
+      result,
+      'Weekly sales data retrieved successfully',
     );
   }
 }

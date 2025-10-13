@@ -9,6 +9,8 @@ import {
   ProfitMarginDto,
   ProfitMarginResponseDto,
 } from './dto/profit-margin.dto';
+import { DashboardStatsResponseDto } from './dto/dashboard-stats.dto';
+import { WeeklySalesResponseDto } from './dto/weekly-sales.dto';
 import { CustomException } from '../common/exceptions/custom.exception';
 import { LoggerService } from '../common/logger.service';
 import {
@@ -365,6 +367,142 @@ export class ReportsService {
         'An unexpected error occurred while fetching low stock products',
         HttpStatus.INTERNAL_SERVER_ERROR,
         `Unexpected error in getLowStockProducts function: ${errorMessage}`,
+      );
+    }
+  }
+
+  async getDashboardStats(
+    startDate?: Date,
+    endDate?: Date,
+  ): Promise<DashboardStatsResponseDto> {
+    try {
+      const transactionRepository = await this.getTransactionRepository();
+      this.logger.log('Generating dashboard stats');
+
+      // Set default date range if not provided (last 7 days)
+      const now = new Date();
+      const defaultStartDate = new Date(
+        now.getTime() - 7 * 24 * 60 * 60 * 1000,
+      );
+      const start = startDate || defaultStartDate;
+      const end = endDate || now;
+
+      // Get transactions in date range
+      const transactions = await transactionRepository.find({
+        where: {
+          created_at: Between(start, end),
+          status: 'completed',
+        },
+      });
+
+      // Calculate summary metrics
+      const total_revenue = transactions.reduce(
+        (sum, transaction) => sum + Number(transaction.total_amount),
+        0,
+      );
+
+      const total_orders = transactions.length;
+
+      const avg_order_value =
+        total_orders > 0 ? total_revenue / total_orders : 0;
+
+      this.logger.log(
+        `Dashboard stats generated: ${total_orders} orders, total revenue: ${total_revenue}`,
+      );
+
+      return {
+        stats: {
+          total_revenue,
+          total_orders,
+          avg_order_value,
+        },
+        date_range: {
+          start,
+          end,
+        },
+      };
+    } catch (error) {
+      if (error instanceof CustomException) {
+        throw error;
+      }
+      const errorMessage =
+        error instanceof Error ? error.message : 'Unknown error';
+      throw new CustomException(
+        'An unexpected error occurred while generating dashboard stats',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+        `Unexpected error in getDashboardStats function: ${errorMessage}`,
+      );
+    }
+  }
+
+  async getWeeklySales(
+    startDate?: Date,
+    endDate?: Date,
+  ): Promise<WeeklySalesResponseDto> {
+    try {
+      const transactionRepository = await this.getTransactionRepository();
+      this.logger.log('Generating weekly sales report');
+
+      // Set default date range if not provided (last 7 days - last week)
+      const now = new Date();
+      const defaultStartDate = new Date(
+        now.getTime() - 7 * 24 * 60 * 60 * 1000,
+      );
+      const start = startDate || defaultStartDate;
+      const end = endDate || now;
+
+      // Get transactions in date range
+      const transactions = await transactionRepository.find({
+        where: {
+          created_at: Between(start, end),
+          status: 'completed',
+        },
+      });
+
+      // Group transactions by day of week
+      // Create an array for each day of the week (Sunday to Saturday)
+      const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+      const weeklySalesMap = new Map<string, number>();
+
+      // Initialize all days with 0 sales
+      daysOfWeek.forEach(day => {
+        weeklySalesMap.set(day, 0);
+      });
+
+      // Add actual sales to the map
+      transactions.forEach(transaction => {
+        const dayOfWeek = daysOfWeek[transaction.created_at.getDay()];
+        const currentSales = weeklySalesMap.get(dayOfWeek) || 0;
+        weeklySalesMap.set(dayOfWeek, currentSales + Number(transaction.total_amount));
+      });
+
+      // Convert map to the required format
+      const data = daysOfWeek.map(day => ({
+        day,
+        sale: weeklySalesMap.get(day) || 0,
+      }));
+
+      this.logger.log(
+        `Weekly sales report generated for ${data.length} days`,
+      );
+
+      return {
+        data,
+        date_range: {
+          start,
+          end,
+        },
+      };
+    } catch (error) {
+      if (error instanceof CustomException) {
+        throw error;
+      }
+      const errorMessage =
+        error instanceof Error ? error.message : 'Unknown error';
+      throw new CustomException(
+        'An unexpected error occurred while generating weekly sales report',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+        `Unexpected error in getWeeklySales function: ${errorMessage}`,
       );
     }
   }

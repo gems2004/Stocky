@@ -5,7 +5,11 @@ import { Plus } from "lucide-react";
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import DataTable from "@/components/dataTable";
-import { useGetProducts, useDeleteProduct, useUpdateProductWithId } from "@/api/productsApi";
+import {
+  useGetProducts,
+  useDeleteProduct,
+  useUpdateProductWithId,
+} from "@/api/productsApi";
 import { PaginationState } from "@tanstack/react-table";
 import {
   Select,
@@ -33,14 +37,19 @@ export default function Inventory() {
     pageSize: 10,
   });
 
-  const { data: products, isLoading, refetch } = useGetProducts(pageIndex + 1, pageSize);
+  const {
+    data: products,
+    isLoading,
+    refetch,
+  } = useGetProducts(pageIndex + 1, pageSize);
   const { mutateAsync: handleDeleteProduct } = useDeleteProduct();
   const updateMutation = useUpdateProductWithId();
 
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [selectedProduct, setSelectedProduct] = useState<ProductResponseDto | null>(null);
+  const [selectedProduct, setSelectedProduct] =
+    useState<ProductResponseDto | null>(null);
 
   if (isLoading) return <div>Loading...</div>;
   if (!products?.success) return <div>Error loading products</div>;
@@ -173,7 +182,7 @@ export default function Inventory() {
             placeholder="Search products..."
             className="bg-white border rounded-md px-3 py-2 text-sm w-full sm:w-64"
           />
-          <Button 
+          <Button
             onClick={() => setIsCreateDialogOpen(true)}
             className="self-end"
           >
@@ -235,18 +244,19 @@ export default function Inventory() {
             <DialogHeader>
               <DialogTitle>Confirm Deletion</DialogTitle>
               <DialogDescription>
-                Are you sure you want to delete this product? This action cannot be undone.
+                Are you sure you want to delete this product? This action cannot
+                be undone.
               </DialogDescription>
             </DialogHeader>
             <div className="flex justify-end gap-2">
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 onClick={() => setDeleteDialogOpen(false)}
               >
                 Cancel
               </Button>
-              <Button 
-                variant="destructive" 
+              <Button
+                variant="destructive"
                 onClick={() => {
                   handleDeleteDialogConfirm();
                 }}

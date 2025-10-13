@@ -3,56 +3,62 @@ import H3 from "@/components/typography/H3";
 import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useGetSuppliers, useDeleteSupplier } from "@/api/suppliersApi";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { SupplierResponseDto } from "@/api/type";
-import { MoreHorizontal, Edit, Trash } from "lucide-react";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
-  DialogFooter,
 } from "@/components/ui/dialog";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import SupplierCreateForm from "@/app/(public)/suppliers/new/CreateSupplierForm";
 import { toast } from "sonner";
 import SupplierEditForm from "@/app/(public)/suppliers/edit/EditSupplierForm";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+} from "@/components/ui/select";
+import DataTable from "@/components/dataTable";
+import { createColumns } from "./columns";
+import { PaginationState } from "@tanstack/react-table";
 
 export default function Suppliers() {
-  const { data: response, isLoading, isSuccess, refetch } = useGetSuppliers();
+  const [{ pageIndex, pageSize }, setPagination] = useState<PaginationState>({
+    pageIndex: 0,
+    pageSize: 10,
+  });
+
+  const { data: suppliers, isLoading, refetch } = useGetSuppliers();
   const { mutateAsync: handleDeleteSupplier } = useDeleteSupplier();
-  const [suppliers, setSuppliers] = useState<SupplierResponseDto[]>([]);
+
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
-  const [selectedSupplier, setSelectedSupplier] = useState<SupplierResponseDto | null>(null);
+  const [selectedSupplier, setSelectedSupplier] =
+    useState<SupplierResponseDto | null>(null);
 
-  useEffect(() => {
-    if (response?.success) {
-      setSuppliers(response.data);
-    }
-  }, [response]);
+  if (isLoading) return <div>Loading...</div>;
+  if (!suppliers?.success) return <div>Error loading suppliers</div>;
 
-  const handleDialogClose = () => {
+  const pagination = {
+    pageIndex,
+    pageSize,
+  };
+
+  const onPaginationChange = (
+    updater: React.SetStateAction<PaginationState>
+  ) => {
+    setPagination(updater);
+  };
+
+  const pageCount = Math.ceil(suppliers.data.total / pageSize);
+
+  const handleCreateSuccess = () => {
     setIsCreateDialogOpen(false);
-  };
-
-  const handleDialogOpen = () => {
-    setIsCreateDialogOpen(true);
-  };
-
-  const openDeleteDialog = (supplier: SupplierResponseDto) => {
-    setSelectedSupplier(supplier);
-    setDeleteDialogOpen(true);
+    refetch(); // Refresh the suppliers list
   };
 
   const handleDeleteDialogConfirm = async () => {
@@ -69,17 +75,24 @@ export default function Suppliers() {
     }
   };
 
+  const openDeleteDialog = (supplier: SupplierResponseDto) => {
+    setSelectedSupplier(supplier);
+    setDeleteDialogOpen(true);
+  };
+
   const openEditDialog = (supplier: SupplierResponseDto) => {
     setSelectedSupplier(supplier);
     setEditDialogOpen(true);
   };
 
-  const handleDialogCloseForEdit = () => {
-    setEditDialogOpen(false);
+  // Define actions to be passed to columns
+  const actions = {
+    onEdit: openEditDialog,
+    onDelete: openDeleteDialog,
   };
 
-  if (isLoading) return <div>Loading...</div>;
-  if (!response?.success) return <div>Error loading suppliers</div>;
+  // Use the columns with actions
+  const columns = createColumns(actions);
 
   return (
     <div className="flex flex-col h-full">
@@ -89,8 +102,19 @@ export default function Suppliers() {
           <div className="flex gap-2 w-full sm:w-auto">
             <Select>
               <SelectTrigger className="w-fit bg-white px-3 py-2 text-black">
-                <svg className="w-4 h-4 mr-2 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+                <svg
+                  className="w-4 h-4 mr-2 text-muted-foreground"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"
+                  />
                 </svg>
                 <span>Filter</span>
               </SelectTrigger>
@@ -102,8 +126,19 @@ export default function Suppliers() {
             </Select>
             <Select>
               <SelectTrigger className="w-fit bg-white px-3 py-2 text-black">
-                <svg className="w-4 h-4 mr-2 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
+                <svg
+                  className="w-4 h-4 mr-2 text-muted-foreground"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"
+                  />
                 </svg>
                 <span>Sort</span>
               </SelectTrigger>
@@ -120,29 +155,10 @@ export default function Suppliers() {
             placeholder="Search suppliers..."
             className="bg-white border rounded-md px-3 py-2 text-sm w-full sm:w-64"
           />
-          <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
-            <DialogTrigger asChild>
-              <Button onClick={handleDialogOpen}>
-                <Plus className="mr-1 h-4 w-4" />
-                Add Supplier
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-[500px]">
-              <DialogHeader>
-                <DialogTitle>Create New Supplier</DialogTitle>
-                <DialogDescription>
-                  Add a new supplier to your system.
-                </DialogDescription>
-              </DialogHeader>
-              <SupplierCreateForm
-                onSuccess={() => {
-                  refetch();
-                  setIsCreateDialogOpen(false);
-                }}
-                onCancel={handleDialogClose}
-              />
-            </DialogContent>
-          </Dialog>
+          <Button onClick={() => setIsCreateDialogOpen(true)}>
+            <Plus className="mr-1 h-4 w-4" />
+            Add Supplier
+          </Button>
         </div>
       </div>
 
@@ -156,7 +172,7 @@ export default function Suppliers() {
               {selectedSupplier?.name}"? This action cannot be undone.
             </DialogDescription>
           </DialogHeader>
-          <DialogFooter>
+          <div className="flex justify-end gap-2">
             <Button
               variant="outline"
               onClick={() => setDeleteDialogOpen(false)}
@@ -166,7 +182,7 @@ export default function Suppliers() {
             <Button variant="destructive" onClick={handleDeleteDialogConfirm}>
               Delete
             </Button>
-          </DialogFooter>
+          </div>
         </DialogContent>
       </Dialog>
 
@@ -182,66 +198,38 @@ export default function Suppliers() {
           {selectedSupplier && (
             <SupplierEditForm
               supplier={selectedSupplier}
-              onSuccess={() => {
-                refetch();
-                setEditDialogOpen(false);
-              }}
-              onCancel={handleDialogCloseForEdit}
+              onCancel={() => setEditDialogOpen(false)}
             />
           )}
         </DialogContent>
       </Dialog>
 
+      {/* Create Supplier Dialog */}
+      <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>Create New Supplier</DialogTitle>
+            <DialogDescription>
+              Add a new supplier to your system.
+            </DialogDescription>
+          </DialogHeader>
+          <SupplierCreateForm
+            onSuccess={handleCreateSuccess}
+            onCancel={() => setIsCreateDialogOpen(false)}
+          />
+        </DialogContent>
+      </Dialog>
+
       {/* Supplier List */}
-      <div className="w-full p-6 bg-white rounded-xl shadow-sm overflow-x-auto">
-        <table className="w-full">
-          <thead>
-            <tr className="border-b">
-              <th className="text-left py-3 px-4 font-bold">Name</th>
-              <th className="text-left py-3 px-4 font-bold">Contact Person</th>
-              <th className="text-left py-3 px-4 font-bold">Phone</th>
-              <th className="text-left py-3 px-4 font-bold">Email</th>
-              <th className="text-left py-3 px-4 font-bold">Address</th>
-              <th className="text-left py-3 px-4 font-bold">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {suppliers.map((supplier) => (
-              <tr key={supplier.id} className="border-b hover:bg-gray-50">
-                <td className="py-3 px-4 font-bold">{supplier.name}</td>
-                <td className="py-3 px-4 text-gray-600">{supplier.contact_person}</td>
-                <td className="py-3 px-4 text-gray-600">{supplier.phone}</td>
-                <td className="py-3 px-4 text-gray-600">{supplier.email}</td>
-                <td className="py-3 px-4 text-gray-600">{supplier.address}</td>
-                <td className="py-3 px-4">
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" className="h-8 w-8 p-0">
-                        <span className="sr-only">Open menu</span>
-                        <MoreHorizontal className="h-4 w-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                      <DropdownMenuItem onClick={() => openEditDialog(supplier)}>
-                        <div className="flex items-center gap-2">
-                          <Edit />
-                          <span>Edit Supplier</span>
-                        </div>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => openDeleteDialog(supplier)}>
-                        <div className="flex items-center gap-2 text-destructive cursor-pointer">
-                          <Trash className="text-destructive" />
-                          <span>Delete Supplier</span>
-                        </div>
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+      <div className="w-full p-6 bg-white rounded-xl shadow-sm">
+        <DataTable
+          columns={columns}
+          data={suppliers.data}
+          total={0}
+          pagination={pagination}
+          onPaginationChange={onPaginationChange}
+          pageCount={pageCount}
+        />
       </div>
     </div>
   );
