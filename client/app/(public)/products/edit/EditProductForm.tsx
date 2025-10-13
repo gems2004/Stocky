@@ -34,14 +34,12 @@ import { toast } from "sonner";
 
 interface EditProductFormProps {
   product: ProductResponseDto;
-  onSuccess?: () => void;
   onCancel?: () => void;
   isPending?: boolean;
 }
 
 export default function ProductEditForm({
   product,
-  onSuccess,
   onCancel,
   isPending: externalIsPending,
 }: EditProductFormProps) {
@@ -67,14 +65,8 @@ export default function ProductEditForm({
     },
   });
 
-  const updateMutation = useUpdateProductWithId();
-
-  const {
-    isPending: isUpdatePending,
-    isError,
-    error,
-    isSuccess,
-  } = updateMutation;
+  const { mutateAsync: updateProduct, isPending: isUpdatePending } =
+    useUpdateProductWithId();
 
   const combinedIsPending = isUpdatePending || externalIsPending;
 
@@ -87,11 +79,10 @@ export default function ProductEditForm({
 
   async function onSubmit(data: UpdateProductForm) {
     try {
-      await updateMutation.mutateAsync({
+      await updateProduct({
         id: product.id,
         updateProductDto: data,
       });
-      onSuccess?.();
       toast.success("Product updated successfully");
     } catch (error) {
       console.error("Update error:", error);
@@ -119,7 +110,6 @@ export default function ProductEditForm({
               </FormItem>
             )}
           />
-
           <FormField
             control={form.control}
             name="sku"
@@ -133,7 +123,6 @@ export default function ProductEditForm({
               </FormItem>
             )}
           />
-
           <FormField
             control={form.control}
             name="barcode"
@@ -158,7 +147,6 @@ export default function ProductEditForm({
               </FormItem>
             )}
           />
-
           <FormField
             control={form.control}
             name="categoryId"
@@ -189,7 +177,6 @@ export default function ProductEditForm({
               </FormItem>
             )}
           />
-
           <FormField
             control={form.control}
             name="supplierId"
@@ -220,7 +207,6 @@ export default function ProductEditForm({
               </FormItem>
             )}
           />
-
           <FormField
             control={form.control}
             name="price"
@@ -239,7 +225,6 @@ export default function ProductEditForm({
               </FormItem>
             )}
           />
-
           <FormField
             control={form.control}
             name="cost"
@@ -258,7 +243,6 @@ export default function ProductEditForm({
               </FormItem>
             )}
           />
-
           <FormField
             control={form.control}
             name="stockQuantity"
@@ -277,7 +261,6 @@ export default function ProductEditForm({
               </FormItem>
             )}
           />
-
           <FormField
             control={form.control}
             name="minStockLevel"
@@ -297,7 +280,6 @@ export default function ProductEditForm({
             )}
           />
         </div>
-
         <FormField
           control={form.control}
           name="description"
@@ -311,7 +293,6 @@ export default function ProductEditForm({
             </FormItem>
           )}
         />
-
         <div className="flex justify-end gap-4 pt-4">
           <Button
             variant="outline"

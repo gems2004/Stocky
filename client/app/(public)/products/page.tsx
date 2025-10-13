@@ -1,18 +1,22 @@
 "use client";
 import H3 from "@/components/typography/H3";
-import { Plus } from "lucide-react";
+import { ArrowUpDown, Filter, Plus } from "lucide-react";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useDebounce } from "@/hooks/useDebounce";
 import { Button } from "@/components/ui/button";
 import DataTable from "@/components/dataTable";
-import { useGetProducts, useDeleteProduct, useUpdateProductWithId } from "@/api/productsApi";
+import {
+  useGetProducts,
+  useDeleteProduct,
+  useSearchProduct,
+} from "@/api/productsApi";
 import { PaginationState } from "@tanstack/react-table";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue,
 } from "@/components/ui/select";
 import {
   Dialog,
@@ -33,17 +37,46 @@ export default function Inventory() {
     pageSize: 10,
   });
 
-  const { data: products, isLoading, refetch } = useGetProducts(pageIndex + 1, pageSize);
+  const [searchQuery, setSearchQuery] = useState<string>("");
+  const debouncedSearchQuery = useDebounce(searchQuery, 500); // 500ms delay
+
+  const {
+    data: products,
+    isLoading,
+    refetch,
+  } = useGetProducts(pageIndex + 1, pageSize);
+
+  const {
+    data: searchResults,
+    isLoading: isSearching,
+    refetch: refetchSearch,
+  } = useSearchProduct(debouncedSearchQuery);
+
   const { mutateAsync: handleDeleteProduct } = useDeleteProduct();
-  const updateMutation = useUpdateProductWithId();
 
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [selectedProduct, setSelectedProduct] = useState<ProductResponseDto | null>(null);
+  const [selectedProduct, setSelectedProduct] =
+    useState<ProductResponseDto | null>(null);
 
-  if (isLoading) return <div>Loading...</div>;
-  if (!products?.success) return <div>Error loading products</div>;
+  // Determine which data to display based on the debounced query
+  // But use searchResults if they exist even if debouncedSearchQuery is empty
+  // (this handles the transition state when debouncing)
+  const shouldShowSearchResults = debouncedSearchQuery && searchResults;
+  const currentData = shouldShowSearchResults ? searchResults : products;
+
+  // Show loading only when the actual data we want to display is loading
+  const isLoadingToShow = shouldShowSearchResults ? isSearching : isLoading;
+
+  if (isLoadingToShow) return <div>Loading...</div>;
+  if (!currentData?.success) {
+    if (shouldShowSearchResults) {
+      return <div>Error loading search results</div>;
+    } else {
+      return <div>Error loading products</div>;
+    }
+  }
 
   const pagination = {
     pageIndex,
@@ -56,27 +89,14 @@ export default function Inventory() {
     setPagination(updater);
   };
 
-  const pageCount = Math.ceil(products.data.total / pageSize);
+  const pageCount = Math.ceil(currentData.data.total / pageSize);
 
   const handleCreateSuccess = () => {
     setIsCreateDialogOpen(false);
-    refetch(); // Refresh the products list
-  };
-
-  const handleEditSubmit = async (updatedData: any) => {
-    if (selectedProduct) {
-      try {
-        await updateMutation.mutateAsync({
-          id: selectedProduct.id,
-          updateProductDto: updatedData,
-        });
-        refetch(); // Refresh the products list
-        toast.success("Product updated successfully");
-        setIsEditDialogOpen(false);
-      } catch (error) {
-        console.error("Update error:", error);
-        toast.error("Failed to update product");
-      }
+    if (debouncedSearchQuery) {
+      refetchSearch(); // Refresh the search results
+    } else {
+      refetch(); // Refresh the products list
     }
   };
 
@@ -84,7 +104,11 @@ export default function Inventory() {
     if (selectedProduct) {
       try {
         await handleDeleteProduct(selectedProduct.id);
-        refetch(); // Refresh the products list
+        if (debouncedSearchQuery) {
+          refetchSearch(); // Refresh the search results
+        } else {
+          refetch(); // Refresh the products list
+        }
         toast.success("Product deleted successfully");
         setDeleteDialogOpen(false);
       } catch (error) {
@@ -121,20 +145,7 @@ export default function Inventory() {
           <div className="flex gap-2 w-full sm:w-auto">
             <Select>
               <SelectTrigger className="w-fit bg-white px-3 py-2 text-black">
-                <svg
-                  className="w-4 h-4 mr-2 text-muted-foreground"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"
-                  />
-                </svg>
+                <Filter />
                 <span>Filter</span>
               </SelectTrigger>
               <SelectContent>
@@ -146,20 +157,7 @@ export default function Inventory() {
             </Select>
             <Select>
               <SelectTrigger className="w-fit bg-white px-3 py-2 text-black">
-                <svg
-                  className="w-4 h-4 mr-2 text-muted-foreground"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"
-                  />
-                </svg>
+                <ArrowUpDown />
                 <span>Sort</span>
               </SelectTrigger>
               <SelectContent>
@@ -171,9 +169,11 @@ export default function Inventory() {
           <input
             type="text"
             placeholder="Search products..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
             className="bg-white border rounded-md px-3 py-2 text-sm w-full sm:w-64"
           />
-          <Button 
+          <Button
             onClick={() => setIsCreateDialogOpen(true)}
             className="self-end"
           >
@@ -185,8 +185,8 @@ export default function Inventory() {
       <div className="w-full p-6 bg-white rounded-xl shadow-sm">
         <DataTable
           columns={columns}
-          data={products.data.data}
-          total={products.data.total}
+          data={currentData.data.data}
+          total={currentData.data.total}
           pagination={pagination}
           onPaginationChange={onPaginationChange}
           pageCount={pageCount}
@@ -221,7 +221,6 @@ export default function Inventory() {
             </DialogHeader>
             <ProductEditForm
               product={selectedProduct}
-              onSuccess={handleEditSubmit}
               onCancel={() => setIsEditDialogOpen(false)}
             />
           </DialogContent>
@@ -235,18 +234,19 @@ export default function Inventory() {
             <DialogHeader>
               <DialogTitle>Confirm Deletion</DialogTitle>
               <DialogDescription>
-                Are you sure you want to delete this product? This action cannot be undone.
+                Are you sure you want to delete this product? This action cannot
+                be undone.
               </DialogDescription>
             </DialogHeader>
             <div className="flex justify-end gap-2">
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 onClick={() => setDeleteDialogOpen(false)}
               >
                 Cancel
               </Button>
-              <Button 
-                variant="destructive" 
+              <Button
+                variant="destructive"
                 onClick={() => {
                   handleDeleteDialogConfirm();
                 }}
