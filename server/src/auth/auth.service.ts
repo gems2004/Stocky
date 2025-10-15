@@ -1,58 +1,37 @@
 import { Injectable, HttpStatus, Inject } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { Repository, DataSource } from 'typeorm';
-import * as bcrypt from 'bcryptjs';
-import { User, UserRole } from '../user/entity/user.entity';
+import { User } from '../user/entity/user.entity';
 import { LoginDto } from './dto/login.dto';
-import { JwtPayload } from './types/auth-tokens.type';
 import { AuthResponseDto } from './dto/auth-response.dto';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
 import { IAuthService } from './interfaces/auth.service.interface';
 import { CustomException } from '../common/exceptions/custom.exception';
 import { LoggerService } from '../common/logger.service';
 import { DynamicDatabaseService } from '../dynamic-database/dynamic-database.service';
+import {
+  validatePassword,
+  generateAccessToken,
+  generateRefreshToken,
+  removeSensitiveFields,
+  validateUserData,
+  verifyToken,
+} from './helpers';
+import { TypeOrmService } from '../common/typeorm.service';
 
 @Injectable()
-export class AuthService implements IAuthService {
+export class AuthService extends TypeOrmService implements IAuthService {
   constructor(
-    private readonly dynamicDatabaseService: DynamicDatabaseService,
-    private readonly jwtService: JwtService,
-    private readonly logger: LoggerService,
+    protected readonly dynamicDatabaseService: DynamicDatabaseService,
+    protected readonly jwtService: JwtService,
+    protected readonly logger: LoggerService,
   ) {
-    // No initialization in constructor
-  }
-
-  private async getUserRepository(): Promise<Repository<User>> {
-    try {
-      // Ensure the database is ready
-      await this.ensureDatabaseReady();
-      this.dynamicDatabaseService.ensureDataSourceInitialized();
-      const dataSource = this.dynamicDatabaseService.getDataSource();
-      return dataSource.getRepository(User);
-    } catch (error) {
-      this.logger.error(`Failed to get user repository: ${error.message}`);
-      throw new CustomException(
-        'Database connection error',
-        HttpStatus.SERVICE_UNAVAILABLE,
-        `Database may not be properly configured: ${error.message}`,
-      );
-    }
-  }
-
-  private async ensureDatabaseReady(): Promise<void> {
-    try {
-      this.dynamicDatabaseService.ensureDataSourceInitialized();
-    } catch (error) {
-      // If the datasource is not initialized, try to initialize it
-      this.logger.log('Attempting to reinitialize database connection');
-      await this.dynamicDatabaseService.initializeIfConfigured();
-      this.dynamicDatabaseService.ensureDataSourceInitialized();
-    }
+    super(dynamicDatabaseService, logger);
   }
 
   async getUserData(userId: number): Promise<AuthResponseDto> {
     try {
-      const userRepository = await this.getUserRepository();
+      const userRepository = await this.getRepository(User);
       // Find user by ID
       const user = await userRepository.findOne({
         where: { id: userId },
@@ -98,7 +77,7 @@ export class AuthService implements IAuthService {
 
   async login(credentials: LoginDto): Promise<AuthResponseDto> {
     try {
-      const userRepository = await this.getUserRepository();
+      const userRepository = await this.getRepository(User);
       this.logger.log(`Login attempt for username: ${credentials.username}`);
 
       // Find user by username
@@ -116,8 +95,8 @@ export class AuthService implements IAuthService {
         );
       }
 
-      // Compare password
-      const isPasswordValid = await bcrypt.compare(
+      // Compare password using helper
+      const isPasswordValid = await validatePassword(
         credentials.password,
         user.password_hash,
       );
@@ -134,8 +113,8 @@ export class AuthService implements IAuthService {
 
       this.logger.log(`Successful login for user ID: ${user.id}`);
 
-      // Validate user data before creating payload
-      if (!user.id || !user.username || user.role === undefined) {
+      // Validate user data before creating payload using helper
+      if (!validateUserData(user)) {
         const errorMsg = `Invalid user data for ID: ${user.id}`;
         throw new CustomException(
           'Invalid user data',
@@ -156,20 +135,12 @@ export class AuthService implements IAuthService {
         `Generating tokens with payload: ${JSON.stringify(payload)}`,
       );
 
-      // Check if JWT service is properly configured
-      if (!this.jwtService) {
-        throw new CustomException(
-          'JWT service not properly configured',
-          HttpStatus.INTERNAL_SERVER_ERROR,
-          'JWT service is undefined',
-        );
-      }
-
+      // Generate tokens using helper functions
       let accessToken: string;
       let refreshToken: string;
 
       try {
-        accessToken = this.jwtService.sign(payload);
+        accessToken = await generateAccessToken(this.jwtService, payload);
       } catch (signError) {
         this.logger.error(`Failed to sign access token: ${signError.message}`);
         throw new CustomException(
@@ -180,9 +151,7 @@ export class AuthService implements IAuthService {
       }
 
       try {
-        refreshToken = this.jwtService.sign(payload, {
-          expiresIn: '1d',
-        });
+        refreshToken = await generateRefreshToken(this.jwtService, payload);
       } catch (signError) {
         this.logger.error(`Failed to sign refresh token: ${signError.message}`);
         throw new CustomException(
@@ -194,8 +163,8 @@ export class AuthService implements IAuthService {
 
       this.logger.log(`Successfully generated tokens for user ID: ${user.id}`);
 
-      // Construct response (excluding password_hash)
-      const { password_hash: _, ...userWithoutPassword } = user;
+      // Construct response (excluding password_hash) using helper
+      const userWithoutPassword = removeSensitiveFields(user);
       const authResponse: AuthResponseDto = {
         user: userWithoutPassword,
         tokens: {
@@ -224,30 +193,14 @@ export class AuthService implements IAuthService {
     refreshTokenData: RefreshTokenDto,
   ): Promise<AuthResponseDto> {
     try {
-      const userRepository = await this.getUserRepository();
+      const userRepository = await this.getRepository(User);
       this.logger.log('Attempting to refresh token');
 
-      // Verify the refresh token
-      // Verify the token and assert its type
-      const verifiedPayload = this.jwtService.verify<JwtPayload>(
+      // Verify the refresh token using helper
+      const verifiedPayload = verifyToken(
+        this.jwtService,
         refreshTokenData.refreshToken,
       );
-
-      // Type guard to ensure payload has the required properties
-      if (
-        !verifiedPayload ||
-        typeof verifiedPayload !== 'object' ||
-        !('sub' in verifiedPayload) ||
-        !('username' in verifiedPayload)
-      ) {
-        throw new Error('Invalid token payload');
-      }
-
-      // Ensure sub is a number
-      if (typeof verifiedPayload.sub !== 'number') {
-        throw new Error('Invalid user ID in token payload');
-      }
-
       const payload = verifiedPayload;
       this.logger.log(
         `Successfully verified refresh token for user ID: ${payload.sub}`,
@@ -282,7 +235,7 @@ export class AuthService implements IAuthService {
       let newRefreshToken: string;
 
       try {
-        newAccessToken = this.jwtService.sign(newPayload);
+        newAccessToken = await generateAccessToken(this.jwtService, newPayload);
       } catch (signError) {
         this.logger.error(
           `Failed to sign new access token: ${signError.message}`,
@@ -295,9 +248,10 @@ export class AuthService implements IAuthService {
       }
 
       try {
-        newRefreshToken = this.jwtService.sign(newPayload, {
-          expiresIn: '1d',
-        });
+        newRefreshToken = await generateRefreshToken(
+          this.jwtService,
+          newPayload,
+        );
       } catch (signError) {
         this.logger.error(
           `Failed to sign new refresh token: ${signError.message}`,
@@ -312,8 +266,8 @@ export class AuthService implements IAuthService {
         `Successfully generated new tokens for user ID: ${user.id}`,
       );
 
-      // Construct response (excluding password_hash)
-      const { password_hash: _, ...userWithoutPassword } = user;
+      // Construct response (excluding password_hash) using helper
+      const userWithoutPassword = removeSensitiveFields(user);
       const authResponse: AuthResponseDto = {
         user: userWithoutPassword,
         tokens: {
