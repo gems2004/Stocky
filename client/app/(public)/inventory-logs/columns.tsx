@@ -11,11 +11,12 @@ export type InventoryLog = {
   reason: string;
   user_id: number;
   created_at: Date;
+  product_name?: string;
 };
 
 export const columns: ColumnDef<InventoryLog>[] = [
   {
-    accessorKey: "product_id",
+    accessorKey: "product_name",
     header: ({ column }) => {
       return (
         <Button
@@ -23,13 +24,13 @@ export const columns: ColumnDef<InventoryLog>[] = [
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
           className="!p-0 font-bold"
         >
-          Product ID
+          Product Name
           <ArrowUpDown className="ml-2 h-4 w-4" />
         </Button>
       );
     },
     cell: ({ row }) => {
-      return <div className="font-bold">{`Product ID: ${row.original.product_id}`}</div>;
+      return <div className="font-bold">{row.original.product_name}</div>;
     },
   },
   {

@@ -6,9 +6,13 @@ export interface IInventoryService {
     adjustInventoryDto: AdjustInventoryDto,
     userId?: number,
   ): Promise<InventoryLogResponseDto>;
-  getInventoryLogs(): Promise<InventoryLogResponseDto[]>;
   getInventoryLogsWithPagination(
     page: number,
     limit: number,
-  ): Promise<{ data: InventoryLogResponseDto[]; total: number; page: number; limit: number }>;
+  ): Promise<{
+    data: InventoryLogResponseDto[];
+    total: number;
+    page: number;
+    limit: number;
+  }>;
 }

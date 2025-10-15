@@ -26,7 +26,9 @@ export class InventoryService implements IInventoryService {
       const dataSource = this.dynamicDatabaseService.getDataSource();
       return dataSource.getRepository(InventoryLog);
     } catch (error) {
-      this.logger.error(`Failed to get inventory log repository: ${error.message}`);
+      this.logger.error(
+        `Failed to get inventory log repository: ${error.message}`,
+      );
       throw new CustomException(
         'Database connection error',
         HttpStatus.SERVICE_UNAVAILABLE,
@@ -116,6 +118,7 @@ export class InventoryService implements IInventoryService {
       const logResponse: InventoryLogResponseDto = {
         id: savedLog.id,
         product_id: savedLog.product_id,
+        product_name: product.name, // Include the product name in the response
         change_amount: savedLog.change_amount,
         reason: savedLog.reason,
         user_id: savedLog.user_id,
@@ -141,10 +144,17 @@ export class InventoryService implements IInventoryService {
   async getInventoryLogsWithPagination(
     page: number,
     limit: number,
-  ): Promise<{ data: InventoryLogResponseDto[]; total: number; page: number; limit: number }> {
+  ): Promise<{
+    data: InventoryLogResponseDto[];
+    total: number;
+    page: number;
+    limit: number;
+  }> {
     try {
       const inventoryLogRepository = await this.getInventoryLogRepository();
-      this.logger.log(`Fetching inventory logs with pagination - Page: ${page}, Limit: ${limit}`);
+      this.logger.log(
+        `Fetching inventory logs with pagination - Page: ${page}, Limit: ${limit}`,
+      );
 
       // Calculate offset
       const offset = (page - 1) * limit;
@@ -152,19 +162,24 @@ export class InventoryService implements IInventoryService {
       // Get total count
       const total = await inventoryLogRepository.count();
 
-      // Find paginated inventory logs ordered by creation date
+      // Find paginated inventory logs with product information ordered by creation date
       const logs = await inventoryLogRepository.find({
+        relations: ['product'],
         order: { created_at: 'DESC' },
         skip: offset,
         take: limit,
+        withDeleted: true,
       });
 
-      this.logger.log(`Successfully fetched ${logs.length} inventory logs out of ${total} total`);
+      this.logger.log(
+        `Successfully fetched ${logs.length} inventory logs out of ${total} total`,
+      );
 
       // Map to response DTOs
       const logResponses: InventoryLogResponseDto[] = logs.map((log) => ({
         id: log.id,
         product_id: log.product_id,
+        product_name: log.product?.name,
         change_amount: log.change_amount,
         reason: log.reason,
         user_id: log.user_id,
@@ -191,44 +206,4 @@ export class InventoryService implements IInventoryService {
       );
     }
   }
-
-  async getInventoryLogs(): Promise<InventoryLogResponseDto[]> {
-    try {
-      const inventoryLogRepository = await this.getInventoryLogRepository();
-      this.logger.log('Fetching all inventory logs');
-
-      // Find all inventory logs ordered by creation date
-      const logs = await inventoryLogRepository.find({
-        order: { created_at: 'DESC' },
-      });
-
-      this.logger.log(`Successfully fetched ${logs.length} inventory logs`);
-
-      // Map to response DTOs
-      const logResponses: InventoryLogResponseDto[] = logs.map((log) => ({
-        id: log.id,
-        product_id: log.product_id,
-        change_amount: log.change_amount,
-        reason: log.reason,
-        user_id: log.user_id,
-        created_at: log.created_at,
-      }));
-
-      return logResponses;
-    } catch (error) {
-      // Re-throw if it's already a CustomException, otherwise wrap in CustomException
-      if (error instanceof CustomException) {
-        throw error;
-      }
-      const errorMessage =
-        error instanceof Error ? error.message : 'Unknown error';
-      throw new CustomException(
-        'An unexpected error occurred while fetching inventory logs',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-        `Unexpected error in getInventoryLogs function: ${errorMessage}`,
-      );
-    }
-  }
-
-
 }
