@@ -1,5 +1,5 @@
-import { Injectable, HttpStatus, Inject } from '@nestjs/common';
-import { Repository, DataSource } from 'typeorm';
+import { Injectable, HttpStatus } from '@nestjs/common';
+import { Repository } from 'typeorm';
 import { ICategoryService } from './interfaces/category.service.interface';
 import { Category } from './entities/category.entity';
 import { CreateCategoryDto } from './dto/create-category.dto';
@@ -8,50 +8,23 @@ import { CategoryResponseDto } from './dto/category-response.dto';
 import { CustomException } from '../common/exceptions/custom.exception';
 import { LoggerService } from '../common/logger.service';
 import { DynamicDatabaseService } from '../dynamic-database/dynamic-database.service';
+import { TypeOrmService } from '../common/typeorm.service';
 import { Product } from '../product/entity/product.entity';
 
 @Injectable()
-export class CategoryService implements ICategoryService {
+export class CategoryService extends TypeOrmService implements ICategoryService {
   constructor(
-    private readonly dynamicDatabaseService: DynamicDatabaseService,
-    private readonly logger: LoggerService,
+    protected readonly dynamicDatabaseService: DynamicDatabaseService,
+    protected readonly logger: LoggerService,
   ) {
-    // No initialization in constructor
-  }
-
-  private async getCategoryRepository(): Promise<Repository<Category>> {
-    try {
-      // Ensure the database is ready
-      await this.ensureDatabaseReady();
-      this.dynamicDatabaseService.ensureDataSourceInitialized();
-      const dataSource = this.dynamicDatabaseService.getDataSource();
-      return dataSource.getRepository(Category);
-    } catch (error) {
-      this.logger.error(`Failed to get category repository: ${error.message}`);
-      throw new CustomException(
-        'Database connection error',
-        HttpStatus.SERVICE_UNAVAILABLE,
-        `Database may not be properly configured: ${error.message}`,
-      );
-    }
-  }
-
-  private async ensureDatabaseReady(): Promise<void> {
-    try {
-      this.dynamicDatabaseService.ensureDataSourceInitialized();
-    } catch (error) {
-      // If the datasource is not initialized, try to initialize it
-      this.logger.log('Attempting to reinitialize database connection');
-      await this.dynamicDatabaseService.initializeIfConfigured();
-      this.dynamicDatabaseService.ensureDataSourceInitialized();
-    }
+    super(dynamicDatabaseService, logger);
   }
 
   async create(
     createCategoryDto: CreateCategoryDto,
   ): Promise<CategoryResponseDto> {
     try {
-      const categoryRepository = await this.getCategoryRepository();
+      const categoryRepository = await this.getRepository(Category);
       this.logger.log(
         `Attempting to create category: ${createCategoryDto.name}`,
       );
@@ -110,10 +83,8 @@ export class CategoryService implements ICategoryService {
 
   async findAll(): Promise<CategoryResponseDto[]> {
     try {
-      const categoryRepository = await this.getCategoryRepository();
-      const productRepository = this.dynamicDatabaseService
-        .getDataSource()
-        .getRepository(Product);
+      const categoryRepository = await this.getRepository(Category);
+      const productRepository = await this.getRepository(Product);
       this.logger.log('Fetching all categories');
 
       // Find all categories
@@ -163,10 +134,8 @@ export class CategoryService implements ICategoryService {
     updateCategoryDto: UpdateCategoryDto,
   ): Promise<CategoryResponseDto> {
     try {
-      const categoryRepository = await this.getCategoryRepository();
-      const productRepository = this.dynamicDatabaseService
-        .getDataSource()
-        .getRepository(Product);
+      const categoryRepository = await this.getRepository(Category);
+      const productRepository = await this.getRepository(Product);
       this.logger.log(`Attempting to update category ID: ${id}`);
 
       // Find category by ID
@@ -247,7 +216,7 @@ export class CategoryService implements ICategoryService {
 
   async remove(id: number): Promise<void> {
     try {
-      const categoryRepository = await this.getCategoryRepository();
+      const categoryRepository = await this.getRepository(Category);
       this.logger.log(`Attempting to remove category ID: ${id}`);
 
       // Find category by ID
@@ -285,10 +254,8 @@ export class CategoryService implements ICategoryService {
 
   async findOne(id: number): Promise<CategoryResponseDto> {
     try {
-      const categoryRepository = await this.getCategoryRepository();
-      const productRepository = this.dynamicDatabaseService
-        .getDataSource()
-        .getRepository(Product);
+      const categoryRepository = await this.getRepository(Category);
+      const productRepository = await this.getRepository(Product);
       this.logger.log(`Fetching category with ID: ${id}`);
 
       // Find category by ID

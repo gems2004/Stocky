@@ -1,5 +1,5 @@
-import { Injectable, HttpStatus, Inject } from '@nestjs/common';
-import { Repository, DataSource } from 'typeorm';
+import { Injectable, HttpStatus } from '@nestjs/common';
+import { Repository } from 'typeorm';
 import { ICustomerService } from './interfaces/customer.service.interface';
 import { Customer } from './entities/customer.entity';
 import { CreateCustomerDto } from './dto/create-customer.dto';
@@ -8,49 +8,22 @@ import { CustomerResponseDto } from './dto/customer-response.dto';
 import { CustomException } from '../common/exceptions/custom.exception';
 import { LoggerService } from '../common/logger.service';
 import { DynamicDatabaseService } from '../dynamic-database/dynamic-database.service';
+import { TypeOrmService } from '../common/typeorm.service';
 
 @Injectable()
-export class CustomerService implements ICustomerService {
+export class CustomerService extends TypeOrmService implements ICustomerService {
   constructor(
-    private readonly dynamicDatabaseService: DynamicDatabaseService,
-    private readonly logger: LoggerService,
+    protected readonly dynamicDatabaseService: DynamicDatabaseService,
+    protected readonly logger: LoggerService,
   ) {
-    // No initialization in constructor
-  }
-
-  private async getCustomerRepository(): Promise<Repository<Customer>> {
-    try {
-      // Ensure the database is ready
-      await this.ensureDatabaseReady();
-      this.dynamicDatabaseService.ensureDataSourceInitialized();
-      const dataSource = this.dynamicDatabaseService.getDataSource();
-      return dataSource.getRepository(Customer);
-    } catch (error) {
-      this.logger.error(`Failed to get customer repository: ${error.message}`);
-      throw new CustomException(
-        'Database connection error',
-        HttpStatus.SERVICE_UNAVAILABLE,
-        `Database may not be properly configured: ${error.message}`,
-      );
-    }
-  }
-
-  private async ensureDatabaseReady(): Promise<void> {
-    try {
-      this.dynamicDatabaseService.ensureDataSourceInitialized();
-    } catch (error) {
-      // If the datasource is not initialized, try to initialize it
-      this.logger.log('Attempting to reinitialize database connection');
-      await this.dynamicDatabaseService.initializeIfConfigured();
-      this.dynamicDatabaseService.ensureDataSourceInitialized();
-    }
+    super(dynamicDatabaseService, logger);
   }
 
   async create(
     createCustomerDto: CreateCustomerDto,
   ): Promise<CustomerResponseDto> {
     try {
-      const customerRepository = await this.getCustomerRepository();
+      const customerRepository = await this.getRepository(Customer);
       this.logger.log(
         `Attempting to create customer: ${createCustomerDto.first_name} ${createCustomerDto.last_name}`,
       );
@@ -117,7 +90,7 @@ export class CustomerService implements ICustomerService {
 
   async findAll(): Promise<CustomerResponseDto[]> {
     try {
-      const customerRepository = await this.getCustomerRepository();
+      const customerRepository = await this.getRepository(Customer);
       this.logger.log('Fetching all customers');
 
       // Find all customers
@@ -162,7 +135,7 @@ export class CustomerService implements ICustomerService {
     updateCustomerDto: UpdateCustomerDto,
   ): Promise<CustomerResponseDto> {
     try {
-      const customerRepository = await this.getCustomerRepository();
+      const customerRepository = await this.getRepository(Customer);
       this.logger.log(`Attempting to update customer ID: ${id}`);
 
       // Find customer by ID
@@ -255,7 +228,7 @@ export class CustomerService implements ICustomerService {
 
   async remove(id: number): Promise<void> {
     try {
-      const customerRepository = await this.getCustomerRepository();
+      const customerRepository = await this.getRepository(Customer);
       this.logger.log(`Attempting to remove customer ID: ${id}`);
 
       // Find customer by ID

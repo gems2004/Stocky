@@ -1,5 +1,5 @@
-import { Injectable, HttpStatus, Inject } from '@nestjs/common';
-import { Repository, DataSource } from 'typeorm';
+import { Injectable, HttpStatus } from '@nestjs/common';
+import { Repository } from 'typeorm';
 import { ITransactionService } from './interfaces/transaction.service.interface';
 import { CreateTransactionDto } from './dto/create-transaction.dto';
 import { UpdateTransactionDto } from './dto/update-transaction.dto';
@@ -10,76 +10,15 @@ import { Product } from '../product/entity/product.entity';
 import { CustomException } from '../common/exceptions/custom.exception';
 import { LoggerService } from '../common/logger.service';
 import { DynamicDatabaseService } from '../dynamic-database/dynamic-database.service';
+import { TypeOrmService } from '../common/typeorm.service';
 
 @Injectable()
-export class TransactionService implements ITransactionService {
+export class TransactionService extends TypeOrmService implements ITransactionService {
   constructor(
-    private readonly dynamicDatabaseService: DynamicDatabaseService,
-    private readonly logger: LoggerService,
+    protected readonly dynamicDatabaseService: DynamicDatabaseService,
+    protected readonly logger: LoggerService,
   ) {
-    // No initialization in constructor
-  }
-
-  private async getTransactionRepository(): Promise<Repository<Transaction>> {
-    try {
-      // Ensure the database is ready
-      await this.ensureDatabaseReady();
-      this.dynamicDatabaseService.ensureDataSourceInitialized();
-      const dataSource = this.dynamicDatabaseService.getDataSource();
-      return dataSource.getRepository(Transaction);
-    } catch (error) {
-      this.logger.error(`Failed to get transaction repository: ${error.message}`);
-      throw new CustomException(
-        'Database connection error',
-        HttpStatus.SERVICE_UNAVAILABLE,
-        `Database may not be properly configured: ${error.message}`,
-      );
-    }
-  }
-
-  private async getTransactionItemRepository(): Promise<Repository<TransactionItem>> {
-    try {
-      // Ensure the database is ready
-      await this.ensureDatabaseReady();
-      this.dynamicDatabaseService.ensureDataSourceInitialized();
-      const dataSource = this.dynamicDatabaseService.getDataSource();
-      return dataSource.getRepository(TransactionItem);
-    } catch (error) {
-      this.logger.error(`Failed to get transaction item repository: ${error.message}`);
-      throw new CustomException(
-        'Database connection error',
-        HttpStatus.SERVICE_UNAVAILABLE,
-        `Database may not be properly configured: ${error.message}`,
-      );
-    }
-  }
-
-  private async getProductRepository(): Promise<Repository<Product>> {
-    try {
-      // Ensure the database is ready
-      await this.ensureDatabaseReady();
-      this.dynamicDatabaseService.ensureDataSourceInitialized();
-      const dataSource = this.dynamicDatabaseService.getDataSource();
-      return dataSource.getRepository(Product);
-    } catch (error) {
-      this.logger.error(`Failed to get product repository: ${error.message}`);
-      throw new CustomException(
-        'Database connection error',
-        HttpStatus.SERVICE_UNAVAILABLE,
-        `Database may not be properly configured: ${error.message}`,
-      );
-    }
-  }
-
-  private async ensureDatabaseReady(): Promise<void> {
-    try {
-      this.dynamicDatabaseService.ensureDataSourceInitialized();
-    } catch (error) {
-      // If the datasource is not initialized, try to initialize it
-      this.logger.log('Attempting to reinitialize database connection');
-      await this.dynamicDatabaseService.initializeIfConfigured();
-      this.dynamicDatabaseService.ensureDataSourceInitialized();
-    }
+    super(dynamicDatabaseService, logger);
   }
 
   async findAll(
@@ -92,7 +31,7 @@ export class TransactionService implements ITransactionService {
     limit: number;
   }> {
     try {
-      const transactionRepository = await this.getTransactionRepository();
+      const transactionRepository = await this.getRepository(Transaction);
       this.logger.log(`Fetching transactions - page: ${page}, limit: ${limit}`);
 
       // Calculate offset for pagination
@@ -181,7 +120,7 @@ export class TransactionService implements ITransactionService {
 
   async findOne(id: number): Promise<TransactionResponseDto> {
     try {
-      const transactionRepository = await this.getTransactionRepository();
+      const transactionRepository = await this.getRepository(Transaction);
       this.logger.log(`Fetching transaction with ID: ${id}`);
 
       const transaction = await transactionRepository.findOne({
@@ -266,9 +205,9 @@ export class TransactionService implements ITransactionService {
     transactionData: CreateTransactionDto,
   ): Promise<TransactionResponseDto> {
     try {
-      const transactionRepository = await this.getTransactionRepository();
-      const transactionItemRepository = await this.getTransactionItemRepository();
-      const productRepository = await this.getProductRepository();
+      const transactionRepository = await this.getRepository(Transaction);
+      const transactionItemRepository = await this.getRepository(TransactionItem);
+      const productRepository = await this.getRepository(Product);
       this.logger.log('Creating a new transaction');
 
       // 1. Validate product availability
@@ -447,9 +386,9 @@ export class TransactionService implements ITransactionService {
     transactionData: UpdateTransactionDto,
   ): Promise<TransactionResponseDto> {
     try {
-      const transactionRepository = await this.getTransactionRepository();
-      const transactionItemRepository = await this.getTransactionItemRepository();
-      const productRepository = await this.getProductRepository();
+      const transactionRepository = await this.getRepository(Transaction);
+      const transactionItemRepository = await this.getRepository(TransactionItem);
+      const productRepository = await this.getRepository(Product);
       this.logger.log(`Updating transaction with ID: ${id}`);
 
       // Find the existing transaction with its items
@@ -696,8 +635,8 @@ export class TransactionService implements ITransactionService {
 
   async delete(id: number): Promise<void> {
     try {
-      const transactionRepository = await this.getTransactionRepository();
-      const transactionItemRepository = await this.getTransactionItemRepository();
+      const transactionRepository = await this.getRepository(Transaction);
+      const transactionItemRepository = await this.getRepository(TransactionItem);
       this.logger.log(`Attempting to delete transaction ID: ${id}`);
 
       // Find transaction by ID with its items

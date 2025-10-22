@@ -1,5 +1,5 @@
-import { Injectable, HttpStatus, Inject } from '@nestjs/common';
-import { Repository, Between, DataSource } from 'typeorm';
+import { Injectable, HttpStatus } from '@nestjs/common';
+import { Repository, Between } from 'typeorm';
 import { Transaction } from '../transaction/entity/transaction.entity';
 import { TransactionItem } from '../transaction/entity/transaction-item.entity';
 import { Product } from '../product/entity/product.entity';
@@ -18,82 +18,15 @@ import {
   ProfitMarginRawResult,
 } from './interfaces/transaction-items.interface';
 import { DynamicDatabaseService } from '../dynamic-database/dynamic-database.service';
+import { TypeOrmService } from '../common/typeorm.service';
 
 @Injectable()
-export class ReportsService {
+export class ReportsService extends TypeOrmService {
   constructor(
-    private readonly dynamicDatabaseService: DynamicDatabaseService,
-    private readonly logger: LoggerService,
+    protected readonly dynamicDatabaseService: DynamicDatabaseService,
+    protected readonly logger: LoggerService,
   ) {
-    // No initialization in constructor
-  }
-
-  private async getTransactionRepository(): Promise<Repository<Transaction>> {
-    try {
-      // Ensure the database is ready
-      await this.ensureDatabaseReady();
-      this.dynamicDatabaseService.ensureDataSourceInitialized();
-      const dataSource = this.dynamicDatabaseService.getDataSource();
-      return dataSource.getRepository(Transaction);
-    } catch (error) {
-      this.logger.error(
-        `Failed to get transaction repository: ${error.message}`,
-      );
-      throw new CustomException(
-        'Database connection error',
-        HttpStatus.SERVICE_UNAVAILABLE,
-        `Database may not be properly configured: ${error.message}`,
-      );
-    }
-  }
-
-  private async getTransactionItemRepository(): Promise<
-    Repository<TransactionItem>
-  > {
-    try {
-      // Ensure the database is ready
-      await this.ensureDatabaseReady();
-      this.dynamicDatabaseService.ensureDataSourceInitialized();
-      const dataSource = this.dynamicDatabaseService.getDataSource();
-      return dataSource.getRepository(TransactionItem);
-    } catch (error) {
-      this.logger.error(
-        `Failed to get transaction item repository: ${error.message}`,
-      );
-      throw new CustomException(
-        'Database connection error',
-        HttpStatus.SERVICE_UNAVAILABLE,
-        `Database may not be properly configured: ${error.message}`,
-      );
-    }
-  }
-
-  private async getProductRepository(): Promise<Repository<Product>> {
-    try {
-      // Ensure the database is ready
-      await this.ensureDatabaseReady();
-      this.dynamicDatabaseService.ensureDataSourceInitialized();
-      const dataSource = this.dynamicDatabaseService.getDataSource();
-      return dataSource.getRepository(Product);
-    } catch (error) {
-      this.logger.error(`Failed to get product repository: ${error.message}`);
-      throw new CustomException(
-        'Database connection error',
-        HttpStatus.SERVICE_UNAVAILABLE,
-        `Database may not be properly configured: ${error.message}`,
-      );
-    }
-  }
-
-  private async ensureDatabaseReady(): Promise<void> {
-    try {
-      this.dynamicDatabaseService.ensureDataSourceInitialized();
-    } catch (error) {
-      // If the datasource is not initialized, try to initialize it
-      this.logger.log('Attempting to reinitialize database connection');
-      await this.dynamicDatabaseService.initializeIfConfigured();
-      this.dynamicDatabaseService.ensureDataSourceInitialized();
-    }
+    super(dynamicDatabaseService, logger);
   }
 
   async getSalesSummary(
@@ -101,7 +34,7 @@ export class ReportsService {
     endDate?: Date,
   ): Promise<SalesSummaryDto> {
     try {
-      const transactionRepository = await this.getTransactionRepository();
+      const transactionRepository = await this.getRepository(Transaction);
       this.logger.log('Generating sales summary report');
 
       // Set default date range if not provided (last 30 days)
@@ -165,7 +98,7 @@ export class ReportsService {
   ): Promise<TopProductsResponseDto> {
     try {
       const transactionItemRepository =
-        await this.getTransactionItemRepository();
+        await this.getRepository(TransactionItem);
       this.logger.log('Generating top products report');
 
       // Set default date range if not provided (last 30 days)
@@ -236,8 +169,8 @@ export class ReportsService {
   ): Promise<ProfitMarginResponseDto> {
     try {
       const transactionItemRepository =
-        await this.getTransactionItemRepository();
-      const productRepository = await this.getProductRepository();
+        await this.getRepository(TransactionItem);
+      const productRepository = await this.getRepository(Product);
       this.logger.log('Generating profit margin report');
 
       // Set default date range if not provided (last 30 days)
@@ -338,7 +271,7 @@ export class ReportsService {
 
   async getLowStockProducts(): Promise<Product[]> {
     try {
-      const productRepository = await this.getProductRepository();
+      const productRepository = await this.getRepository(Product);
       this.logger.log('Fetching low stock products based on min_stock_level');
 
       // Find products with stock quantity below their minimum stock level
@@ -376,7 +309,7 @@ export class ReportsService {
     endDate?: Date,
   ): Promise<DashboardStatsResponseDto> {
     try {
-      const transactionRepository = await this.getTransactionRepository();
+      const transactionRepository = await this.getRepository(Transaction);
       this.logger.log('Generating dashboard stats');
 
       // Set default date range if not provided (last 7 days)
@@ -440,7 +373,7 @@ export class ReportsService {
     endDate?: Date,
   ): Promise<WeeklySalesResponseDto> {
     try {
-      const transactionRepository = await this.getTransactionRepository();
+      const transactionRepository = await this.getRepository(Transaction);
       this.logger.log('Generating weekly sales report');
 
       // Set default date range if not provided (last 7 days - last week)

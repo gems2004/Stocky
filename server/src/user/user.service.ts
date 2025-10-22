@@ -1,5 +1,5 @@
-import { Injectable, HttpStatus, Inject } from '@nestjs/common';
-import { Repository, Like, DataSource } from 'typeorm';
+import { Injectable, HttpStatus } from '@nestjs/common';
+import { Repository, Like } from 'typeorm';
 import { IUserService } from './interfaces/user.service.interface';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -8,44 +8,17 @@ import { SearchUserDto } from './dto/search-user.dto';
 import { User } from './entity/user.entity';
 import { CustomException } from '../common/exceptions/custom.exception';
 import { LoggerService } from '../common/logger.service';
-import * as bcrypt from 'bcryptjs';
 import { DynamicDatabaseService } from '../dynamic-database/dynamic-database.service';
+import { TypeOrmService } from '../common/typeorm.service';
+import * as bcrypt from 'bcryptjs';
 
 @Injectable()
-export class UserService implements IUserService {
+export class UserService extends TypeOrmService implements IUserService {
   constructor(
-    private readonly dynamicDatabaseService: DynamicDatabaseService,
-    private readonly logger: LoggerService,
+    protected readonly dynamicDatabaseService: DynamicDatabaseService,
+    protected readonly logger: LoggerService,
   ) {
-    // No initialization in constructor
-  }
-
-  private async getUserRepository(): Promise<Repository<User>> {
-    try {
-      // Ensure the database is ready
-      await this.ensureDatabaseReady();
-      this.dynamicDatabaseService.ensureDataSourceInitialized();
-      const dataSource = this.dynamicDatabaseService.getDataSource();
-      return dataSource.getRepository(User);
-    } catch (error) {
-      this.logger.error(`Failed to get user repository: ${error.message}`);
-      throw new CustomException(
-        'Database connection error',
-        HttpStatus.SERVICE_UNAVAILABLE,
-        `Database may not be properly configured: ${error.message}`,
-      );
-    }
-  }
-
-  private async ensureDatabaseReady(): Promise<void> {
-    try {
-      this.dynamicDatabaseService.ensureDataSourceInitialized();
-    } catch (error) {
-      // If the datasource is not initialized, try to initialize it
-      this.logger.log('Attempting to reinitialize database connection');
-      await this.dynamicDatabaseService.initializeIfConfigured();
-      this.dynamicDatabaseService.ensureDataSourceInitialized();
-    }
+    super(dynamicDatabaseService, logger);
   }
 
   async findAll(
@@ -58,7 +31,7 @@ export class UserService implements IUserService {
     limit: number;
   }> {
     try {
-      const userRepository = await this.getUserRepository();
+      const userRepository = await this.getRepository(User);
       this.logger.log(`Fetching users - page: ${page}, limit: ${limit}`);
 
       let users: User[] = [];
@@ -112,7 +85,7 @@ export class UserService implements IUserService {
 
   async findOne(id: number): Promise<UserResponseDto> {
     try {
-      const userRepository = await this.getUserRepository();
+      const userRepository = await this.getRepository(User);
       this.logger.log(`Fetching user with ID: ${id}`);
 
       const user = await userRepository.findOne({
@@ -162,7 +135,7 @@ export class UserService implements IUserService {
 
   async create(userData: CreateUserDto): Promise<UserResponseDto> {
     try {
-      const userRepository = await this.getUserRepository();
+      const userRepository = await this.getRepository(User);
       this.logger.log('Creating a new user');
 
       // Check if user with same username or email already exists
@@ -232,7 +205,7 @@ export class UserService implements IUserService {
 
   async update(id: number, userData: UpdateUserDto): Promise<UserResponseDto> {
     try {
-      const userRepository = await this.getUserRepository();
+      const userRepository = await this.getRepository(User);
       this.logger.log(`Updating user with ID: ${id}`);
 
       // Find the existing user
@@ -331,7 +304,7 @@ export class UserService implements IUserService {
 
   async delete(id: number): Promise<void> {
     try {
-      const userRepository = await this.getUserRepository();
+      const userRepository = await this.getRepository(User);
       this.logger.log(`Deleting user with ID: ${id}`);
 
       // Check if user exists
@@ -369,7 +342,7 @@ export class UserService implements IUserService {
 
   async search(query: SearchUserDto): Promise<UserResponseDto[]> {
     try {
-      const userRepository = await this.getUserRepository();
+      const userRepository = await this.getRepository(User);
       this.logger.log(`Searching users with query: ${query.query}`);
 
       // Search for users matching the query in username, email, first_name, or last_name

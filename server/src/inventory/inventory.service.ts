@@ -1,5 +1,5 @@
-import { Injectable, HttpStatus, Inject } from '@nestjs/common';
-import { Repository, DataSource } from 'typeorm';
+import { Injectable, HttpStatus } from '@nestjs/common';
+import { Repository } from 'typeorm';
 import { IInventoryService } from './interfaces/inventory.service.interface';
 import { InventoryLog } from './entities/inventory-log.entity';
 import { AdjustInventoryDto } from './dto/adjust-inventory.dto';
@@ -8,61 +8,15 @@ import { Product } from '../product/entity/product.entity';
 import { CustomException } from '../common/exceptions/custom.exception';
 import { LoggerService } from '../common/logger.service';
 import { DynamicDatabaseService } from '../dynamic-database/dynamic-database.service';
+import { TypeOrmService } from '../common/typeorm.service';
 
 @Injectable()
-export class InventoryService implements IInventoryService {
+export class InventoryService extends TypeOrmService implements IInventoryService {
   constructor(
-    private readonly dynamicDatabaseService: DynamicDatabaseService,
-    private readonly logger: LoggerService,
+    protected readonly dynamicDatabaseService: DynamicDatabaseService,
+    protected readonly logger: LoggerService,
   ) {
-    // No initialization in constructor
-  }
-
-  private async getInventoryLogRepository(): Promise<Repository<InventoryLog>> {
-    try {
-      // Ensure the database is ready
-      await this.ensureDatabaseReady();
-      this.dynamicDatabaseService.ensureDataSourceInitialized();
-      const dataSource = this.dynamicDatabaseService.getDataSource();
-      return dataSource.getRepository(InventoryLog);
-    } catch (error) {
-      this.logger.error(
-        `Failed to get inventory log repository: ${error.message}`,
-      );
-      throw new CustomException(
-        'Database connection error',
-        HttpStatus.SERVICE_UNAVAILABLE,
-        `Database may not be properly configured: ${error.message}`,
-      );
-    }
-  }
-
-  private async getProductRepository(): Promise<Repository<Product>> {
-    try {
-      // Ensure the database is ready
-      await this.ensureDatabaseReady();
-      this.dynamicDatabaseService.ensureDataSourceInitialized();
-      const dataSource = this.dynamicDatabaseService.getDataSource();
-      return dataSource.getRepository(Product);
-    } catch (error) {
-      this.logger.error(`Failed to get product repository: ${error.message}`);
-      throw new CustomException(
-        'Database connection error',
-        HttpStatus.SERVICE_UNAVAILABLE,
-        `Database may not be properly configured: ${error.message}`,
-      );
-    }
-  }
-
-  private async ensureDatabaseReady(): Promise<void> {
-    try {
-      this.dynamicDatabaseService.ensureDataSourceInitialized();
-    } catch (error) {
-      // If the datasource is not initialized, try to initialize it
-      this.logger.log('Attempting to reinitialize database connection');
-      await this.dynamicDatabaseService.initializeIfConfigured();
-      this.dynamicDatabaseService.ensureDataSourceInitialized();
-    }
+    super(dynamicDatabaseService, logger);
   }
 
   async adjustInventory(
@@ -70,8 +24,8 @@ export class InventoryService implements IInventoryService {
     userId?: number,
   ): Promise<InventoryLogResponseDto> {
     try {
-      const inventoryLogRepository = await this.getInventoryLogRepository();
-      const productRepository = await this.getProductRepository();
+      const inventoryLogRepository = await this.getRepository(InventoryLog);
+      const productRepository = await this.getRepository(Product);
       this.logger.log(
         `Attempting to adjust inventory for product ID: ${adjustInventoryDto.productId}`,
       );
@@ -151,7 +105,7 @@ export class InventoryService implements IInventoryService {
     limit: number;
   }> {
     try {
-      const inventoryLogRepository = await this.getInventoryLogRepository();
+      const inventoryLogRepository = await this.getRepository(InventoryLog);
       this.logger.log(
         `Fetching inventory logs with pagination - Page: ${page}, Limit: ${limit}`,
       );

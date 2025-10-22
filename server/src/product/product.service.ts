@@ -1,5 +1,5 @@
-import { Injectable, HttpStatus, Inject } from '@nestjs/common';
-import { Repository, Like, DataSource } from 'typeorm';
+import { Injectable, HttpStatus } from '@nestjs/common';
+import { Repository, Like } from 'typeorm';
 import { IProductService } from './interfaces/product.service.interface';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
@@ -10,42 +10,15 @@ import { CustomException } from '../common/exceptions/custom.exception';
 import { LoggerService } from '../common/logger.service';
 import { SupplierResponseDto } from '../supplier/dto/supplier-response.dto';
 import { DynamicDatabaseService } from '../dynamic-database/dynamic-database.service';
+import { TypeOrmService } from '../common/typeorm.service';
 
 @Injectable()
-export class ProductService implements IProductService {
+export class ProductService extends TypeOrmService implements IProductService {
   constructor(
-    private readonly dynamicDatabaseService: DynamicDatabaseService,
-    private readonly logger: LoggerService,
+    protected readonly dynamicDatabaseService: DynamicDatabaseService,
+    protected readonly logger: LoggerService,
   ) {
-    // No initialization in constructor
-  }
-
-  private async getProductRepository(): Promise<Repository<Product>> {
-    try {
-      // Ensure the database is ready
-      await this.ensureDatabaseReady();
-      this.dynamicDatabaseService.ensureDataSourceInitialized();
-      const dataSource = this.dynamicDatabaseService.getDataSource();
-      return dataSource.getRepository(Product);
-    } catch (error) {
-      this.logger.error(`Failed to get product repository: ${error.message}`);
-      throw new CustomException(
-        'Database connection error',
-        HttpStatus.SERVICE_UNAVAILABLE,
-        `Database may not be properly configured: ${error.message}`,
-      );
-    }
-  }
-
-  private async ensureDatabaseReady(): Promise<void> {
-    try {
-      this.dynamicDatabaseService.ensureDataSourceInitialized();
-    } catch (error) {
-      // If the datasource is not initialized, try to initialize it
-      this.logger.log('Attempting to reinitialize database connection');
-      await this.dynamicDatabaseService.initializeIfConfigured();
-      this.dynamicDatabaseService.ensureDataSourceInitialized();
-    }
+    super(dynamicDatabaseService, logger);
   }
 
   async findAll(
@@ -60,7 +33,7 @@ export class ProductService implements IProductService {
     limit: number;
   }> {
     try {
-      const productRepository = await this.getProductRepository();
+      const productRepository = await this.getRepository(Product);
 
       // Build the where condition with optional filters
       const whereCondition: any = {};
@@ -154,7 +127,7 @@ export class ProductService implements IProductService {
 
   async findOne(id: number): Promise<ProductResponseDto> {
     try {
-      const productRepository = await this.getProductRepository();
+      const productRepository = await this.getRepository(Product);
       this.logger.log(`Fetching product with ID: ${id}`);
 
       const product = await productRepository.findOne({
@@ -231,7 +204,7 @@ export class ProductService implements IProductService {
 
   async create(productData: CreateProductDto): Promise<ProductResponseDto> {
     try {
-      const productRepository = await this.getProductRepository();
+      const productRepository = await this.getRepository(Product);
       this.logger.log('Creating a new product');
 
       // Check if product with same barcode or SKU already exists
@@ -323,7 +296,7 @@ export class ProductService implements IProductService {
     productData: UpdateProductDto,
   ): Promise<ProductResponseDto> {
     try {
-      const productRepository = await this.getProductRepository();
+      const productRepository = await this.getRepository(Product);
       this.logger.log(`Updating product with ID: ${id}`);
 
       // Find the existing product
@@ -441,7 +414,7 @@ export class ProductService implements IProductService {
 
   async delete(id: number): Promise<void> {
     try {
-      const productRepository = await this.getProductRepository();
+      const productRepository = await this.getRepository(Product);
       this.logger.log(`Soft deleting product with ID: ${id}`);
 
       // Check if product exists (including soft-deleted ones)
@@ -495,7 +468,7 @@ export class ProductService implements IProductService {
     limit: number;
   }> {
     try {
-      const productRepository = await this.getProductRepository();
+      const productRepository = await this.getRepository(Product);
 
       // Parse pagination parameters
       const page = searchDto.page ? parseInt(searchDto.page, 10) : 1;

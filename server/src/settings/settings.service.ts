@@ -5,7 +5,7 @@ import * as path from 'path';
 import { ShopInfoDto } from '../setup/dto/shop-info.dto';
 import { CustomException } from '../common/exceptions/custom.exception';
 import { HttpStatus } from '@nestjs/common';
-import { Repository, DataSource } from 'typeorm';
+import { Repository } from 'typeorm';
 import { User } from '../user/entity/user.entity';
 import { AuthResponseDto } from '../auth/dto/auth-response.dto';
 import { DynamicDatabaseService } from '../dynamic-database/dynamic-database.service';
@@ -17,19 +17,22 @@ import { UserService } from '../user/user.service';
 import { UpdateUserDto } from '../user/dto/update-user.dto';
 import { UserResponseDto } from '../user/dto/user-response.dto';
 import { CombinedSettingsDto } from './dto/combined-settings.dto';
+import { TypeOrmService } from '../common/typeorm.service';
 
 @Injectable()
-export class SettingsService {
+export class SettingsService extends TypeOrmService {
   private readonly setupConfigPath = path.join(
     __dirname,
     '../setup/setup-config.json',
   );
 
   constructor(
-    private readonly logger: LoggerService,
-    private readonly dynamicDatabaseService: DynamicDatabaseService,
+    protected readonly dynamicDatabaseService: DynamicDatabaseService,
+    protected readonly logger: LoggerService,
     private readonly userService: UserService,
-  ) {}
+  ) {
+    super(dynamicDatabaseService, logger);
+  }
 
   getShopInfo(): ShopInfoDto | null {
     try {
@@ -57,7 +60,7 @@ export class SettingsService {
   async getProfile(userId: number): Promise<AuthResponseDto> {
     try {
       this.logger.log('Fetching user profile from settings');
-      const userRepository = await this.getUserRepository();
+      const userRepository = await this.getRepository(User);
       // Find user by ID
       const user = await userRepository.findOne({
         where: { id: userId },
@@ -104,7 +107,7 @@ export class SettingsService {
   private async getUserResponseDto(userId: number): Promise<UserResponseDto> {
     try {
       this.logger.log('Fetching user response DTO for combined settings');
-      const userRepository = await this.getUserRepository();
+      const userRepository = await this.getRepository(User);
       // Find user by ID
       const user = await userRepository.findOne({
         where: { id: userId },
@@ -327,33 +330,7 @@ export class SettingsService {
     }
   }
 
-  private async getUserRepository(): Promise<Repository<User>> {
-    try {
-      // Ensure the database is ready
-      await this.ensureDatabaseReady();
-      this.dynamicDatabaseService.ensureDataSourceInitialized();
-      const dataSource = this.dynamicDatabaseService.getDataSource();
-      return dataSource.getRepository(User);
-    } catch (error) {
-      this.logger.error(`Failed to get user repository: ${error.message}`);
-      throw new CustomException(
-        'Database connection error',
-        HttpStatus.SERVICE_UNAVAILABLE,
-        `Database may not be properly configured: ${error.message}`,
-      );
-    }
-  }
 
-  private async ensureDatabaseReady(): Promise<void> {
-    try {
-      this.dynamicDatabaseService.ensureDataSourceInitialized();
-    } catch (error) {
-      // If the datasource is not initialized, try to initialize it
-      this.logger.log('Attempting to reinitialize database connection');
-      await this.dynamicDatabaseService.initializeIfConfigured();
-      this.dynamicDatabaseService.ensureDataSourceInitialized();
-    }
-  }
 
   private readSetupConfig(): SetupConfig {
     try {
