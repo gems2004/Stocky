@@ -1,6 +1,5 @@
-import { Injectable, HttpStatus, Inject } from '@nestjs/common';
+import { Injectable, HttpStatus } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { Repository, DataSource } from 'typeorm';
 import { User } from '../user/entity/user.entity';
 import { LoginDto } from './dto/login.dto';
 import { AuthResponseDto } from './dto/auth-response.dto';
@@ -10,7 +9,8 @@ import { CustomException } from '../common/exceptions/custom.exception';
 import { LoggerService } from '../common/logger.service';
 import { DynamicDatabaseService } from '../dynamic-database/dynamic-database.service';
 import { TypeOrmService } from '../common/typeorm.service';
-
+import { JwtPayload } from './types/auth-tokens.type';
+import bcrypt from 'bcryptjs';
 @Injectable()
 export class AuthService extends TypeOrmService implements IAuthService {
   constructor(
