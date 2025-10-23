@@ -10,7 +10,7 @@ import { LoggerService } from '../common/logger.service';
 import { DynamicDatabaseService } from '../dynamic-database/dynamic-database.service';
 import { TypeOrmService } from '../common/typeorm.service';
 import { JwtPayload } from './types/auth-tokens.type';
-import bcrypt from 'bcryptjs';
+import * as bcrypt from 'bcryptjs';
 @Injectable()
 export class AuthService extends TypeOrmService implements IAuthService {
   constructor(

@@ -1,7 +1,9 @@
 import { Controller, Get, Inject } from '@nestjs/common';
+import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { AppService } from './app.service';
 import { LoggerService } from './common/logger.service';
 
+@ApiTags('App')
 @Controller()
 export class AppController {
   constructor(
@@ -10,6 +12,8 @@ export class AppController {
   ) {}
 
   @Get()
+  @ApiOperation({ summary: 'Get welcome message' })
+  @ApiResponse({ status: 200, description: 'Returns welcome message' })
   getHello(): string {
     this.logger.log('Hello endpoint accessed');
     return this.appService.getHello();

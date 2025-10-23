@@ -13,6 +13,7 @@ import {
   ParseIntPipe,
   Inject,
 } from '@nestjs/common';
+import { ApiTags, ApiOperation, ApiResponse, ApiBody } from '@nestjs/swagger';
 import { ProductService } from './product.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
@@ -24,6 +25,7 @@ import { SuccessResponse } from '../common/types/api-response.type';
 import { AuthGuard } from '../auth/guards/auth.guard';
 import { AppReadyGuard } from '../dynamic-database/guards/app-ready.guard';
 
+@ApiTags('Products')
 @Controller('products')
 @UseGuards(AuthGuard, AppReadyGuard)
 export class ProductController {
@@ -31,6 +33,53 @@ export class ProductController {
 
   @HttpCode(HttpStatus.OK)
   @Get('search')
+  @ApiOperation({ summary: 'Search products with pagination' })
+  @ApiResponse({
+    status: 200,
+    description: 'Products search completed successfully',
+    schema: {
+      example: {
+        success: true,
+        message: 'Products search completed successfully',
+        data: {
+          data: [
+            {
+              id: 1,
+              name: 'Laptop',
+              description: 'High-performance laptop',
+              price: 999.99,
+              cost_price: 800.0,
+              sku: 'LAP-001',
+              barcode: '1234567890123',
+              category_id: 1,
+              supplier_id: 1,
+              min_stock_level: 10,
+              max_stock_level: 100,
+              reorder_level: 20,
+              current_stock: 15,
+              created_at: '2025-01-01T00:00:00.000Z',
+              updated_at: '2025-01-01T00:00:00.000Z',
+              deleted_at: null,
+            },
+          ],
+          total: 1,
+          page: 1,
+          limit: 10,
+        },
+      },
+    },
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized',
+    schema: {
+      example: {
+        success: false,
+        message: 'Unauthorized',
+        data: null,
+      },
+    },
+  })
   async search(@Query() searchProductDto: SearchProductDto): Promise<
     SuccessResponse<{
       data: ProductResponseDto[];
@@ -48,6 +97,53 @@ export class ProductController {
 
   @HttpCode(HttpStatus.OK)
   @Get()
+  @ApiOperation({ summary: 'Get all products with pagination' })
+  @ApiResponse({
+    status: 200,
+    description: 'Products retrieved successfully',
+    schema: {
+      example: {
+        success: true,
+        message: 'Products retrieved successfully',
+        data: {
+          data: [
+            {
+              id: 1,
+              name: 'Laptop',
+              description: 'High-performance laptop',
+              price: 999.99,
+              cost_price: 800.0,
+              sku: 'LAP-001',
+              barcode: '1234567890123',
+              category_id: 1,
+              supplier_id: 1,
+              min_stock_level: 10,
+              max_stock_level: 100,
+              reorder_level: 20,
+              current_stock: 15,
+              created_at: '2025-01-01T00:00:00.000Z',
+              updated_at: '2025-01-01T00:00:00.000Z',
+              deleted_at: null,
+            },
+          ],
+          total: 1,
+          page: 1,
+          limit: 10,
+        },
+      },
+    },
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized',
+    schema: {
+      example: {
+        success: false,
+        message: 'Unauthorized',
+        data: null,
+      },
+    },
+  })
   async findAll(@Query() findAllProductsDto: FindAllProductsDto): Promise<
     SuccessResponse<{
       data: ProductResponseDto[];
@@ -83,6 +179,57 @@ export class ProductController {
 
   @HttpCode(HttpStatus.OK)
   @Get(':id')
+  @ApiOperation({ summary: 'Get product by ID' })
+  @ApiResponse({
+    status: 200,
+    description: 'Product retrieved successfully',
+    schema: {
+      example: {
+        success: true,
+        message: 'Product retrieved successfully',
+        data: {
+          id: 1,
+          name: 'Laptop',
+          description: 'High-performance laptop',
+          price: 999.99,
+          cost_price: 800.0,
+          sku: 'LAP-001',
+          barcode: '1234567890123',
+          category_id: 1,
+          supplier_id: 1,
+          min_stock_level: 10,
+          max_stock_level: 100,
+          reorder_level: 20,
+          current_stock: 15,
+          created_at: '2025-01-01T00:00:00.000Z',
+          updated_at: '2025-01-01T00:00:00.000Z',
+          deleted_at: null,
+        },
+      },
+    },
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized',
+    schema: {
+      example: {
+        success: false,
+        message: 'Unauthorized',
+        data: null,
+      },
+    },
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Product not found',
+    schema: {
+      example: {
+        success: false,
+        message: 'Product not found',
+        data: null,
+      },
+    },
+  })
   async findOne(
     @Param('id', ParseIntPipe) id: number,
   ): Promise<SuccessResponse<ProductResponseDto>> {
@@ -92,6 +239,77 @@ export class ProductController {
 
   @HttpCode(HttpStatus.CREATED)
   @Post()
+  @ApiOperation({ summary: 'Create a new product' })
+  @ApiBody({
+    type: CreateProductDto,
+    examples: {
+      example1: {
+        summary: 'Sample product creation payload',
+        value: {
+          name: 'Laptop',
+          description: 'High-performance laptop',
+          price: 999.99,
+          cost_price: 800.0,
+          sku: 'LAP-001',
+          barcode: '1234567890123',
+          category_id: 1,
+          supplier_id: 1,
+          min_stock_level: 10,
+          max_stock_level: 100,
+          reorder_level: 20,
+        },
+      },
+    },
+  })
+  @ApiResponse({
+    status: 201,
+    description: 'Product created successfully',
+    schema: {
+      example: {
+        success: true,
+        message: 'Product created successfully',
+        data: {
+          id: 1,
+          name: 'Laptop',
+          description: 'High-performance laptop',
+          price: 999.99,
+          cost_price: 800.0,
+          sku: 'LAP-001',
+          barcode: '1234567890123',
+          category_id: 1,
+          supplier_id: 1,
+          min_stock_level: 10,
+          max_stock_level: 100,
+          reorder_level: 20,
+          created_at: '2025-01-01T00:00:00.000Z',
+          updated_at: '2025-01-01T00:00:00.000Z',
+          deleted_at: null,
+        },
+      },
+    },
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized',
+    schema: {
+      example: {
+        success: false,
+        message: 'Unauthorized',
+        data: null,
+      },
+    },
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Bad Request - Invalid input data',
+    schema: {
+      example: {
+        success: false,
+        message: 'Validation failed',
+        data: null,
+      },
+    },
+  })
   async create(
     @Body() createProductDto: CreateProductDto,
   ): Promise<SuccessResponse<ProductResponseDto>> {
@@ -101,6 +319,77 @@ export class ProductController {
 
   @HttpCode(HttpStatus.OK)
   @Put(':id')
+  @ApiOperation({ summary: 'Update a product by ID' })
+  @ApiBody({
+    type: UpdateProductDto,
+    examples: {
+      example1: {
+        summary: 'Sample product update payload',
+        value: {
+          name: 'Updated Laptop',
+          description: 'Updated high-performance laptop',
+          price: 1099.99,
+          cost_price: 850.0,
+          sku: 'LAP-001-UPD',
+          barcode: '1234567890124',
+          category_id: 2,
+          supplier_id: 2,
+          min_stock_level: 15,
+          max_stock_level: 120,
+          reorder_level: 25,
+        },
+      },
+    },
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Product updated successfully',
+    schema: {
+      example: {
+        success: true,
+        message: 'Product updated successfully',
+        data: {
+          id: 1,
+          name: 'Updated Laptop',
+          description: 'Updated high-performance laptop',
+          price: 1099.99,
+          cost_price: 850.0,
+          sku: 'LAP-001-UPD',
+          barcode: '1234567890124',
+          category_id: 2,
+          supplier_id: 2,
+          min_stock_level: 15,
+          max_stock_level: 120,
+          reorder_level: 25,
+          created_at: '2025-01-01T00:00:00.000Z',
+          updated_at: '2025-01-02T00:00:00.000Z',
+          deleted_at: null,
+        },
+      },
+    },
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized',
+    schema: {
+      example: {
+        success: false,
+        message: 'Unauthorized',
+        data: null,
+      },
+    },
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Product not found',
+    schema: {
+      example: {
+        success: false,
+        message: 'Product not found',
+        data: null,
+      },
+    },
+  })
   async update(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateProductDto: UpdateProductDto,
@@ -111,6 +400,40 @@ export class ProductController {
 
   @HttpCode(HttpStatus.OK)
   @Delete(':id')
+  @ApiOperation({ summary: 'Delete a product by ID' })
+  @ApiResponse({
+    status: 200,
+    description: 'Product deleted successfully',
+    schema: {
+      example: {
+        success: true,
+        message: 'Product deleted successfully',
+        data: null,
+      },
+    },
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized',
+    schema: {
+      example: {
+        success: false,
+        message: 'Unauthorized',
+        data: null,
+      },
+    },
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Product not found',
+    schema: {
+      example: {
+        success: false,
+        message: 'Product not found',
+        data: null,
+      },
+    },
+  })
   async delete(
     @Param('id', ParseIntPipe) id: number,
   ): Promise<SuccessResponse<null>> {

@@ -12,6 +12,7 @@ import {
   UseGuards,
   ParseIntPipe,
 } from '@nestjs/common';
+import { ApiTags, ApiOperation, ApiResponse, ApiBody } from '@nestjs/swagger';
 import { TransactionService } from './transaction.service';
 import { CreateTransactionDto } from './dto/create-transaction.dto';
 import { UpdateTransactionDto } from './dto/update-transaction.dto';
@@ -25,6 +26,7 @@ import { Role } from '../auth/decorators/roles.decorator';
 import { UserRole } from '../user/entity/user.entity';
 import { AppReadyGuard } from '../dynamic-database/guards/app-ready.guard';
 
+@ApiTags('Transactions')
 @Controller('transactions')
 @UseGuards(AuthGuard, AppReadyGuard)
 export class TransactionController {
@@ -32,6 +34,49 @@ export class TransactionController {
 
   @HttpCode(HttpStatus.OK)
   @Get()
+  @ApiOperation({ summary: 'Get all transactions with pagination' })
+  @ApiResponse({
+    status: 200,
+    description: 'Transactions retrieved successfully',
+    schema: {
+      example: {
+        success: true,
+        message: 'Transactions retrieved successfully',
+        data: {
+          data: [
+            {
+              id: 1,
+              transaction_id: 'TXN-001',
+              customer_id: 1,
+              total_amount: 299.97,
+              tax_amount: 23.99,
+              discount_amount: 0,
+              final_amount: 299.97,
+              payment_method: 'CASH',
+              transaction_status: 'COMPLETED',
+              payment_status: 'PAID',
+              created_at: '2025-01-01T00:00:00.000Z',
+              updated_at: '2025-01-01T00:00:00.000Z',
+            },
+          ],
+          total: 1,
+          page: 1,
+          limit: 10,
+        },
+      },
+    },
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized',
+    schema: {
+      example: {
+        success: false,
+        message: 'Unauthorized',
+        data: null,
+      },
+    },
+  })
   async findAll(
     @Query('page') page?: string,
     @Query('limit') limit?: string,
@@ -56,6 +101,53 @@ export class TransactionController {
 
   @HttpCode(HttpStatus.OK)
   @Get(':id')
+  @ApiOperation({ summary: 'Get transaction by ID' })
+  @ApiResponse({
+    status: 200,
+    description: 'Transaction retrieved successfully',
+    schema: {
+      example: {
+        success: true,
+        message: 'Transaction retrieved successfully',
+        data: {
+          id: 1,
+          transaction_id: 'TXN-001',
+          customer_id: 1,
+          total_amount: 299.97,
+          tax_amount: 23.99,
+          discount_amount: 0,
+          final_amount: 299.97,
+          payment_method: 'CASH',
+          transaction_status: 'COMPLETED',
+          payment_status: 'PAID',
+          created_at: '2025-01-01T00:00:00.000Z',
+          updated_at: '2025-01-01T00:00:00.000Z',
+        },
+      },
+    },
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized',
+    schema: {
+      example: {
+        success: false,
+        message: 'Unauthorized',
+        data: null,
+      },
+    },
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Transaction not found',
+    schema: {
+      example: {
+        success: false,
+        message: 'Transaction not found',
+        data: null,
+      },
+    },
+  })
   async findOne(
     @Param('id', ParseIntPipe) id: number,
   ): Promise<SuccessResponse<TransactionResponseDto>> {
@@ -68,6 +160,78 @@ export class TransactionController {
 
   @HttpCode(HttpStatus.CREATED)
   @Post()
+  @ApiOperation({ summary: 'Create a new transaction' })
+  @ApiBody({
+    type: CreateTransactionDto,
+    examples: {
+      example1: {
+        summary: 'Sample transaction creation payload',
+        value: {
+          customer_id: 1,
+          items: [
+            {
+              product_id: 1,
+              quantity: 2,
+              unit_price: 149.99,
+              total_price: 299.98,
+            },
+          ],
+          tax_amount: 23.99,
+          discount_amount: 0.01,
+          final_amount: 299.97,
+          payment_method: 'CASH',
+          transaction_status: 'COMPLETED',
+          payment_status: 'PAID',
+        },
+      },
+    },
+  })
+  @ApiResponse({
+    status: 201,
+    description: 'Transaction created successfully',
+    schema: {
+      example: {
+        success: true,
+        message: 'Transaction created successfully',
+        data: {
+          id: 1,
+          transaction_id: 'TXN-001',
+          customer_id: 1,
+          total_amount: 299.97,
+          tax_amount: 23.99,
+          discount_amount: 0,
+          final_amount: 299.97,
+          payment_method: 'CASH',
+          transaction_status: 'COMPLETED',
+          payment_status: 'PAID',
+          created_at: '2025-01-01T00:00:00.000Z',
+          updated_at: '2025-01-01T00:00:00.000Z',
+        },
+      },
+    },
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized',
+    schema: {
+      example: {
+        success: false,
+        message: 'Unauthorized',
+        data: null,
+      },
+    },
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Bad Request - Invalid input data',
+    schema: {
+      example: {
+        success: false,
+        message: 'Validation failed',
+        data: null,
+      },
+    },
+  })
   async create(
     @Body() createTransactionDto: CreateTransactionDto,
   ): Promise<SuccessResponse<TransactionResponseDto>> {
@@ -83,6 +247,76 @@ export class TransactionController {
   @Put(':id')
   @UseGuards(RoleGuard)
   @Role(UserRole.ADMIN)
+  @ApiOperation({ summary: 'Update a transaction by ID' })
+  @ApiBody({
+    type: UpdateTransactionDto,
+    examples: {
+      example1: {
+        summary: 'Sample transaction update payload',
+        value: {
+          transaction_status: 'COMPLETED',
+          payment_status: 'PAID',
+        },
+      },
+    },
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Transaction updated successfully',
+    schema: {
+      example: {
+        success: true,
+        message: 'Transaction updated successfully',
+        data: {
+          id: 1,
+          transaction_id: 'TXN-001',
+          customer_id: 1,
+          total_amount: 299.97,
+          tax_amount: 23.99,
+          discount_amount: 0,
+          final_amount: 299.97,
+          payment_method: 'CASH',
+          transaction_status: 'COMPLETED',
+          payment_status: 'PAID',
+          created_at: '2025-01-01T00:00:00.000Z',
+          updated_at: '2025-01-02T00:00:00.000Z',
+        },
+      },
+    },
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized',
+    schema: {
+      example: {
+        success: false,
+        message: 'Unauthorized',
+        data: null,
+      },
+    },
+  })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - Admin role required',
+    schema: {
+      example: {
+        success: false,
+        message: 'Forbidden',
+        data: null,
+      },
+    },
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Transaction not found',
+    schema: {
+      example: {
+        success: false,
+        message: 'Transaction not found',
+        data: null,
+      },
+    },
+  })
   async update(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateTransactionDto: UpdateTransactionDto,
@@ -101,6 +335,51 @@ export class TransactionController {
   @Delete(':id')
   @UseGuards(RoleGuard)
   @Role(UserRole.ADMIN)
+  @ApiOperation({ summary: 'Delete a transaction by ID' })
+  @ApiResponse({
+    status: 200,
+    description: 'Transaction deleted successfully',
+    schema: {
+      example: {
+        success: true,
+        message: 'Transaction deleted successfully',
+        data: null,
+      },
+    },
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized',
+    schema: {
+      example: {
+        success: false,
+        message: 'Unauthorized',
+        data: null,
+      },
+    },
+  })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - Admin role required',
+    schema: {
+      example: {
+        success: false,
+        message: 'Forbidden',
+        data: null,
+      },
+    },
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Transaction not found',
+    schema: {
+      example: {
+        success: false,
+        message: 'Transaction not found',
+        data: null,
+      },
+    },
+  })
   async delete(
     @Param('id', ParseIntPipe) id: number,
   ): Promise<SuccessResponse<null>> {
